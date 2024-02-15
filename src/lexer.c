@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <lexer.h>
+#include "../include/lexer.h"
 
 // ------------------------------------------- Macros --------------------------------------------
 #define MAX_LEXEME_SIZE 100

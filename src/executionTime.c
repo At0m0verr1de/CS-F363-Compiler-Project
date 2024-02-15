@@ -1,5 +1,6 @@
 #include <time.h> // For time measurement
 #include <stdio.h>
+#include "../include/executionTime.h"
 
 // Function to measure execution time
 void measureExecutionTime(const char *sourceFile)
