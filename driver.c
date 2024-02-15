@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "lexer.h" // Include the lexer header file
+#include "include/lexer.h" // Include the lexer header file
 
 // Function prototypes for other tasks
 void printTokenList(const char *filename);
