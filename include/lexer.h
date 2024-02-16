@@ -39,7 +39,8 @@ enum TokenType
     TK_ENDIF,
     TK_READ,
     TK_WRITE,
-    TK_RETURN
+    TK_RETURN,
+    TK_COMMENT
 };
 
 // Token information structure
@@ -53,8 +54,8 @@ typedef struct
 // Define structure for twin buffer
 typedef struct
 {
+    char buffer0[MAX_BUFFER_SIZE];
     char buffer1[MAX_BUFFER_SIZE];
-    char buffer2[MAX_BUFFER_SIZE];
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
     int bufferSize;      // Size of each buffer
     int currentPosition; // Current position in the currently active buffer
@@ -62,7 +63,7 @@ typedef struct
 } twinBuffer;
 
 // Function declarations
-TokenInfo getNextToken(twinBuffer B, File *fp);
+TokenInfo getNextToken(twinBuffer *B, FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);
 char getNextChar(twinBuffer *B);
 // twinBuffer initTwinBuffer(twinBuffer *B, FILE *fp, int bufferSize);

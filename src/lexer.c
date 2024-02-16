@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "../include/lexer.h"
 
 // ------------------------------------------- Macros --------------------------------------------
@@ -9,56 +10,6 @@
 #define END_OF_FILE 0
 #define MAX_LINE_SIZE 1024
 #define MAX_BUFFER_SIZE 1024
-
-// ---------------------------------------- Lookup Table -----------------------------------------
-// enum TokenType
-// {
-//     TK_CALL,
-//     TK_RECORD,
-//     TK_ENDRECORD,
-//     TK_ELSE,
-//     TK_PARAMETERS,
-//     TK_WITH,
-//     TK_END,
-//     TK_WHILE,
-//     TK_UNION,
-//     TK_ENDUNION,
-//     TK_AS,
-//     TK_TYPE,
-//     TK_MAIN,
-//     TK_DEFINETYPE,
-//     TK_GLOBAL,
-//     TK_PARAMETER,
-//     TK_LIST,
-//     TK_INPUT,
-//     TK_OUTPUT,
-//     TK_INT,
-//     TK_REAL,
-//     TK_ENDWHILE,
-//     TK_IF,
-//     TK_THEN,
-//     TK_ENDIF,
-//     TK_READ,
-//     TK_WRITE,
-//     TK_RETURN
-// };
-
-// ------------------------------------ Structure Definitions ------------------------------------
-typedef struct
-{
-    enum TokenType type;
-    char lexeme[MAX_LEXEME_SIZE];
-    int lineNumber;
-} TokenInfo;
-
-typedef struct
-{
-    char buffer0[MAX_BUFFER_SIZE];
-    char buffer1[MAX_BUFFER_SIZE];
-    int currentBuffer;   // Indicates the currently active buffer (0 or 1)
-    int currentPosition; // Current position in the currently active buffer
-    FILE *fp;
-} twinBuffer;
 
 // Define structure for key-value pair
 typedef struct
@@ -115,10 +66,38 @@ unsigned int hash(const char *key)
 // Function to get next token
 TokenInfo getNextToken(twinBuffer *B, FILE *fp)
 {
-    TokenInfo token;
+    int state = 0;
+    TokenInfo *token = (TokenInfo *)malloc(sizeof(TokenInfo));
+    char currentChar;
 
-    char currentChar = getNextChar(B);
+    while (1)
+    {
+        printf("yay\n");
+        break;
+        currentChar = getNextChar(B);
+        token.lexeme[0] = '\0';
+        strncat(token.lexeme, &currentChar, 1);
 
+        switch (state)
+        {
+        case 0:
+            // state = isdigit(currentChar) ? 1 : 0;
+            if (currentChar == '%')
+                state = 24;
+            else
+                printf("lul");
+            break;
+        case 24:
+            if (currentChar == '\n' || currentChar == EOF)
+                state = 25;
+            break;
+        case 25:
+            token.type = TK_COMMENT;
+            return token;
+        }
+    }
+
+    return token;
     // Implement getNextChar function to read characters
     // Implement DFA transitions
     // Tokenize lexemes and handle lexical errors
@@ -135,7 +114,14 @@ char getNextChar(twinBuffer *B)
         // Refill buffer from file
         fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
         // Reset currentPosition
-        B->currentPosition = 0;
+        B->currentPosition = B->currentPosition % MAX_BUFFER_SIZE;
+    }
+    else if (B->currentPosition < 0)
+    {
+        // Switch buffer
+        B->currentBuffer = (B->currentBuffer + 1) % 2;
+        // Reset currentPosition
+        B->currentPosition = B->currentPosition % MAX_BUFFER_SIZE;
     }
     // Return next character from the current buffer
     return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
@@ -146,6 +132,9 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
     B->fp = fp;
     B->currentPosition = 0;
     B->currentBuffer = 0;
+
+    memset(B->buffer0, '\0', MAX_BUFFER_SIZE);
+    memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
 
     // Fill buffers from file
     fread(B->buffer0, sizeof(char), MAX_BUFFER_SIZE, fp);
@@ -197,9 +186,19 @@ void lexer(FILE *fp)
     do
     {
         token = getNextToken(B, fp);
-        printf("%s", token.type);
-    } while (token.type != END_OF_FILE);
+        printf("Value of TK_COMMENT: %d ", token.type);
+        printf("%s\n", token.lexeme);
+    } while (token.type != EOF);
 
     fclose(fp);
     free(B);
+}
+
+int main()
+{
+    // Open source code file
+    FILE *fp = fopen("source_code.txt", "r");
+    lexer(fp);
+    fclose(fp);
+    return 0;
 }

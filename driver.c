@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include "include/lexer.h" // Include the lexer header file
+#include "include/lexer.h" // Include the lexer header file
 
 // Function prototypes for other tasks
 void printTokenList(const char *filename);
 void parseAndPrintParseTree(const char *sourceFile, const char *parseTreeFile);
-void measureExecutionTime(const char *sourceFile);
+// void measureExecutionTime(const char *sourceFile);
 
 int main(int argc, char *argv[])
 {
