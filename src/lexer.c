@@ -57,7 +57,6 @@ typedef struct
     char buffer2[MAX_BUFFER_SIZE];
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
     int currentPosition; // Current position in the currently active buffer
-    int counter;
     FILE *fp;
 } twinBuffer;
 
@@ -144,9 +143,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
     B->fp = fp;
     B->currentPosition = 0;
     B->currentBuffer = 0;
-    // Initialize buffers to '\0' characters
-    memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
-    memset(B->buffer2, '\0', MAX_BUFFER_SIZE);
+
     // Fill buffers from file
     fread(B->buffer1, sizeof(char), MAX_BUFFER_SIZE, fp);
     fread(B->buffer2, sizeof(char), MAX_BUFFER_SIZE, fp);
@@ -187,10 +184,9 @@ void lexer(FILE *fp)
     if (fp == NULL)
     {
         perror("Error opening file");
-        return 1;
     }
 
-    twinBuffer *B = malloc(sizeof(twinBuffer));
+    twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
     initTwinBuffer(B, fp);
 
     // Get next token and process
