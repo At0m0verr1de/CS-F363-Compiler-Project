@@ -5,12 +5,6 @@
 #include <ctype.h>
 #include "../include/lexer.h"
 
-// ------------------------------------------- Macros --------------------------------------------
-#define MAX_LEXEME_SIZE 100
-#define END_OF_FILE 0
-#define MAX_LINE_SIZE 1024
-#define MAX_BUFFER_SIZE 1024
-
 // Define structure for key-value pair
 typedef struct
 {
@@ -20,6 +14,7 @@ typedef struct
 
 // Define the maximum size of the dictionary
 #define MAX_SIZE 30
+#define MAX_BUFFER_SIZE 5
 
 // Define the dictionary (array of key-value pairs)
 KeyValuePair dictionary[MAX_SIZE];
@@ -67,37 +62,36 @@ unsigned int hash(const char *key)
 TokenInfo getNextToken(twinBuffer *B, FILE *fp)
 {
     int state = 0;
-    TokenInfo *token = (TokenInfo *)malloc(sizeof(TokenInfo));
+    TokenInfo token;
+    token.lexeme[0] = '\0';
     char currentChar;
 
     while (1)
     {
-        printf("yay\n");
-        break;
         currentChar = getNextChar(B);
-        token.lexeme[0] = '\0';
+        if (currentChar == '\0')
+        {
+            token.lexeme[0] = '\0';
+            return token;
+        }
         strncat(token.lexeme, &currentChar, 1);
-
         switch (state)
         {
         case 0:
             // state = isdigit(currentChar) ? 1 : 0;
             if (currentChar == '%')
                 state = 24;
-            else
-                printf("lul");
             break;
         case 24:
             if (currentChar == '\n' || currentChar == EOF)
-                state = 25;
+            {
+                token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                token.type = TK_COMMENT;
+                return token;
+            }
             break;
-        case 25:
-            token.type = TK_COMMENT;
-            return token;
         }
     }
-
-    return token;
     // Implement getNextChar function to read characters
     // Implement DFA transitions
     // Tokenize lexemes and handle lexical errors
@@ -111,8 +105,20 @@ char getNextChar(twinBuffer *B)
     {
         // Switch buffer
         B->currentBuffer = (B->currentBuffer + 1) % 2;
+        if (B->currentBuffer == 0)
+        {
+            memset(B->buffer0, '\0', MAX_BUFFER_SIZE);
+        }
+        else
+        {
+            memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
+        }
         // Refill buffer from file
-        fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+        size_t bytes = fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+        if (bytes == 0)
+        {
+            return EOF; // EOF reached
+        }
         // Reset currentPosition
         B->currentPosition = B->currentPosition % MAX_BUFFER_SIZE;
     }
@@ -138,35 +144,34 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
 
     // Fill buffers from file
     fread(B->buffer0, sizeof(char), MAX_BUFFER_SIZE, fp);
-    fread(B->buffer1, sizeof(char), MAX_BUFFER_SIZE, fp);
 }
 
-// Function to remove comments from the input file and create a new file without comments
-void removeComments(char *testcaseFile, char *cleanFile)
-{
-    FILE *inputFile = fopen(testcaseFile, "r");
-    if (inputFile == NULL)
-    {
-        perror("Error opening input file");
-        exit(EXIT_FAILURE);
-    }
+// // Function to remove comments from the input file and create a new file without comments
+// void removeComments(char *testcaseFile, char *cleanFile)
+// {
+//     FILE *inputFile = fopen(testcaseFile, "r");
+//     if (inputFile == NULL)
+//     {
+//         perror("Error opening input file");
+//         exit(EXIT_FAILURE);
+//     }
 
-    FILE *outputFile = fopen(cleanFile, "w");
-    if (outputFile == NULL)
-    {
-        perror("Error opening output file");
-        exit(EXIT_FAILURE);
-    }
+//     FILE *outputFile = fopen(cleanFile, "w");
+//     if (outputFile == NULL)
+//     {
+//         perror("Error opening output file");
+//         exit(EXIT_FAILURE);
+//     }
 
-    char line[MAX_LINE_SIZE];
-    while (fgets(line, sizeof(line), inputFile) != NULL)
-    {
-        fprintf(outputFile, "%s", line); // Write the entire line to the output file
-    }
+//     char line[MAX_LINE_SIZE];
+//     while (fgets(line, sizeof(line), inputFile) != NULL)
+//     {
+//         fprintf(outputFile, "%s", line); // Write the entire line to the output file
+//     }
 
-    fclose(inputFile);
-    fclose(outputFile);
-}
+//     fclose(inputFile);
+//     fclose(outputFile);
+// }
 
 // ---------------------------------------- Main Function -----------------------------------------
 
@@ -187,8 +192,8 @@ void lexer(FILE *fp)
     {
         token = getNextToken(B, fp);
         printf("Value of TK_COMMENT: %d ", token.type);
-        printf("%s\n", token.lexeme);
-    } while (token.type != EOF);
+        printf("\"%s\"\n", token.lexeme);
+    } while (token.lexeme != '\0');
 
     fclose(fp);
     free(B);

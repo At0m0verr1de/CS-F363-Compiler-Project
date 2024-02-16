@@ -6,8 +6,7 @@
 // Define necessary constants and structures
 #define MAX_LEXEME_SIZE 100
 #define END_OF_FILE 0
-#define MAX_LINE_SIZE 1024
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 5
 
 // Define token types enum
 enum TokenType
