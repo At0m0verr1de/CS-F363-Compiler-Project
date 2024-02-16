@@ -62,10 +62,9 @@ typedef struct
 } twinBuffer;
 
 // Function declarations
-FILE *getStream(FILE *fp);
-TokenInfo getNextToken(twinBuffer B);
+TokenInfo getNextToken(twinBuffer B, File *fp);
 void removeComments(char *testcaseFile, char *cleanFile);
 char getNextChar(twinBuffer *B);
-twinBuffer initTwinBuffer(FILE *fp, int bufferSize);
+// twinBuffer initTwinBuffer(twinBuffer *B, FILE *fp, int bufferSize);
 
 #endif /* LEXER_H */

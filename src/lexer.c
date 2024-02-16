@@ -56,9 +56,9 @@ typedef struct
     char buffer1[MAX_BUFFER_SIZE];
     char buffer2[MAX_BUFFER_SIZE];
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
-    int bufferSize;      // Size of each buffer
     int currentPosition; // Current position in the currently active buffer
-    FILE *fp;            // File pointer for input stream
+    int counter;
+    FILE *fp;
 } twinBuffer;
 
 // Define structure for key-value pair
@@ -73,16 +73,17 @@ typedef struct
 
 // Define the dictionary (array of key-value pairs)
 KeyValuePair dictionary[MAX_SIZE];
+twinBuffer B;
 
-// Initialize the dictionary with lookup table data
-void initializeDictionary()
-{
-    // Add key-value pairs from the lookup table
-    dictionary[0] = {"call", "TK_CALL"};
-    dictionary[1] = {"record", "TK_RECORD"};
-    // Add other key-value pairs here...
-    dictionary[29] = {"return", "TK_RETURN"};
-}
+// // Initialize the dictionary with lookup table data
+// void initializeDictionary()
+// {
+//     // Add key-value pairs from the lookup table
+//     dictionary[0] = {"call", "TK_CALL"};
+//     dictionary[1] = {"record", "TK_RECORD"};
+//     // Add other key-value pairs here...
+//     dictionary[29] = {"return", "TK_RETURN"};
+// }
 
 // Hash function to generate an index from a key
 unsigned int hash(const char *key)
@@ -112,31 +113,25 @@ const char *search(const char *key)
 
 // ------------------------------------ Function Definitions -------------------------------------
 
-FILE *getStream(FILE *fp) // Stream from file
-{
-    // Implement efficient technique to populate twin buffer
-    // Return file pointer
-}
-
 // Function to get next token
-TokenInfo getNextToken(twinBuffer B)
+TokenInfo getNextToken(twinBuffer *B, FILE *fp)
 {
+
     // Implement getNextChar function to read characters
     // Implement DFA transitions
     // Tokenize lexemes and handle lexical errors
     // Return token information
 }
 
-// Function to read the next character from the input stream
 char getNextChar(twinBuffer *B)
 {
     // Check if currentPosition exceeds bufferSize
-    if (B->currentPosition >= B->bufferSize)
+    if (B->currentPosition >= MAX_BUFFER_SIZE)
     {
         // Switch buffer
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         // Refill buffer from file
-        B->bufferSize = fread(B->currentBuffer == 0 ? B->buffer1 : B->buffer2, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+        fread(B->currentBuffer == 0 ? B->buffer1 : B->buffer2, sizeof(char), MAX_BUFFER_SIZE, B->fp);
         // Reset currentPosition
         B->currentPosition = 0;
     }
@@ -144,20 +139,17 @@ char getNextChar(twinBuffer *B)
     return B->currentBuffer == 0 ? B->buffer1[B->currentPosition++] : B->buffer2[B->currentPosition++];
 }
 
-twinBuffer initTwinBuffer(FILE *fp, int bufferSize)
+void initTwinBuffer(twinBuffer *B, FILE *fp)
 {
-    twinBuffer B;
-    B.fp = fp;
-    B.bufferSize = bufferSize;
-    B.currentPosition = 0;
-    B.currentBuffer = 0;
+    B->fp = fp;
+    B->currentPosition = 0;
+    B->currentBuffer = 0;
     // Initialize buffers to '\0' characters
-    memset(B.buffer1, '\0', MAX_BUFFER_SIZE);
-    memset(B.buffer2, '\0', MAX_BUFFER_SIZE);
+    memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
+    memset(B->buffer2, '\0', MAX_BUFFER_SIZE);
     // Fill buffers from file
-    B.bufferSize = fread(B.buffer1, sizeof(char), bufferSize, fp);
-    fread(B.buffer2, sizeof(char), bufferSize, fp);
-    return B;
+    fread(B->buffer1, sizeof(char), MAX_BUFFER_SIZE, fp);
+    fread(B->buffer2, sizeof(char), MAX_BUFFER_SIZE, fp);
 }
 
 // Function to remove comments from the input file and create a new file without comments
@@ -189,36 +181,25 @@ void removeComments(char *testcaseFile, char *cleanFile)
 
 // ---------------------------------------- Main Function -----------------------------------------
 
-int main(int argc, char *argv[])
+void lexer(FILE *fp)
 {
-    // Check if filename is provided as command-line argument
-    if (argc != 2)
-    {
-        printf("Usage: %s <filename>\n", argv[0]);
-        return 1;
-    }
-
     // Open source code file
-    FILE *fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
         perror("Error opening file");
         return 1;
     }
 
-    // Get stream
-    FILE *stream = getStream(fp);
+    twinBuffer *B = malloc(sizeof(twinBuffer));
+    initTwinBuffer(B, fp);
 
     // Get next token and process
     TokenInfo token;
     do
     {
-        token = getNextToken(stream);
-        // Process token
+        token = getNextToken(B, fp);
     } while (token.type != END_OF_FILE);
 
-    // Close file
     fclose(fp);
-
-    return 0;
+    free(B);
 }
