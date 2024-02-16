@@ -11,37 +11,37 @@
 #define MAX_BUFFER_SIZE 1024
 
 // ---------------------------------------- Lookup Table -----------------------------------------
-enum TokenType
-{
-    TK_CALL,
-    TK_RECORD,
-    TK_ENDRECORD,
-    TK_ELSE,
-    TK_PARAMETERS,
-    TK_WITH,
-    TK_END,
-    TK_WHILE,
-    TK_UNION,
-    TK_ENDUNION,
-    TK_AS,
-    TK_TYPE,
-    TK_MAIN,
-    TK_DEFINETYPE,
-    TK_GLOBAL,
-    TK_PARAMETER,
-    TK_LIST,
-    TK_INPUT,
-    TK_OUTPUT,
-    TK_INT,
-    TK_REAL,
-    TK_ENDWHILE,
-    TK_IF,
-    TK_THEN,
-    TK_ENDIF,
-    TK_READ,
-    TK_WRITE,
-    TK_RETURN
-};
+// enum TokenType
+// {
+//     TK_CALL,
+//     TK_RECORD,
+//     TK_ENDRECORD,
+//     TK_ELSE,
+//     TK_PARAMETERS,
+//     TK_WITH,
+//     TK_END,
+//     TK_WHILE,
+//     TK_UNION,
+//     TK_ENDUNION,
+//     TK_AS,
+//     TK_TYPE,
+//     TK_MAIN,
+//     TK_DEFINETYPE,
+//     TK_GLOBAL,
+//     TK_PARAMETER,
+//     TK_LIST,
+//     TK_INPUT,
+//     TK_OUTPUT,
+//     TK_INT,
+//     TK_REAL,
+//     TK_ENDWHILE,
+//     TK_IF,
+//     TK_THEN,
+//     TK_ENDIF,
+//     TK_READ,
+//     TK_WRITE,
+//     TK_RETURN
+// };
 
 // ------------------------------------ Structure Definitions ------------------------------------
 typedef struct
@@ -53,8 +53,8 @@ typedef struct
 
 typedef struct
 {
+    char buffer0[MAX_BUFFER_SIZE];
     char buffer1[MAX_BUFFER_SIZE];
-    char buffer2[MAX_BUFFER_SIZE];
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
     int currentPosition; // Current position in the currently active buffer
     FILE *fp;
@@ -95,26 +95,29 @@ unsigned int hash(const char *key)
     return hashValue % MAX_SIZE; // Modulo operation to ensure index is within range
 }
 
-// Function to search for a key in the dictionary
-const char *search(const char *key)
-{
-    unsigned int index = hash(key);
-    while (index < MAX_SIZE && dictionary[index].key != NULL)
-    {
-        if (strcmp(key, dictionary[index].key) == 0)
-        {
-            return dictionary[index].value; // Key found, return corresponding value
-        }
-        index++; // Linear probing to handle collisions
-    }
-    return "Not found"; // Key not found
-}
+// // Function to search for a key in the dictionary
+// const char *search(const char *key)
+// {
+//     unsigned int index = hash(key);
+//     while (index < MAX_SIZE && dictionary[index].key != NULL)
+//     {
+//         if (strcmp(key, dictionary[index].key) == 0)
+//         {
+//             return dictionary[index].value; // Key found, return corresponding value
+//         }
+//         index++; // Linear probing to handle collisions
+//     }
+//     return "Not found"; // Key not found
+// }
 
 // ------------------------------------ Function Definitions -------------------------------------
 
 // Function to get next token
 TokenInfo getNextToken(twinBuffer *B, FILE *fp)
 {
+    TokenInfo token;
+
+    char currentChar = getNextChar(B);
 
     // Implement getNextChar function to read characters
     // Implement DFA transitions
@@ -130,12 +133,12 @@ char getNextChar(twinBuffer *B)
         // Switch buffer
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         // Refill buffer from file
-        fread(B->currentBuffer == 0 ? B->buffer1 : B->buffer2, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+        fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
         // Reset currentPosition
         B->currentPosition = 0;
     }
     // Return next character from the current buffer
-    return B->currentBuffer == 0 ? B->buffer1[B->currentPosition++] : B->buffer2[B->currentPosition++];
+    return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
 }
 
 void initTwinBuffer(twinBuffer *B, FILE *fp)
@@ -145,8 +148,8 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
     B->currentBuffer = 0;
 
     // Fill buffers from file
+    fread(B->buffer0, sizeof(char), MAX_BUFFER_SIZE, fp);
     fread(B->buffer1, sizeof(char), MAX_BUFFER_SIZE, fp);
-    fread(B->buffer2, sizeof(char), MAX_BUFFER_SIZE, fp);
 }
 
 // Function to remove comments from the input file and create a new file without comments
@@ -194,6 +197,7 @@ void lexer(FILE *fp)
     do
     {
         token = getNextToken(B, fp);
+        printf("%s", token.type);
     } while (token.type != END_OF_FILE);
 
     fclose(fp);
