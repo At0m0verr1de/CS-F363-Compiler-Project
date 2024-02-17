@@ -4,20 +4,20 @@
 
 // Function prototypes for other tasks
 void printTokenList(const char *filename);
-void parseAndPrintParseTree(const char *sourceFile, const char *parseTreeFile);
-// void measureExecutionTime(const char *sourceFile);
+// void parseAndPrintParseTree(const char *sourceFile, const char *parseTreeFile);
+void measureExecutionTime(const char *sourceFile);
 
 int main(int argc, char *argv[])
 {
     // Check if the correct number of command-line arguments is provided
-    if (argc != 3)
-    {
-        printf("Usage: %s <source_code_file> <parse_tree_output_file>\n", argv[0]);
-        return 1;
-    }
+    // if (argc != 3)
+    // {
+    //     printf("Usage: %s <source_code_file> <parse_tree_output_file>\n", argv[0]);
+    //     return 1;
+    // }
 
     // Display information regarding the implementation status
-    printf("Implementation status:\n");
+    printf("Implementation status:      Lexer Completed\n");
     // Add implementation status information here as per your project progress
 
     // Menu-driven interface

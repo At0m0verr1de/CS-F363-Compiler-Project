@@ -791,18 +791,16 @@ void lexer(FILE *fp)
     free(B);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     // Open source code file
-    FILE *fp = fopen("../Test Cases/t1.txt", "r");
+    FILE *fp = fopen(argv[1], "r");
+    if (fp == NULL)
+    {
+        perror("Error opening file");
+        return 1; // Return non-zero exit code indicating error
+    }
     lexer(fp);
     fclose(fp);
     return 0;
 }
-
-// Line No 6 : Error: Unknown Symbol <|>
-// Line no: 6 : Error: Unknown pattern <&&>
-// Line No 8: Error :Variable Identifier is longer than the prescribed length of 20 characters.
-// Line no: 9 : Error: Unknown pattern <5000.7>
-
-// Are you using isalpha correctly?
