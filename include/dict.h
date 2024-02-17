@@ -30,6 +30,6 @@ void insert(struct Dictionary *dict, char *key, char *value);
 char *search(struct Dictionary *dict, char *key);
 
 // Function to initialize and populate the lookup table
-void initLookupTable(struct Dictionary *dict);
+struct Dictionary *initLookupTable();
 
 #endif /* DICTIONARY_H */

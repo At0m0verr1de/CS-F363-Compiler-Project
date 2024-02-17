@@ -56,7 +56,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
 }
 
 // Function to get next token
-TokenInfo getNextToken(twinBuffer *B, FILE *fp)
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
 {
     int state = 0;
     TokenInfo token;
@@ -86,6 +86,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp)
 
             else if (currentChar == '\n' || currentChar == '\t' || currentChar == ' ')
             {
+                // is state 37 being handled?
                 token.lexeme[0] = '\0';
             }
 
@@ -379,6 +380,8 @@ void lexer(FILE *fp)
         perror("Error opening file");
     }
 
+    struct Dictionary *dict = initLookupTable();
+
     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
     initTwinBuffer(B, fp);
 
@@ -386,7 +389,7 @@ void lexer(FILE *fp)
     TokenInfo token;
     do
     {
-        token = getNextToken(B, fp);
+        token = getNextToken(B, fp, dict);
         if (token.lexeme[0] == '\0')
             break;
         printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);

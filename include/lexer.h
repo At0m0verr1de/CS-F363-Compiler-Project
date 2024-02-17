@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+#include "dict.h"
 
 // Define necessary constants and structures
 #define MAX_LEXEME_SIZE 100
@@ -59,12 +61,12 @@ typedef struct
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
     int currentPosition; // Current position in the currently active buffer
     int lineNumber;
-    FILE *fp;            // File pointer for input stream
+    FILE *fp; // File pointer for input stream
 } twinBuffer;
 
 // Function declarations
-TokenInfo getNextToken(twinBuffer *B, FILE *fp);
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict);
 char getNextChar(twinBuffer *B);
 void initTwinBuffer(twinBuffer *B, FILE *fp);
-//void removeComments(char *testcaseFile, char *cleanFile);
+// void removeComments(char *testcaseFile, char *cleanFile);
 #endif /* LEXER_H */

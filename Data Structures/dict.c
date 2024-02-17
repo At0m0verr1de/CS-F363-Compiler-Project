@@ -42,7 +42,7 @@ char *search(struct Dictionary *dict, char *key)
     return -1; // Key not found
 }
 
-void initLookupTable()
+struct Dictionary *initLookupTable()
 {
     struct Dictionary *dict = createDictionary();
 
@@ -75,4 +75,6 @@ void initLookupTable()
     insert(dict, "read", "TK_READ");
     insert(dict, "write", "TK_WRITE");
     insert(dict, "return", "TK_RETURN");
+
+    return dict;
 }
