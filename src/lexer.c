@@ -56,7 +56,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
 }
 
 // Function to get next token
-TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
 {
     int state = 0;
     TokenInfo token;
@@ -201,6 +201,22 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
             {
                 state = 32;
             }
+            else if (isdigit(currentChar))
+            {
+                state = 51;
+            }
+            else if (currentChar >= 'b' && currentChar <= 'd')
+            {
+                state = 44;
+            }
+            else if (currentChar == 'a' || (currentChar >= 'e' && currentChar <= 'z'))
+            {
+                state = 45;
+            }
+            else if (currentChar == '<')
+            {
+                state = 38;
+            }
             break;
 
         case 1:
@@ -226,6 +242,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
             {
                 state = 5;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 5:
@@ -234,6 +254,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
                 strcat(token.type, "TK_OR");
                 token.lineNumber = B->lineNumber;
                 return token;
+            }
+            else
+            {
+                state = -1;
             }
             break;
 
@@ -244,6 +268,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
                 token.lineNumber = B->lineNumber;
                 return token;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 9:
@@ -252,6 +280,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
                 strcat(token.type, "TK_EQ");
                 token.lineNumber = B->lineNumber;
                 return token;
+            }
+            else
+            {
+                state = -1;
             }
             break;
 
@@ -277,6 +309,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
             {
                 state = 27;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 27:
@@ -286,12 +322,20 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
                 token.lineNumber = B->lineNumber;
                 return token;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 29:
             if (isalpha(currentChar) && tolower(currentChar) == currentChar)
             {
                 state = 30;
+            }
+            else
+            {
+                state = -1;
             }
             break;
 
@@ -318,6 +362,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
             {
                 state = 33;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 33:
@@ -331,14 +379,26 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
             }
             else
             {
+                // @aadeesh check code
                 // retract
-                strcat(token.type, "TK_FUNID");
                 token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
                 if (currentChar != '\0')
                 {
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
                 }
                 B->currentPosition--;
+
+                char *value = search(dict, token.lexeme);
+
+                if (value)
+                {
+                    strcat(token.type, value);
+                }
+                else if (strlen(token.lexeme) < 30)
+                {
+                    strcat(token.type, "TK_FUNID");
+                }
+
                 return token;
 
                 // _main lookup
@@ -366,12 +426,255 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *lookup)
                 // size constraint 30 ERROR
             }
             break;
+
+        case 38:
+            if (currentChar == '=')
+            {
+                strcat(token.type, "TK_LE");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '-')
+            {
+                state = 39;
+            }
+            else
+            {
+                // retract and return TK_LT
+                strcat(token.type, "TK_LT");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+            }
+            break;
+
+        case 39:
+            if (currentChar == '-')
+            {
+                state = 40;
+            }
+            else
+            {
+                // double retract and return TK_LT
+                strcat(token.type, "TK_LT");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition -= 2;
+                return token;
+            }
+            break;
+
+        case 40:
+            if (currentChar == '-')
+            {
+                strcat(token.type, "TK_ASSINGOP");
+                return token;
+            }
+            else
+            {
+                state = -1;
+            }
+
+        case 44:
+            if (islower(currentChar))
+            {
+                state = 45;
+            }
+            else if (currentChar >= '2' && currentChar <= '7')
+            {
+                state = 47;
+            }
+            else
+            {
+                state = 46;
+            }
+            break;
+
+        case 45:
+            if (islower(currentChar))
+            {
+                state = 45;
+            }
+            else
+            {
+                // retract
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                char *value = search(dict, token.lexeme);
+                if (value)
+                {
+                    strcat(token.type, value);
+                }
+                else if (strlen(token.lexeme) < 20)
+                {
+                    strcat(token.type, "TK_ID");
+                }
+                return token;
+            }
+            break;
+
+        case 47:
+            if (currentChar >= 'b' && currentChar <= 'd')
+            {
+                state = 47;
+            }
+            else if (currentChar >= '2' && currentChar <= '7')
+            {
+                state = 48;
+            }
+            else
+            {
+                // retract
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                strcat(token.type, "TK_ID");
+                return token;
+            }
+            break;
+
+        case 48:
+            if (currentChar >= '2' && currentChar <= '7')
+            {
+                state = 48;
+            }
+            else
+            {
+                state = 49;
+            }
+            break;
+        case 51:
+            if (isdigit(currentChar))
+            {
+                state = 51;
+            }
+            else if (currentChar == '.')
+            {
+                state = 53;
+            }
+            else
+            {
+                // retract
+                strcat(token.type, "TK_NUM");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+            }
+            break;
+        case 53:
+            if (isdigit(currentChar))
+            {
+                state = 54;
+            }
+            else
+            {
+                // double retract and return TK_NUM
+                strcat(token.type, "TK_NUM");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition -= 2;
+                return token;
+            }
+            break;
+        case 54:
+            if (isdigit(currentChar))
+            {
+                state = 57;
+            }
+            else
+            {
+                state = -1;
+            }
+            break;
+        case 57:
+            if (currentChar == 'E')
+            {
+                state = 58;
+            }
+            else
+            {
+                // retract and return TK_RNUM
+                strcat(token.type, "TK_RNUM");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+            }
+            break;
+        case 58:
+            if (currentChar == '+' || currentChar == '-')
+            {
+                state = 59;
+            }
+            else if (isdigit(currentChar))
+            {
+                state = 60;
+            }
+            else
+            {
+                state = -1;
+            }
+            break;
+        case 59:
+            if (isdigit(currentChar))
+            {
+                state = 60;
+            }
+            else
+            {
+                state = -1;
+            }
+            break;
+        case 60:
+            if (isdigit(currentChar))
+            {
+                return token;
+            }
+            else
+            {
+                state = -1;
+            }
+            break;
+
+        case -1:
+            // error state
+            if (strlen(token.lexeme) == 1)
+            {
+                printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
+            }
+            else
+            {
+                printf("Line no: %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
+            }
         }
     }
 }
 
 // ---------------------------------------- Main Function -----------------------------------------
-
 void lexer(FILE *fp)
 {
     // Open source code file
@@ -402,7 +705,7 @@ void lexer(FILE *fp)
 int main()
 {
     // Open source code file
-    FILE *fp = fopen("source_code.txt", "r");
+    FILE *fp = fopen("../Test Cases/t1.txt", "r");
     lexer(fp);
     fclose(fp);
     return 0;
@@ -412,3 +715,5 @@ int main()
 // Line no: 6 : Error: Unknown pattern <&&>
 // Line No 8: Error :Variable Identifier is longer than the prescribed length of 20 characters.
 // Line no: 9 : Error: Unknown pattern <5000.7>
+
+// Are you using isalpha correctly?

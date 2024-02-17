@@ -13,3 +13,4 @@
 >>=>
 #abcd
 end
+_main

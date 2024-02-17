@@ -39,7 +39,7 @@ char *search(struct Dictionary *dict, char *key)
     {
         return dict->table[index]->value;
     }
-    return -1; // Key not found
+    return NULL; // Key not found
 }
 
 struct Dictionary *initLookupTable()

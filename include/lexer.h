@@ -11,39 +11,6 @@
 #define MAX_TOKEN_SIZE 15
 #define MAX_BUFFER_SIZE 5
 
-// Define token types enum
-enum lookup
-{
-    TK_CALL,
-    TK_RECORD,
-    TK_ENDRECORD,
-    TK_ELSE,
-    TK_PARAMETERS,
-    TK_WITH,
-    TK_END,
-    TK_WHILE,
-    TK_UNION,
-    TK_ENDUNION,
-    TK_AS,
-    TK_TYPE,
-    TK_MAIN,
-    TK_DEFINETYPE,
-    TK_GLOBAL,
-    TK_PARAMETER,
-    TK_LIST,
-    TK_INPUT,
-    TK_OUTPUT,
-    TK_INT,
-    TK_REAL,
-    TK_ENDWHILE,
-    TK_IF,
-    TK_THEN,
-    TK_ENDIF,
-    TK_READ,
-    TK_WRITE,
-    TK_RETURN,
-};
-
 // Token information structure
 typedef struct
 {
