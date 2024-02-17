@@ -217,6 +217,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             {
                 state = 38;
             }
+            else
+            {
+                state = -1;
+            }
             break;
 
         case 1:
@@ -285,8 +289,6 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             {
                 state = -1;
             }
-            break;
-
         case 24:
             if (currentChar == '\n')
             {
@@ -398,6 +400,11 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 {
                     strcat(token.type, "TK_FUNID");
                 }
+                else
+                {
+                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
+                }
 
                 return token;
 
@@ -413,17 +420,32 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
+                // @aadeesh check code
                 // retract
-                strcat(token.type, "TK_FUNID");
                 token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
                 if (currentChar != '\0')
                 {
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
                 }
                 B->currentPosition--;
-                return token;
 
-                // size constraint 30 ERROR
+                char *value = search(dict, token.lexeme);
+
+                if (value)
+                {
+                    strcat(token.type, value);
+                }
+                else if (strlen(token.lexeme) < 30)
+                {
+                    strcat(token.type, "TK_FUNID");
+                }
+                else
+                {
+                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
+                }
+
+                return token;
             }
             break;
 
@@ -494,7 +516,28 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = 46;
+                // retract
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                char *value = search(dict, token.lexeme);
+                if (value)
+                {
+                    strcat(token.type, value);
+                }
+                else if (strlen(token.lexeme) < 20)
+                {
+                    strcat(token.type, "TK_ID");
+                }
+                else
+                {
+                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
+                }
+                return token;
             }
             break;
 
@@ -520,6 +563,11 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 else if (strlen(token.lexeme) < 20)
                 {
                     strcat(token.type, "TK_ID");
+                }
+                else
+                {
+                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
                 }
                 return token;
             }
@@ -562,7 +610,16 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
                 }
                 B->currentPosition--;
-                strcat(token.type, "TK_ID");
+
+                if (strlen(token.lexeme) > 20)
+                {
+                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
+                }
+                else
+                {
+                    strcat(token.type, "TK_ID");
+                }
                 return token;
             }
             break;
@@ -677,13 +734,29 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             break;
 
         case -1:
-            // error state
-            if (strlen(token.lexeme) == 1)
+            if (strlen(token.lexeme) == 2)
+            {
+                token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                // single retraction and return error
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                B->currentPosition--;
                 printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
+                strcat(token.type, "TK_ERROR");
+                return token;
+            }
             else
+            {
+                // double retract and report error
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                token.lexeme[strlen(token.lexeme) - 2] = '\0';
+
+                B->currentPosition -= 2;
+
+                strcat(token.type, "TK_ERROR");
+
                 printf("Line no: %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
-            strcat(token.type, "TK_ERROR");
-            return token;
+                return token;
+            }
         }
     }
 }
@@ -709,7 +782,7 @@ void lexer(FILE *fp)
         token = getNextToken(B, fp, dict);
         if (token.lexeme[0] == '\0')
             break;
-        if (!strcmp(token.type, "TK_ERROR"))
+        if (!(strcmp(token.type, "TK_ERROR")) || !(strcmp(token.type, "TK_COMMENT")))
             continue;
         printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
