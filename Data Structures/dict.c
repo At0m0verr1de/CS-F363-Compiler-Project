@@ -23,7 +23,7 @@ struct Dictionary *createDictionary()
     return dict;
 }
 
-void insert(struct Dictionary *dict, char *key, int value)
+void insert(struct Dictionary *dict, char *key, char *value)
 {
     int index = hash(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
