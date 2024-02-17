@@ -2,14 +2,15 @@
 #define LEXER_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 // Define necessary constants and structures
 #define MAX_LEXEME_SIZE 100
-#define END_OF_FILE 0
+#define MAX_TOKEN_SIZE 15
 #define MAX_BUFFER_SIZE 5
 
 // Define token types enum
-enum TokenType
+enum lookup
 {
     TK_CALL,
     TK_RECORD,
@@ -39,15 +40,15 @@ enum TokenType
     TK_READ,
     TK_WRITE,
     TK_RETURN,
-    TK_COMMENT
 };
 
 // Token information structure
 typedef struct
 {
-    enum TokenType type;
+    char type[MAX_TOKEN_SIZE];
     char lexeme[MAX_LEXEME_SIZE];
     int lineNumber;
+    bool end;
 } TokenInfo;
 
 // Define structure for twin buffer
@@ -56,15 +57,14 @@ typedef struct
     char buffer0[MAX_BUFFER_SIZE];
     char buffer1[MAX_BUFFER_SIZE];
     int currentBuffer;   // Indicates the currently active buffer (0 or 1)
-    int bufferSize;      // Size of each buffer
     int currentPosition; // Current position in the currently active buffer
+    int lineNumber;
     FILE *fp;            // File pointer for input stream
 } twinBuffer;
 
 // Function declarations
 TokenInfo getNextToken(twinBuffer *B, FILE *fp);
-void removeComments(char *testcaseFile, char *cleanFile);
 char getNextChar(twinBuffer *B);
-// twinBuffer initTwinBuffer(twinBuffer *B, FILE *fp, int bufferSize);
-
+void initTwinBuffer(twinBuffer *B, FILE *fp);
+//void removeComments(char *testcaseFile, char *cleanFile);
 #endif /* LEXER_H */
