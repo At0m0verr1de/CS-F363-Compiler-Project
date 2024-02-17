@@ -481,6 +481,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             {
                 state = -1;
             }
+            break;
 
         case 44:
             if (islower(currentChar))
@@ -554,9 +555,18 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = 49;
+                // retract
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                strcat(token.type, "TK_ID");
+                return token;
             }
             break;
+
         case 51:
             if (isdigit(currentChar))
             {
@@ -579,6 +589,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 return token;
             }
             break;
+
         case 53:
             if (isdigit(currentChar))
             {
@@ -597,6 +608,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 return token;
             }
             break;
+
         case 54:
             if (isdigit(currentChar))
             {
@@ -607,6 +619,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 state = -1;
             }
             break;
+
         case 57:
             if (currentChar == 'E')
             {
@@ -625,6 +638,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 return token;
             }
             break;
+
         case 58:
             if (currentChar == '+' || currentChar == '-')
             {
@@ -639,6 +653,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 state = -1;
             }
             break;
+
         case 59:
             if (isdigit(currentChar))
             {
@@ -649,6 +664,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 state = -1;
             }
             break;
+
         case 60:
             if (isdigit(currentChar))
             {
@@ -663,13 +679,11 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
         case -1:
             // error state
             if (strlen(token.lexeme) == 1)
-            {
                 printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
-            }
             else
-            {
                 printf("Line no: %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
-            }
+            strcat(token.type, "TK_ERROR");
+            return token;
         }
     }
 }
@@ -695,6 +709,8 @@ void lexer(FILE *fp)
         token = getNextToken(B, fp, dict);
         if (token.lexeme[0] == '\0')
             break;
+        if (!strcmp(token.type, "TK_ERROR"))
+            continue;
         printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
 
