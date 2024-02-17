@@ -62,6 +62,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp)
     TokenInfo token;
     token.end = false;
     token.lexeme[0] = '\0';
+    token.type[0] = '\0';
     char currentChar;
 
     while (1)
@@ -388,7 +389,7 @@ void lexer(FILE *fp)
         token = getNextToken(B, fp);
         if (token.lexeme[0] == '\0')
             break;
-        printf("%s | %d | %s\n", token.type, token.lineNumber, token.lexeme);
+        printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
 
     fclose(fp);
