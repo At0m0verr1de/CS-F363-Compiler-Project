@@ -1,19 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define TABLE_SIZE 100
-
-struct KeyValuePair
-{
-    char *key;
-    int value;
-};
-
-struct Dictionary
-{
-    struct KeyValuePair *table[TABLE_SIZE];
-};
+#include "../include/dict.h"
 
 int hash(char *key)
 {
@@ -44,7 +32,7 @@ void insert(struct Dictionary *dict, char *key, int value)
     dict->table[index] = newPair;
 }
 
-int search(struct Dictionary *dict, char *key)
+char *search(struct Dictionary *dict, char *key)
 {
     int index = hash(key);
     if (dict->table[index] != NULL && strcmp(dict->table[index]->key, key) == 0)
@@ -54,7 +42,7 @@ int search(struct Dictionary *dict, char *key)
     return -1; // Key not found
 }
 
-char *initLookupTable()
+void initLookupTable()
 {
     struct Dictionary *dict = createDictionary();
 
@@ -87,6 +75,4 @@ char *initLookupTable()
     insert(dict, "read", "TK_READ");
     insert(dict, "write", "TK_WRITE");
     insert(dict, "return", "TK_RETURN");
-
-    return 0;
 }

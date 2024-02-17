@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "../include/lexer.h"
+#include "../include/dict.h"
 
 char getNextChar(twinBuffer *B)
 {
@@ -66,238 +67,306 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp)
     while (1)
     {
         currentChar = getNextChar(B);
-        if (currentChar == '\0') token.end = true;
-        else if(currentChar == '\n') B->lineNumber++;
+        if (currentChar == '\0')
+            token.end = true;
+        else if (currentChar == '\n')
+            B->lineNumber++;
         strncat(token.lexeme, &currentChar, 1);
 
         switch (state)
         {
-            case 0: // START STATE
-                if(currentChar == '\0'){
-                    // strcat(token.type, "TK_EOF");
-                    // token.lineNumber = B->lineNumber;
-                    return token;
-                } 
-                
-                else if (currentChar == '\n' || currentChar == '\t' || currentChar ==' '){
-                    token.lexeme[0] = '\0';
-                } 
-                
-                else if (currentChar == '['){
-                    strcat(token.type, "TK_SQL");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == ']'){
-                    strcat(token.type, "TK_SQR");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == ','){
-                    strcat(token.type, "TK_COMMA");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == ';'){
-                    strcat(token.type, "TK_SEM");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == ':'){
-                    strcat(token.type, "TK_COLON");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '.'){
-                    strcat(token.type, "TK_DOT");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '('){
-                    strcat(token.type, "TK_OP");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == ')'){
-                    strcat(token.type, "TK_CL");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '+'){
-                    strcat(token.type, "TK_PLUS");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '-'){
-                    strcat(token.type, "TK_MINUS");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '*'){
-                    strcat(token.type, "TK_MUL");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '/'){
-                    strcat(token.type, "TK_DIV");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else if (currentChar == '~'){
-                    strcat(token.type, "TK_NOT");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } 
-                
-                
-                else if (currentChar == '>') {
-                    state = 1;
-                } else if (currentChar == '@') {
-                    state = 4;
-                } else if (currentChar == '!') {
-                    state = 7;
-                } else if (currentChar == '=') {
-                    state = 9;
-                } else if (currentChar == '%') {
-                    state = 24;
-                } else if (currentChar == '&') {
-                    state = 26;
-                } else if (currentChar == '#') {
-                    state = 29;
-                } else if (currentChar == '_') {
-                    state = 32;
-                }
-                break;
-            
+        case 0: // START STATE
+            if (currentChar == '\0')
+            {
+                // strcat(token.type, "TK_EOF");
+                // token.lineNumber = B->lineNumber;
+                return token;
+            }
 
+            else if (currentChar == '\n' || currentChar == '\t' || currentChar == ' ')
+            {
+                token.lexeme[0] = '\0';
+            }
 
-            case 1:
-                if (currentChar == '='){
-                    strcat(token.type, "TK_GE");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                } else {                                        // Retraction State Code
-                    strcat(token.type, "TK_GT");
-                    token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
-                    token.lexeme[0] = '>';
-                    token.lexeme[1] = '\0';
-                    B->currentPosition--;
-                    return token;
-                }
-                break;
-          
-            case 4:
-                if (currentChar == '@') {
-                    state = 5;
-                }
-                break;
-            
-            case 5:
-                if (currentChar == '@') {
-                    strcat(token.type, "TK_OR");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                }
-                break;
+            else if (currentChar == '[')
+            {
+                strcat(token.type, "TK_SQL");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == ']')
+            {
+                strcat(token.type, "TK_SQR");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == ',')
+            {
+                strcat(token.type, "TK_COMMA");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == ';')
+            {
+                strcat(token.type, "TK_SEM");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == ':')
+            {
+                strcat(token.type, "TK_COLON");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '.')
+            {
+                strcat(token.type, "TK_DOT");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '(')
+            {
+                strcat(token.type, "TK_OP");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == ')')
+            {
+                strcat(token.type, "TK_CL");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '+')
+            {
+                strcat(token.type, "TK_PLUS");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '-')
+            {
+                strcat(token.type, "TK_MINUS");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '*')
+            {
+                strcat(token.type, "TK_MUL");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '/')
+            {
+                strcat(token.type, "TK_DIV");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            else if (currentChar == '~')
+            {
+                strcat(token.type, "TK_NOT");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
 
-            case 7:
-                if (currentChar == '='){
-                    strcat(token.type, "TK_NE");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                }
-                break;
-            
-            case 9:
-             if (currentChar == '='){
-                    strcat(token.type, "TK_EQ");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                }
+            else if (currentChar == '>')
+            {
+                state = 1;
+            }
+            else if (currentChar == '@')
+            {
+                state = 4;
+            }
+            else if (currentChar == '!')
+            {
+                state = 7;
+            }
+            else if (currentChar == '=')
+            {
+                state = 9;
+            }
+            else if (currentChar == '%')
+            {
+                state = 24;
+            }
+            else if (currentChar == '&')
+            {
+                state = 26;
+            }
+            else if (currentChar == '#')
+            {
+                state = 29;
+            }
+            else if (currentChar == '_')
+            {
+                state = 32;
+            }
             break;
 
-            case 24:
-                if (currentChar == '\n')
-                {
-                    strcat(token.type, "TK_COMMENT");
-                    token.lexeme[strlen(token.lexeme)-1] = '\0';
-                    token.lineNumber = B->lineNumber - 1;
-                    return token;
-                } else if(currentChar == '\0'){
-                    strcat(token.type, "TK_COMMENT");
-                    token.lineNumber = B->lineNumber;
-                    B->currentPosition--;
-                    return token;
-                }
-                break;
-
-            case 26:
-                if (currentChar == '&') {
-                    state = 27;
-                }
-                break;
-            
-            case 27:
-                if (currentChar == '&') {
-                    strcat(token.type, "TK_AND");
-                    token.lineNumber = B->lineNumber;
-                    return token;
-                }
-                break;
-
-            case 29:
-                if(isalpha(currentChar) && tolower(currentChar) == currentChar){
-                    state = 30;
-                }
-                break;
-
-            case 30:
-                if(isalpha(currentChar) && tolower(currentChar) == currentChar){
-                    state = 30;
-                } else {
-                    strcat(token.type, "TK_RUID");
-                    token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
-                    if(currentChar != '\0'){
-                        token.lexeme[strlen(token.lexeme)-1] = '\0';
-                    }
-                    B->currentPosition--;
-                    return token;
-                }
-                break;
-
-            case 32:
-                if(isalpha(currentChar)){
-                    state = 33;
-                }
-                break;
-            
-            case 33:
-                if(isalpha(currentChar)){
-                    state = 33;
-                } else if (isdigit(currentChar)){
-                    state = 34;
-                } else {
-                    // retract
-                    strcat(token.type, "TK_FUNID");
-                    token.lineNumber = (token.lexeme[strlen(token.lexeme)-1] == '\n') ? --B->lineNumber : B->lineNumber;
-                    if(currentChar != '\0'){
-                        token.lexeme[strlen(token.lexeme)-1] = '\0';
-                    }
-                    B->currentPosition--;
-                    return token;
-
-                    // _main lookup
-                    // size constraint 30 ERROR
-                }
-                break;
-           
-            case 34:
-                if(isdigit(currentChar)){
-                    state = 34;
-                } else {
-                    // retract
-                     strcat(token.type, "TK_FUNID");
-                    token.lineNumber = (token.lexeme[strlen(token.lexeme)-1] == '\n') ? --B->lineNumber : B->lineNumber;
-                    if(currentChar != '\0'){
-                        token.lexeme[strlen(token.lexeme)-1] = '\0';
-                    }
-                    B->currentPosition--;
-                    return token;
-                    
-                    // size constraint 30 ERROR
-                }
-                break;
+        case 1:
+            if (currentChar == '=')
+            {
+                strcat(token.type, "TK_GE");
+                token.lineNumber = B->lineNumber;
+                return token;
             }
+            else
+            { // Retraction State Code
+                strcat(token.type, "TK_GT");
+                token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
+                token.lexeme[0] = '>';
+                token.lexeme[1] = '\0';
+                B->currentPosition--;
+                return token;
+            }
+            break;
+
+        case 4:
+            if (currentChar == '@')
+            {
+                state = 5;
+            }
+            break;
+
+        case 5:
+            if (currentChar == '@')
+            {
+                strcat(token.type, "TK_OR");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            break;
+
+        case 7:
+            if (currentChar == '=')
+            {
+                strcat(token.type, "TK_NE");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            break;
+
+        case 9:
+            if (currentChar == '=')
+            {
+                strcat(token.type, "TK_EQ");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            break;
+
+        case 24:
+            if (currentChar == '\n')
+            {
+                strcat(token.type, "TK_COMMENT");
+                token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                token.lineNumber = B->lineNumber - 1;
+                return token;
+            }
+            else if (currentChar == '\0')
+            {
+                strcat(token.type, "TK_COMMENT");
+                token.lineNumber = B->lineNumber;
+                B->currentPosition--;
+                return token;
+            }
+            break;
+
+        case 26:
+            if (currentChar == '&')
+            {
+                state = 27;
+            }
+            break;
+
+        case 27:
+            if (currentChar == '&')
+            {
+                strcat(token.type, "TK_AND");
+                token.lineNumber = B->lineNumber;
+                return token;
+            }
+            break;
+
+        case 29:
+            if (isalpha(currentChar) && tolower(currentChar) == currentChar)
+            {
+                state = 30;
+            }
+            break;
+
+        case 30:
+            if (isalpha(currentChar) && tolower(currentChar) == currentChar)
+            {
+                state = 30;
+            }
+            else
+            {
+                strcat(token.type, "TK_RUID");
+                token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+            }
+            break;
+
+        case 32:
+            if (isalpha(currentChar))
+            {
+                state = 33;
+            }
+            break;
+
+        case 33:
+            if (isalpha(currentChar))
+            {
+                state = 33;
+            }
+            else if (isdigit(currentChar))
+            {
+                state = 34;
+            }
+            else
+            {
+                // retract
+                strcat(token.type, "TK_FUNID");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+
+                // _main lookup
+                // size constraint 30 ERROR
+            }
+            break;
+
+        case 34:
+            if (isdigit(currentChar))
+            {
+                state = 34;
+            }
+            else
+            {
+                // retract
+                strcat(token.type, "TK_FUNID");
+                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+                if (currentChar != '\0')
+                {
+                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                }
+                B->currentPosition--;
+                return token;
+
+                // size constraint 30 ERROR
+            }
+            break;
         }
     }
+}
 
 // ---------------------------------------- Main Function -----------------------------------------
 
@@ -317,9 +386,9 @@ void lexer(FILE *fp)
     do
     {
         token = getNextToken(B, fp);
-        if(token.lexeme[0] == '\0') break;
-        printf("%s | %d | ", token.type, token.lineNumber);
-        printf("%s\n", token.lexeme);
+        if (token.lexeme[0] == '\0')
+            break;
+        printf("%s | %d | %s\n", token.type, token.lineNumber, token.lexeme);
     } while (!token.end);
 
     fclose(fp);
@@ -334,3 +403,8 @@ int main()
     fclose(fp);
     return 0;
 }
+
+// Line No 6 : Error: Unknown Symbol <|>
+// Line no: 6 : Error: Unknown pattern <&&>
+// Line No 8: Error :Variable Identifier is longer than the prescribed length of 20 characters.
+// Line no: 9 : Error: Unknown pattern <5000.7>
