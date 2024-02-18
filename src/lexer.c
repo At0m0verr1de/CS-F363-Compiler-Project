@@ -15,7 +15,8 @@ char getNextChar(twinBuffer *B)
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         size_t bytes;
         // Refill buffer from file
-        if(!B->dblret){ 
+        if (!B->dblret)
+        {
             bytes = fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
             B->dblret = false;
         }
@@ -39,8 +40,8 @@ char getNextChar(twinBuffer *B)
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         // Reset currentPosition
         B->currentPosition = (B->currentPosition + MAX_BUFFER_SIZE) % MAX_BUFFER_SIZE;
-        B->dblret = true;
-        //fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
+        B->dblret = true; // Fixes Retraction at start of buffer
+        // fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
     }
     // Return next character from the current buffer
     return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
