@@ -74,6 +74,9 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             B->lineNumber++;
         strncat(token.lexeme, &currentChar, 1);
 
+        // debug
+        // printf("Current Char: %c     Lexeme: %s\n", currentChar, token.lexeme);
+
         switch (state)
         {
         case 0: // START STATE
@@ -219,7 +222,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -248,7 +251,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -261,7 +264,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -274,7 +277,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -287,7 +290,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
         case 24:
             if (currentChar == '\n')
@@ -307,47 +310,56 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             break;
 
         case 26:
+            // &
             if (currentChar == '&')
             {
+                // &&
                 state = 27;
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
         case 27:
+            // &&
             if (currentChar == '&')
             {
+                // &&&
                 strcat(token.type, "TK_AND");
                 token.lineNumber = B->lineNumber;
                 return token;
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
         case 29:
+            // #
             if (isalpha(currentChar) && tolower(currentChar) == currentChar)
             {
+                // #[a-z]
                 state = 30;
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
         case 30:
+            // #[a-z]
             if (isalpha(currentChar) && tolower(currentChar) == currentChar)
             {
+                // #[a-z]*
                 state = 30;
             }
             else
             {
+                // (#[a-z]* + otherChar) and retract
                 strcat(token.type, "TK_RUID");
                 token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
                 if (currentChar != '\0')
@@ -360,23 +372,28 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             break;
 
         case 32:
+            // _
             if (isalpha(currentChar))
             {
+                // _[a-z|A-Z]
                 state = 33;
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
         case 33:
+            // _[a-z|A-Z]
             if (isalpha(currentChar))
             {
+                // _[a-z|A-Z]*
                 state = 33;
             }
             else if (isdigit(currentChar))
             {
+                // _[a-z|A-Z]*[0-9]
                 state = 34;
             }
             else
@@ -407,15 +424,14 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 }
 
                 return token;
-
-                // _main lookup
-                // size constraint 30 ERROR
             }
             break;
 
         case 34:
+            // _[a-z|A-Z]*[0-9]
             if (isdigit(currentChar))
             {
+                // _[a-z|A-Z]*[0-9]*
                 state = 34;
             }
             else
@@ -450,14 +466,17 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             break;
 
         case 38:
+            // <
             if (currentChar == '=')
             {
+                // <=
                 strcat(token.type, "TK_LE");
                 token.lineNumber = B->lineNumber;
                 return token;
             }
             else if (currentChar == '-')
             {
+                // <-
                 state = 39;
             }
             else
@@ -484,24 +503,31 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 // double retract and return TK_LT
                 strcat(token.type, "TK_LT");
                 token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+
                 if (currentChar != '\0')
+                    token.lexeme[strlen(token.lexeme) - 2] = '\0';
+                else
                 {
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                    token.end = false;
                 }
+
                 B->currentPosition -= 2;
                 return token;
             }
             break;
 
         case 40:
+            // <--
             if (currentChar == '-')
             {
-                strcat(token.type, "TK_ASSINGOP");
+                strcat(token.type, "ASSIGNOP");
+                token.lineNumber = B->lineNumber;
                 return token;
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -528,15 +554,15 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 {
                     strcat(token.type, value);
                 }
-                else if (strlen(token.lexeme) < 20)
-                {
-                    strcat(token.type, "TK_ID");
-                }
                 else
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
+                    strcat(token.type, "TK_FIELDID");
                 }
+                // else
+                // {
+                //     printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                //     strcat(token.type, "TK_ERROR");
+                // }
                 return token;
             }
             break;
@@ -560,15 +586,15 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 {
                     strcat(token.type, value);
                 }
-                else if (strlen(token.lexeme) < 20)
-                {
-                    strcat(token.type, "TK_ID");
-                }
                 else
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
+                    strcat(token.type, "TK_FIELDID");
                 }
+                // else
+                // {
+                //     printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                //     strcat(token.type, "TK_ERROR");
+                // }
                 return token;
             }
             break;
@@ -591,7 +617,16 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
                 }
                 B->currentPosition--;
-                strcat(token.type, "TK_ID");
+
+                if (strlen(token.lexeme) > 20)
+                {
+                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    strcat(token.type, "TK_ERROR");
+                }
+                else
+                {
+                    strcat(token.type, "TK_ID");
+                }
                 return token;
             }
             break;
@@ -657,11 +692,17 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 // double retract and return TK_NUM
                 strcat(token.type, "TK_NUM");
                 token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+
                 if (currentChar != '\0')
+                    token.lexeme[strlen(token.lexeme) - 2] = '\0';
+                else
                 {
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
+                    token.end = false;
                 }
+
                 B->currentPosition -= 2;
+                // printf("Retracted Twice");
                 return token;
             }
             break;
@@ -673,7 +714,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -707,7 +748,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -718,7 +759,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
 
@@ -729,36 +770,31 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             }
             else
             {
-                state = -1;
+                strcat(token.type, "TK_ERROR");
             }
             break;
+        }
 
-        case -1:
-            if (strlen(token.lexeme) == 2)
+        if (strlen(token.lexeme) == 1 && !strcmp(token.type, "TK_ERROR"))
+        {
+            printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
+            return token;
+        }
+        else if (!strcmp(token.type, "TK_ERROR"))
+        {
+            token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
+            if (currentChar != '\0')
             {
                 token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                // single retraction and return error
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                B->currentPosition--;
-                printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
-                strcat(token.type, "TK_ERROR");
-                return token;
             }
-            else
-            {
-                // double retract and report error
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                token.lexeme[strlen(token.lexeme) - 2] = '\0';
-
-                B->currentPosition -= 2;
-
-                strcat(token.type, "TK_ERROR");
-
-                printf("Line no: %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
-                return token;
-            }
+            // single retraction and return error
+            B->currentPosition--;
+            printf("Line No. %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
+            return token;
         }
     }
+    printf("maa chud gyi");
+    return token;
 }
 
 // ---------------------------------------- Main Function -----------------------------------------
