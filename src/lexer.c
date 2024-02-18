@@ -36,6 +36,7 @@ char getNextChar(twinBuffer *B)
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         // Reset currentPosition
         B->currentPosition = (B->currentPosition + MAX_BUFFER_SIZE) % MAX_BUFFER_SIZE;
+        fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
     }
     // Return next character from the current buffer
     return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
