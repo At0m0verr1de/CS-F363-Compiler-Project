@@ -819,8 +819,13 @@ void lexer(FILE *fp)
         token = getNextToken(B, fp, dict);
         if (token.lexeme[0] == '\0')
             break;
-        if (!(strcmp(token.type, "TK_ERROR")) || !(strcmp(token.type, "TK_COMMENT")))
+        if (!strcmp(token.type, "TK_ERROR"))
             continue;
+        else if (!strcmp(token.type, "TK_COMMENT"))
+        {
+            printf("Line no. %d     Lexeme %%     Token %s\n", token.lineNumber, token.type);
+            continue;
+        }
         printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
 
