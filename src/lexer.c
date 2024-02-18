@@ -766,6 +766,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
         case 60:
             if (isdigit(currentChar))
             {
+                strcat(token.type, "TK_RNUM");
                 return token;
             }
             else
