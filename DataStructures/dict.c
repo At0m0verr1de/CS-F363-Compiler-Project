@@ -8,7 +8,7 @@ int hash(char *key)
     int hashValue = 0;
     for (int i = 0; key[i] != '\0'; i++)
     {
-        hashValue += key[i];
+        hashValue += key[i] * (i + 1);
     }
     return hashValue % TABLE_SIZE;
 }

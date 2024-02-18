@@ -551,7 +551,9 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 B->currentPosition--;
 
                 char *value = search(dict, token.lexeme);
-                printf("Value: %s\n", value);
+
+                // debug
+                // printf("Value: %s\n", value);
                 if (value)
                 {
                     strcat(token.type, value);
@@ -579,7 +581,9 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 }
                 B->currentPosition--;
                 char *value = search(dict, token.lexeme);
-                printf("Value: %s\n", value);
+
+                // debug
+                // printf("Value: %s\n", value);
                 if (value)
                 {
                     strcat(token.type, value);
@@ -792,6 +796,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
 }
 
 // ---------------------------------------- Main Function -----------------------------------------
+// change the return type to TokenInfo
 void lexer(FILE *fp)
 {
     // Open source code file
