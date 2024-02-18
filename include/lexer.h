@@ -29,6 +29,7 @@ typedef struct
     int currentPosition; // Current position in the currently active buffer
     int lineNumber;
     FILE *fp; // File pointer for input stream
+    bool dblret;
 } twinBuffer;
 
 // Function declarations

@@ -13,9 +13,12 @@ char getNextChar(twinBuffer *B)
     {
         // Switch buffer
         B->currentBuffer = (B->currentBuffer + 1) % 2;
-
+        size_t bytes;
         // Refill buffer from file
-        size_t bytes = fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+        if(!B->dblret){ 
+            bytes = fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
+            B->dblret = false;
+        }
         if (bytes < MAX_BUFFER_SIZE)
         {
             if (B->currentBuffer == 0)
@@ -36,7 +39,8 @@ char getNextChar(twinBuffer *B)
         B->currentBuffer = (B->currentBuffer + 1) % 2;
         // Reset currentPosition
         B->currentPosition = (B->currentPosition + MAX_BUFFER_SIZE) % MAX_BUFFER_SIZE;
-        fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
+        B->dblret = true;
+        //fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
     }
     // Return next character from the current buffer
     return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
@@ -48,6 +52,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
     B->currentPosition = 0;
     B->currentBuffer = 0;
     B->lineNumber = 1;
+    B->dblret = false;
 
     memset(B->buffer0, '\0', MAX_BUFFER_SIZE);
     memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
