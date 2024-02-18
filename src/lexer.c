@@ -521,7 +521,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             // <--
             if (currentChar == '-')
             {
-                strcat(token.type, "ASSIGNOP");
+                strcat(token.type, "TK_ASSIGNOP");
                 token.lineNumber = B->lineNumber;
                 return token;
             }
@@ -549,7 +549,9 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                     token.lexeme[strlen(token.lexeme) - 1] = '\0';
                 }
                 B->currentPosition--;
+
                 char *value = search(dict, token.lexeme);
+                printf("Value: %s\n", value);
                 if (value)
                 {
                     strcat(token.type, value);
@@ -558,11 +560,6 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 {
                     strcat(token.type, "TK_FIELDID");
                 }
-                // else
-                // {
-                //     printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                //     strcat(token.type, "TK_ERROR");
-                // }
                 return token;
             }
             break;
@@ -582,6 +579,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 }
                 B->currentPosition--;
                 char *value = search(dict, token.lexeme);
+                printf("Value: %s\n", value);
                 if (value)
                 {
                     strcat(token.type, value);
@@ -590,11 +588,6 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
                 {
                     strcat(token.type, "TK_FIELDID");
                 }
-                // else
-                // {
-                //     printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                //     strcat(token.type, "TK_ERROR");
-                // }
                 return token;
             }
             break;
@@ -823,10 +816,10 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
-            printf("Line no. %d     Lexeme %%     Token %s\n", token.lineNumber, token.type);
+            printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
             continue;
         }
-        printf("Line no. %d     Lexeme %s     Token %s\n", token.lineNumber, token.lexeme, token.type);
+        printf("Line no. %d     Lexeme %s      Token %s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
 
     fclose(fp);
