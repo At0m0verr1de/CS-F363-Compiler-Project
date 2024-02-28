@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <program> ===> <otherFunctions> <mainFunction>
 <mainFunction>===> TK_MAIN <stmts> TK_END
 <otherFunctions>===> <function><otherFunctions> | ε
@@ -174,3 +175,5 @@ A                               TK_RUID
 grammer 
 list hashed 
 element is list with structs for each branch
+=======
+>>>>>>> Stashed changes
