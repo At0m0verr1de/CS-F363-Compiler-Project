@@ -88,21 +88,7 @@ void initGrammer(GRAMMAR* grammar){
     for (int i = 0; i < TABLE_SIZE; i++) {
         grammar->rules[i] = NULL;
     }
-
-    // // Example: Adding rules to the grammar
-    // NODE nodes1[] = {
-    //     {"B1", false, &nodes1[1]},
-    //     {"+", true, &nodes1[2]},
-    //     {"C1", false, NULL}
-    // };
-    // NODE nodes2[] = {
-    //     {"X1", false, &nodes2[1]},
-    //     {"+", true, &nodes2[2]},
-    //     {"Y1", false, NULL}
-    // };
-    // addRule(grammar, "A1", nodes1);
-    // addRule(grammar, "A1", nodes2);
- 
+    
     // <program> ===> <otherFunctions> <mainFunction>
     NODE *nodes_program = malloc(2 * sizeof(NODE));
 
@@ -746,27 +732,6 @@ void initGrammer(GRAMMAR* grammar){
     addRule(grammar, "A", nodes_A_1);
     addRule(grammar, "A", nodes_A_2);
 
-
-    
-    //printGrammar(grammar);
-    // Example: Retrieving rules for a non-terminal
-    // RULES* rulesA = getRules(grammar, "otherFunctions");
-    // if (rulesA != NULL) {
-    //     for (int i = 0; i < rulesA->length; i++) {
-    //         printf("Rule %d:\n", i + 1);
-    //         printf("%s\n",rulesA->heads[i].name);
-    //         NODE* head = rulesA->heads[i].next;
-    //         while (head != NULL) {
-    //             printf("Name: %s, Terminal: %s\n", head->name, head->terminal ? "true" : "false");
-    //             head = head->next;
-    //         }
-    //     }
-    // }
-    // else {
-    //     printf("No rules found for non-terminal A1.\n");
-    // }
-
-    
 }
 
 int main(){
