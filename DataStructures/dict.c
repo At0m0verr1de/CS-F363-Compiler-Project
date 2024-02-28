@@ -10,8 +10,46 @@ int hash(char *key)
     {
         hashValue += key[i] * (i + 1);
     }
-    return hashValue % TABLE_SIZE;
+    return hashValue % TABLE_SIZE;//Table size 50 for new hash theoretically
 }
+
+/*
+static unsigned int
+hash (register const char *str)
+{
+  static unsigned char asso_values[] =
+    {
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 20, 50,
+       0, 10,  0,  0, 25, 20, 20, 50, 10,  5,
+       5,  0, 50, 50, 10, 15, 20, 50,  0, 50,
+      50, 50, 10, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+      50, 50, 50, 50, 50, 50, 50
+    };
+  return strlen(str) + asso_values[(unsigned char)str[1]+1] + asso_values[(unsigned char)str[strlen(str) - 1]];
+}
+*/
+
 
 struct Dictionary *createDictionary()
 {
@@ -34,7 +72,9 @@ void insert(struct Dictionary *dict, char *key, char *value)
 
 char *search(struct Dictionary *dict, char *key)
 {
+    // if (strlen(key) <=10 && strlen(key) >= 2){
     int index = hash(key);
+    //} else return NULL:
     if (dict->table[index] != NULL && strcmp(dict->table[index]->key, key) == 0)
     {
         return dict->table[index]->value;
