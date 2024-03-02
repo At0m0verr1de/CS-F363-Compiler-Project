@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "lexer.h"
+#include "lexerDef.h"
 #include "dict.h"
 
 char getNextChar(twinBuffer *B)
