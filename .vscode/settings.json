@@ -3,6 +3,8 @@
         "time.h": "c",
         "lexer.h": "c",
         "lexerdef.h": "c",
-        "parser.h": "c"
+        "parser.h": "c",
+        "stdbool.h": "c",
+        "stdio.h": "c"
     }
 }

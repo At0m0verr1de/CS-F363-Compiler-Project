@@ -9,12 +9,9 @@
 */
 
 // ---------------------------------------- Header Files -----------------------------------------
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
 #include <ctype.h>
 #include "lexer.h"
-#include "lexerDef.h"
 #include "dict.h"
 
 char getNextChar(twinBuffer *B)
@@ -852,6 +849,20 @@ void removeComments(char *testcaseFile, char *cleanFile)
     }
 }
 
+// Function to write a token to a file
+void writeTokenToFile(FILE *file, TokenInfo token)
+{
+    fprintf(file, "%s %s %d %d\n", token.type, token.lexeme, token.lineNumber, token.end ? 1 : 0);
+}
+
+// Function to read a token from a file
+TokenInfo readTokenFromFile(FILE *file)
+{
+    TokenInfo token;
+    fscanf(file, "%s %s %d %d", token.type, token.lexeme, &token.lineNumber, &token.end);
+    return token;
+}
+
 // ---------------------------------------- Main Function -----------------------------------------
 // change the return type to TokenInfo
 void lexer(FILE *fp)
@@ -878,6 +889,9 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
+            // create a file to write tokens to
+            FILE *tk = fopen("tokens.txt", "w");
+            writeTokenToFile(tk, token);
             printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
             continue;
         }

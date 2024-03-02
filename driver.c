@@ -11,8 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lexer.h"
-#include "lexerDef.h"
-#include "parser.h"
+// #include "parser.h"
 #include <time.h>
 
 int main(int argc, char *argv[])
@@ -40,6 +39,9 @@ int main(int argc, char *argv[])
 
     // Menu-driven interface
     int option;
+    clock_t start_time, end_time;
+    double total_CPU_time, total_CPU_time_in_seconds;
+
     do
     {
         printf("\nOptions:\n");
@@ -64,14 +66,12 @@ int main(int argc, char *argv[])
             break;
         case 3:
             // lexer(argv[1]);
-            parseAndPrintParseTree(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
+            // parseAndPrintParseTree(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case 4:
-            clock_t start_time, end_time;
-            double total_CPU_time, total_CPU_time_in_seconds;
             start_time = clock();
             lexer(argv[1]);
-            parser(argv[1]);
+            // parser(argv[1]);
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;

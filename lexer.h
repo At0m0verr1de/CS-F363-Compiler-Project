@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include "dict.h"
 #include "lexerDef.h"
 
@@ -19,3 +20,6 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict);
 char getNextChar(twinBuffer *B);
 void initTwinBuffer(twinBuffer *B, FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);
+void lexer(FILE *fp);
+TokenInfo readTokenFromFile(FILE *file);
+void writeTokenToFile(FILE *file, TokenInfo token);
