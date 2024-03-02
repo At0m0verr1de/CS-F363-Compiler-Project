@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "../include/lexer.h"
-#include "../include/dict.h"
+#include "lexer.h"
+#include "dict.h"
 
 char getNextChar(twinBuffer *B)
 {
@@ -836,18 +836,4 @@ void lexer(FILE *fp)
 
     fclose(fp);
     free(B);
-}
-
-int main(int argc, char *argv[])
-{
-    // Open source code file
-    FILE *fp = fopen(argv[1], "r");
-    if (fp == NULL)
-    {
-        perror("Error opening file");
-        return 1; // Return non-zero exit code indicating error
-    }
-    lexer(fp);
-    fclose(fp);
-    return 0;
 }

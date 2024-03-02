@@ -10,7 +10,7 @@ int hash(char *key)
     {
         hashValue += key[i] * (i + 1);
     }
-    return hashValue % TABLE_SIZE;//Table size 50 for new hash theoretically
+    return hashValue % TABLE_SIZE; // Table size 50 for new hash theoretically
 }
 
 /*
@@ -49,7 +49,6 @@ hash (register const char *str)
   return strlen(str) + asso_values[(unsigned char)str[1]+1] + asso_values[(unsigned char)str[strlen(str) - 1]];
 }
 */
-
 
 struct Dictionary *createDictionary()
 {

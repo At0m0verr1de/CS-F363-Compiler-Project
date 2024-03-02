@@ -1,24 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "include/lexer.h" // Include the lexer header file
-
-// Function prototypes for other tasks
-void printTokenList(const char *filename);
-// void parseAndPrintParseTree(const char *sourceFile, const char *parseTreeFile);
-void measureExecutionTime(const char *sourceFile);
+#include "lexer.h"
+#include "lexerDef.h"
+#include "parser.h"
+#include <time.h>
 
 int main(int argc, char *argv[])
 {
     // Check if the correct number of command-line arguments is provided
-    // if (argc != 3)
-    // {
-    //     printf("Usage: %s <source_code_file> <parse_tree_output_file>\n", argv[0]);
-    //     return 1;
-    // }
+    if (argc != 3)
+    {
+        printf("Usage: %s <source_code_file> <parse_tree_output_file>\n", argv[0]);
+        return 1;
+    }
 
-    // Display information regarding the implementation status
-    printf("Implementation status:      Lexer Completed\n");
-    // Add implementation status information here as per your project progress
+    FILE *inputFile = fopen(argv[1], "r");
+    FILE *outputFile = fopen(argv[2], "w");
+
+    if (inputFile == NULL)
+    {
+        perror("Error Opening Source Code File");
+        return 1;
+    }
+    else if (outputFile == NULL)
+    {
+        perror("Error opening Parse Tree Output file");
+        return 1;
+    }
 
     // Menu-driven interface
     int option;
@@ -42,13 +50,23 @@ int main(int argc, char *argv[])
             removeComments(argv[1], "clean_source_code.txt"); // Call removeComments function from lexer.c
             break;
         case 2:
-            printTokenList("clean_source_code.txt"); // Call printTokenList function from lexer.c
+            lexer(argv[1]);
+            printTokenList("clean_source_code.txt");
             break;
         case 3:
             parseAndPrintParseTree(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case 4:
-            measureExecutionTime(argv[1]);
+            clock_t start_time, end_time;
+            double total_CPU_time, total_CPU_time_in_seconds;
+            start_time = clock();
+            lexer(argv[1]);
+            parser(argv[1]);
+            end_time = clock();
+            total_CPU_time = (double)(end_time - start_time);
+            total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
+            printf("Total CPU time: %f\n", total_CPU_time);
+            printf("Total CPU time in seconds: %f\n", total_CPU_time_in_seconds);
             break;
         default:
             printf("Invalid option. Please try again.\n");
