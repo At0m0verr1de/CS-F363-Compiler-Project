@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define TABLE_SIZE 1500
+#define TABLE_SIZE 83
 
 struct KeyValuePair
 {
@@ -17,6 +17,7 @@ struct Dictionary
     struct KeyValuePair *table[TABLE_SIZE];
 };
 
+/*
 int hash(char *key)
 {
     int hashValue = 0;
@@ -26,6 +27,61 @@ int hash(char *key)
     }
     return hashValue % TABLE_SIZE;
 }
+*/
+
+// Hash function
+static unsigned int hash (register const char *str)
+{
+  static unsigned char asso_values[] =
+    {
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83,  0, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83,  0, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 30,  5, 26,
+      25,  0, 40,  5,  5,  0, 83, 83, 60, 10,
+      55,  0,  0, 83,  5, 35, 20,  0,  5, 83,
+      83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+      83, 83, 83, 83, 83, 83
+    };
+  register unsigned int hval = strlen(str);
+  
+
+  switch (hval)
+    {
+      default:
+        hval += asso_values[(unsigned char)str[1]];
+      /*FALLTHROUGH*/
+      case 1:
+        hval += asso_values[(unsigned char)str[0]];
+        break;
+    }
+
+    if(!strcmp(str,"term\0")) hval = 23;
+    if(!strcmp(str,"primitiveDatatype\0")) hval = 21;
+    if(!strcmp(str,"arithmeticExpression\0")) hval = 57;
+    if(!strcmp(str,"expPrime\0")) hval = 81;
+    //printf("%s %u\n", str , hval);
+  return hval;
+}
+
 
 struct Dictionary *createDictionary()
 {
@@ -248,16 +304,16 @@ void initFirst(struct Dictionary *dict) {
     option_single_constructed[1] = strdup("ε");
     insert(dict, strdup("option_single_constructed"), option_single_constructed,2);
 
-    // oneEpansion
-    char **oneEpansion = (char **)malloc(1 * sizeof(char *));
-    oneEpansion[0] = strdup("TK_DOT");
-    insert(dict, strdup("oneEpansion"), oneEpansion,1);
+    // oneExpansion
+    char **oneExpansion = (char **)malloc(1 * sizeof(char *));
+    oneExpansion[0] = strdup("TK_DOT");
+    insert(dict, strdup("oneExpansion"), oneExpansion,1);
 
-    // moreEpansions
-    char **moreEpansions = (char **)malloc(2 * sizeof(char *));
-    moreEpansions[0] = strdup("TK_DOT");
-    moreEpansions[1] = strdup("ε");
-    insert(dict, strdup("moreEpansions"), moreEpansions,2);
+    // moreExpansions
+    char **moreExpansions = (char **)malloc(2 * sizeof(char *));
+    moreExpansions[0] = strdup("TK_DOT");
+    moreExpansions[1] = strdup("ε");
+    insert(dict, strdup("moreExpansions"), moreExpansions,2);
 
     // funCallStmt
     char **funCallStmt = (char **)malloc(2 * sizeof(char *));
@@ -298,13 +354,13 @@ void initFirst(struct Dictionary *dict) {
     ioStmt[1] = strdup("TK_WRITE");
     insert(dict, strdup("ioStmt"), ioStmt,2);
 
-    // arithmeticEpression
-    char **arithmeticEpression = (char **)malloc(4 * sizeof(char *));
-    arithmeticEpression[0] = strdup("TK_ID");
-    arithmeticEpression[1] = strdup("TK_OP");
-    arithmeticEpression[2] = strdup("TK_NUM");
-    arithmeticEpression[3] = strdup("TK_RNUM");
-    insert(dict, strdup("arithmeticEpression"), arithmeticEpression,4);
+    // arithmeticExpression
+    char **arithmeticExpression = (char **)malloc(4 * sizeof(char *));
+    arithmeticExpression[0] = strdup("TK_ID");
+    arithmeticExpression[1] = strdup("TK_OP");
+    arithmeticExpression[2] = strdup("TK_NUM");
+    arithmeticExpression[3] = strdup("TK_RNUM");
+    insert(dict, strdup("arithmeticExpression"), arithmeticExpression,4);
 
     // epPrime
     char **epPrime = (char **)malloc(3 * sizeof(char *));
@@ -348,14 +404,14 @@ void initFirst(struct Dictionary *dict) {
     lowPrecedenceOperators[1] = strdup("TK_MINUS");
     insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators,2);
 
-    // booleanEpression
-    char **booleanEpression = (char **)malloc(5 * sizeof(char *));
-    booleanEpression[0] = strdup("TK_ID");
-    booleanEpression[1] = strdup("TK_OP");
-    booleanEpression[2] = strdup("TK_NOT");
-    booleanEpression[3] = strdup("TK_NUM");
-    booleanEpression[4] = strdup("TK_RNUM");
-    insert(dict, strdup("booleanEpression"), booleanEpression,5);
+    // booleanExpression
+    char **booleanExpression = (char **)malloc(5 * sizeof(char *));
+    booleanExpression[0] = strdup("TK_ID");
+    booleanExpression[1] = strdup("TK_OP");
+    booleanExpression[2] = strdup("TK_NOT");
+    booleanExpression[3] = strdup("TK_NUM");
+    booleanExpression[4] = strdup("TK_RNUM");
+    insert(dict, strdup("booleanExpression"), booleanExpression,5);
 
     // var
     char **var = (char **)malloc(3 * sizeof(char *));
@@ -939,17 +995,37 @@ void initFollow(struct Dictionary* dict){
 
 }
 
+int searchF(struct Dictionary *dict, char *NT , char *T)
+{
+    int index = hash(NT);
+    int len = dict->table[index]->len; 
+    char** list = dict->table[index]->value;
+    int result = -1;
+    for(int i = 0; i < len ; i++){
+        if(!strcmp(list[i] , T)){
+            result = 1;
+            break;
+        } else if(!strcmp(list[i] , "ε\0")){
+            result = 0;
+        }
+    }
+    return result;
+}
 
 int main() {
     // Example usage
     struct Dictionary *dict = createDictionary();
-    initFollow(dict);
+    initFirst(dict);
+    //int j = searchF(dict,"more_ids","TK_MAIN");
+    //printf("%d\n",j);
     int j = 1;
+    
     for(int i = 0; i < TABLE_SIZE; i++){
         if(dict->table[i]!=NULL){
             printf("%d %d\n",j++,i);
         }
     }
+    
     /*
     int len;
     char **result = search(dict, "relationalOp",&len);
