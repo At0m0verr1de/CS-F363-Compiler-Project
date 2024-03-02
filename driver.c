@@ -1,3 +1,13 @@
+/*
+    Group No. - 3
+    Aryan Bakshi        2021A7PS0532P
+    Aadeesh Garg        2021A7PS0446P
+    Vedant Tuli         2021A7PS0435P
+    Amandeep Singh      2021A7PS0575P
+    Rijul Bassamboo     2021A7PS0009P
+    Mihika Deshpande    2021A7PS2435P
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "lexer.h"
@@ -50,10 +60,10 @@ int main(int argc, char *argv[])
             removeComments(argv[1], "clean_source_code.txt"); // Call removeComments function from lexer.c
             break;
         case 2:
-            lexer(argv[1]);
-            printTokenList("clean_source_code.txt");
+            lexer(argv[1]); // prints the tokens to command line
             break;
         case 3:
+            // lexer(argv[1]);
             parseAndPrintParseTree(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case 4:
@@ -72,6 +82,9 @@ int main(int argc, char *argv[])
             printf("Invalid option. Please try again.\n");
         }
     } while (option != 0);
+
+    fclose(inputFile);
+    fclose(outputFile);
 
     return 0;
 }

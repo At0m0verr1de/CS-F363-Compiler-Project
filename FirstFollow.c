@@ -1,3 +1,13 @@
+/*
+    Group No. - 3
+    Aryan Bakshi        2021A7PS0532P
+    Aadeesh Garg        2021A7PS0446P
+    Vedant Tuli         2021A7PS0435P
+    Amandeep Singh      2021A7PS0575P
+    Rijul Bassamboo     2021A7PS0009P
+    Mihika Deshpande    2021A7PS2435P
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,58 +40,59 @@ int hash(char *key)
 */
 
 // Hash function
-static unsigned int hash (register const char *str)
+static unsigned int hash(register const char *str)
 {
-  static unsigned char asso_values[] =
-    {
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83,  0, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83,  0, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 30,  5, 26,
-      25,  0, 40,  5,  5,  0, 83, 83, 60, 10,
-      55,  0,  0, 83,  5, 35, 20,  0,  5, 83,
-      83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83
-    };
-  register unsigned int hval = strlen(str);
-  
+    static unsigned char asso_values[] =
+        {
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 0, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 0, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 30, 5, 26,
+            25, 0, 40, 5, 5, 0, 83, 83, 60, 10,
+            55, 0, 0, 83, 5, 35, 20, 0, 5, 83,
+            83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83};
+    register unsigned int hval = strlen(str);
 
-  switch (hval)
+    switch (hval)
     {
-      default:
+    default:
         hval += asso_values[(unsigned char)str[1]];
-      /*FALLTHROUGH*/
-      case 1:
+    /*FALLTHROUGH*/
+    case 1:
         hval += asso_values[(unsigned char)str[0]];
         break;
     }
 
-    if(!strcmp(str,"term\0")) hval = 23;
-    if(!strcmp(str,"primitiveDatatype\0")) hval = 21;
-    if(!strcmp(str,"arithmeticExpression\0")) hval = 57;
-    if(!strcmp(str,"expPrime\0")) hval = 81;
-    //printf("%s %u\n", str , hval);
-  return hval;
+    if (!strcmp(str, "term\0"))
+        hval = 23;
+    if (!strcmp(str, "primitiveDatatype\0"))
+        hval = 21;
+    if (!strcmp(str, "arithmeticExpression\0"))
+        hval = 57;
+    if (!strcmp(str, "expPrime\0"))
+        hval = 81;
+    // printf("%s %u\n", str , hval);
+    return hval;
 }
-
 
 struct Dictionary *createDictionary()
 {
@@ -93,7 +104,7 @@ struct Dictionary *createDictionary()
     return dict;
 }
 
-void insert(struct Dictionary *dict, char *key, char **value,int len)
+void insert(struct Dictionary *dict, char *key, char **value, int len)
 {
     int index = hash(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
@@ -103,51 +114,52 @@ void insert(struct Dictionary *dict, char *key, char **value,int len)
     dict->table[index] = newPair;
 }
 
-char **search(struct Dictionary *dict, char *key , int *len)
+char **search(struct Dictionary *dict, char *key, int *len)
 {
     int index = hash(key);
     if (dict->table[index] != NULL && strcmp(dict->table[index]->key, key) == 0)
     {
-        *len = dict->table[index]->len; 
+        *len = dict->table[index]->len;
         return dict->table[index]->value;
     }
     return NULL; // Key not found
 }
 
-void initFirst(struct Dictionary *dict) {
-   
+void initFirst(struct Dictionary *dict)
+{
+
     // Insert key-value pairs
     char **program = (char **)malloc(2 * sizeof(char *));
     program[0] = strdup("TK_MAIN");
     program[1] = strdup("TK_FUNID");
-    insert(dict, strdup("program"), program,2);
+    insert(dict, strdup("program"), program, 2);
 
     // mainFunction
     char **mainFunction = (char **)malloc(1 * sizeof(char *));
     mainFunction[0] = strdup("TK_MAIN");
-    insert(dict, strdup("mainFunction"), mainFunction,1);
+    insert(dict, strdup("mainFunction"), mainFunction, 1);
 
     // otherFunctions
     char **otherFunctions = (char **)malloc(2 * sizeof(char *));
     otherFunctions[0] = strdup("TK_FUNID");
     otherFunctions[1] = strdup("ε");
-    insert(dict, strdup("otherFunctions"), otherFunctions,2);
+    insert(dict, strdup("otherFunctions"), otherFunctions, 2);
 
     // function
     char **function = (char **)malloc(1 * sizeof(char *));
     function[0] = strdup("TK_FUNID");
-    insert(dict, strdup("function"), function,1);
+    insert(dict, strdup("function"), function, 1);
 
     // input_par
     char **input_par = (char **)malloc(1 * sizeof(char *));
     input_par[0] = strdup("TK_INPUT");
-    insert(dict, strdup("input_par"), input_par,1);
+    insert(dict, strdup("input_par"), input_par, 1);
 
     // output_par
     char **output_par = (char **)malloc(2 * sizeof(char *));
     output_par[0] = strdup("TK_OUTPUT");
     output_par[1] = strdup("ε");
-    insert(dict, strdup("output_par"), output_par,2);
+    insert(dict, strdup("output_par"), output_par, 2);
 
     // parameter_list
     char **parameter_list = (char **)malloc(5 * sizeof(char *));
@@ -156,7 +168,7 @@ void initFirst(struct Dictionary *dict) {
     parameter_list[2] = strdup("TK_RECORD");
     parameter_list[3] = strdup("TK_RUID");
     parameter_list[4] = strdup("TK_UNION");
-    insert(dict, strdup("parameter_list"), parameter_list,5);
+    insert(dict, strdup("parameter_list"), parameter_list, 5);
 
     // dataType
     char **dataType = (char **)malloc(5 * sizeof(char *));
@@ -165,26 +177,26 @@ void initFirst(struct Dictionary *dict) {
     dataType[2] = strdup("TK_RECORD");
     dataType[3] = strdup("TK_RUID");
     dataType[4] = strdup("TK_UNION");
-    insert(dict, strdup("dataType"), dataType,5);
+    insert(dict, strdup("dataType"), dataType, 5);
 
     // primitiveDatatype
     char **primitiveDatatype = (char **)malloc(2 * sizeof(char *));
     primitiveDatatype[0] = strdup("TK_INT");
     primitiveDatatype[1] = strdup("TK_REAL");
-    insert(dict, strdup("primitiveDatatype"), primitiveDatatype,2);
+    insert(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
 
     // constructedDatatype
     char **constructedDatatype = (char **)malloc(3 * sizeof(char *));
     constructedDatatype[0] = strdup("TK_RECORD");
     constructedDatatype[1] = strdup("TK_RUID");
     constructedDatatype[2] = strdup("TK_UNION");
-    insert(dict, strdup("constructedDatatype"), constructedDatatype,3);
+    insert(dict, strdup("constructedDatatype"), constructedDatatype, 3);
 
     // remaining_list
     char **remaining_list = (char **)malloc(2 * sizeof(char *));
     remaining_list[0] = strdup("TK_COMMA");
     remaining_list[1] = strdup("ε");
-    insert(dict, strdup("remaining_list"), remaining_list,2);
+    insert(dict, strdup("remaining_list"), remaining_list, 2);
 
     // stmts
     char **stmts = (char **)malloc(12 * sizeof(char *));
@@ -200,7 +212,7 @@ void initFirst(struct Dictionary *dict) {
     stmts[9] = strdup("TK_WRITE");
     stmts[10] = strdup("TK_RETURN");
     stmts[11] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("stmts"), stmts,12);
+    insert(dict, strdup("stmts"), stmts, 12);
 
     // typeDefinitions
     char **typeDefinitions = (char **)malloc(4 * sizeof(char *));
@@ -208,30 +220,30 @@ void initFirst(struct Dictionary *dict) {
     typeDefinitions[1] = strdup("TK_UNION");
     typeDefinitions[2] = strdup("TK_DEFINETYPE");
     typeDefinitions[3] = strdup("ε");
-    insert(dict, strdup("typeDefinitions"), typeDefinitions,4);
+    insert(dict, strdup("typeDefinitions"), typeDefinitions, 4);
 
     // actualOrRedefined
     char **actualOrRedefined = (char **)malloc(3 * sizeof(char *));
     actualOrRedefined[0] = strdup("TK_RECORD");
     actualOrRedefined[1] = strdup("TK_UNION");
     actualOrRedefined[2] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("actualOrRedefined"), actualOrRedefined,3);
+    insert(dict, strdup("actualOrRedefined"), actualOrRedefined, 3);
 
     // typeDefinition
     char **typeDefinition = (char **)malloc(2 * sizeof(char *));
     typeDefinition[0] = strdup("TK_RECORD");
     typeDefinition[1] = strdup("TK_UNION");
-    insert(dict, strdup("typeDefinition"), typeDefinition,2);
+    insert(dict, strdup("typeDefinition"), typeDefinition, 2);
 
     // fieldDefinitions
     char **fieldDefinitions = (char **)malloc(1 * sizeof(char *));
     fieldDefinitions[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinitions"), fieldDefinitions,1);
+    insert(dict, strdup("fieldDefinitions"), fieldDefinitions, 1);
 
     // fieldDefinition
     char **fieldDefinition = (char **)malloc(1 * sizeof(char *));
     fieldDefinition[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinition"), fieldDefinition,1);
+    insert(dict, strdup("fieldDefinition"), fieldDefinition, 1);
 
     // fieldType
     char **fieldType = (char **)malloc(5 * sizeof(char *));
@@ -240,30 +252,30 @@ void initFirst(struct Dictionary *dict) {
     fieldType[2] = strdup("TK_RUID");
     fieldType[3] = strdup("TK_RECORD");
     fieldType[4] = strdup("TK_UNION");
-    insert(dict, strdup("fieldType"), fieldType,5);
+    insert(dict, strdup("fieldType"), fieldType, 5);
 
     // moreFields
     char **moreFields = (char **)malloc(2 * sizeof(char *));
     moreFields[0] = strdup("TK_TYPE");
     moreFields[1] = strdup("ε");
-    insert(dict, strdup("moreFields"), moreFields,2);
+    insert(dict, strdup("moreFields"), moreFields, 2);
 
     // declarations
     char **declarations = (char **)malloc(2 * sizeof(char *));
     declarations[0] = strdup("TK_TYPE");
     declarations[1] = strdup("ε");
-    insert(dict, strdup("declarations"), declarations,2);
+    insert(dict, strdup("declarations"), declarations, 2);
 
     // declaration
     char **declaration = (char **)malloc(1 * sizeof(char *));
     declaration[0] = strdup("TK_TYPE");
-    insert(dict, strdup("declaration"), declaration,2);
+    insert(dict, strdup("declaration"), declaration, 2);
 
     // global_or_not
     char **global_or_not = (char **)malloc(2 * sizeof(char *));
     global_or_not[0] = strdup("TK_COLON");
     global_or_not[1] = strdup("ε");
-    insert(dict, strdup("global_or_not"), global_or_not,2);
+    insert(dict, strdup("global_or_not"), global_or_not, 2);
 
     // otherStmts
     char **otherStmts = (char **)malloc(8 * sizeof(char *));
@@ -275,7 +287,7 @@ void initFirst(struct Dictionary *dict) {
     otherStmts[5] = strdup("TK_READ");
     otherStmts[6] = strdup("TK_WRITE");
     otherStmts[7] = strdup("ε");
-    insert(dict, strdup("otherStmts"), otherStmts,8);
+    insert(dict, strdup("otherStmts"), otherStmts, 8);
 
     // stmt
     char **stmt = (char **)malloc(7 * sizeof(char *));
@@ -286,73 +298,73 @@ void initFirst(struct Dictionary *dict) {
     stmt[4] = strdup("TK_IF");
     stmt[5] = strdup("TK_READ");
     stmt[6] = strdup("TK_WRITE");
-    insert(dict, strdup("stmt"), stmt,7);
+    insert(dict, strdup("stmt"), stmt, 7);
 
     // assignmentStmt
     char **assignmentStmt = (char **)malloc(1 * sizeof(char *));
     assignmentStmt[0] = strdup("TK_ID");
-    insert(dict, strdup("assignmentStmt"), assignmentStmt,1);
+    insert(dict, strdup("assignmentStmt"), assignmentStmt, 1);
 
     // SingleOrRecId
     char **SingleOrRecId = (char **)malloc(1 * sizeof(char *));
     SingleOrRecId[0] = strdup("TK_ID");
-    insert(dict, strdup("SingleOrRecId"), SingleOrRecId,1);
+    insert(dict, strdup("SingleOrRecId"), SingleOrRecId, 1);
 
     // option_single_constructed
     char **option_single_constructed = (char **)malloc(2 * sizeof(char *));
     option_single_constructed[0] = strdup("TK_DOT");
     option_single_constructed[1] = strdup("ε");
-    insert(dict, strdup("option_single_constructed"), option_single_constructed,2);
+    insert(dict, strdup("option_single_constructed"), option_single_constructed, 2);
 
     // oneExpansion
     char **oneExpansion = (char **)malloc(1 * sizeof(char *));
     oneExpansion[0] = strdup("TK_DOT");
-    insert(dict, strdup("oneExpansion"), oneExpansion,1);
+    insert(dict, strdup("oneExpansion"), oneExpansion, 1);
 
     // moreExpansions
     char **moreExpansions = (char **)malloc(2 * sizeof(char *));
     moreExpansions[0] = strdup("TK_DOT");
     moreExpansions[1] = strdup("ε");
-    insert(dict, strdup("moreExpansions"), moreExpansions,2);
+    insert(dict, strdup("moreExpansions"), moreExpansions, 2);
 
     // funCallStmt
     char **funCallStmt = (char **)malloc(2 * sizeof(char *));
     funCallStmt[0] = strdup("TK_SQL");
     funCallStmt[1] = strdup("TK_CALL");
-    insert(dict, strdup("funCallStmt"), funCallStmt,2);
+    insert(dict, strdup("funCallStmt"), funCallStmt, 2);
 
     // outputParameters
     char **outputParameters = (char **)malloc(2 * sizeof(char *));
     outputParameters[0] = strdup("TK_SQL");
     outputParameters[1] = strdup("ε");
-    insert(dict, strdup("outputParameters"), outputParameters,2);
+    insert(dict, strdup("outputParameters"), outputParameters, 2);
 
     // inputParameters
     char **inputParameters = (char **)malloc(1 * sizeof(char *));
     inputParameters[0] = strdup("TK_SQL");
-    insert(dict, strdup("inputParameters"), inputParameters,1);
+    insert(dict, strdup("inputParameters"), inputParameters, 1);
 
     // iterativeStmt
     char **iterativeStmt = (char **)malloc(1 * sizeof(char *));
     iterativeStmt[0] = strdup("TK_WHILE");
-    insert(dict, strdup("iterativeStmt"), iterativeStmt,1);
+    insert(dict, strdup("iterativeStmt"), iterativeStmt, 1);
 
     // conditionalStmt
     char **conditionalStmt = (char **)malloc(1 * sizeof(char *));
     conditionalStmt[0] = strdup("TK_IF");
-    insert(dict, strdup("conditionalStmt"), conditionalStmt,1);
+    insert(dict, strdup("conditionalStmt"), conditionalStmt, 1);
 
     // elsePart
     char **elsePart = (char **)malloc(2 * sizeof(char *));
     elsePart[0] = strdup("TK_ELSE");
     elsePart[1] = strdup("TK_ENDIF");
-    insert(dict, strdup("elsePart"), elsePart,2);
+    insert(dict, strdup("elsePart"), elsePart, 2);
 
     // ioStmt
     char **ioStmt = (char **)malloc(2 * sizeof(char *));
     ioStmt[0] = strdup("TK_READ");
     ioStmt[1] = strdup("TK_WRITE");
-    insert(dict, strdup("ioStmt"), ioStmt,2);
+    insert(dict, strdup("ioStmt"), ioStmt, 2);
 
     // arithmeticExpression
     char **arithmeticExpression = (char **)malloc(4 * sizeof(char *));
@@ -360,14 +372,14 @@ void initFirst(struct Dictionary *dict) {
     arithmeticExpression[1] = strdup("TK_OP");
     arithmeticExpression[2] = strdup("TK_NUM");
     arithmeticExpression[3] = strdup("TK_RNUM");
-    insert(dict, strdup("arithmeticExpression"), arithmeticExpression,4);
+    insert(dict, strdup("arithmeticExpression"), arithmeticExpression, 4);
 
     // epPrime
     char **epPrime = (char **)malloc(3 * sizeof(char *));
     epPrime[0] = strdup("TK_PLUS");
     epPrime[1] = strdup("TK_MINUS");
     epPrime[2] = strdup("ε");
-    insert(dict, strdup("epPrime"), epPrime,3);
+    insert(dict, strdup("epPrime"), epPrime, 3);
 
     // term
     char **term = (char **)malloc(4 * sizeof(char *));
@@ -375,14 +387,14 @@ void initFirst(struct Dictionary *dict) {
     term[1] = strdup("TK_OP");
     term[2] = strdup("TK_NUM");
     term[3] = strdup("TK_RNUM");
-    insert(dict, strdup("term"), term,4);
+    insert(dict, strdup("term"), term, 4);
 
     // termPrime
     char **termPrime = (char **)malloc(3 * sizeof(char *));
     termPrime[0] = strdup("TK_MUL");
     termPrime[1] = strdup("TK_DIV");
     termPrime[2] = strdup("ε");
-    insert(dict, strdup("termPrime"), termPrime,3);
+    insert(dict, strdup("termPrime"), termPrime, 3);
 
     // factor
     char **factor = (char **)malloc(4 * sizeof(char *));
@@ -390,19 +402,19 @@ void initFirst(struct Dictionary *dict) {
     factor[1] = strdup("TK_OP");
     factor[2] = strdup("TK_NUM");
     factor[3] = strdup("TK_RNUM");
-    insert(dict, strdup("factor"), factor,4);
+    insert(dict, strdup("factor"), factor, 4);
 
     // highPrecedenceOperators
     char **highPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     highPrecedenceOperators[0] = strdup("TK_MUL");
     highPrecedenceOperators[1] = strdup("TK_DIV");
-    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators,2);
+    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 2);
 
     // lowPrecedenceOperators
     char **lowPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     lowPrecedenceOperators[0] = strdup("TK_PLUS");
     lowPrecedenceOperators[1] = strdup("TK_MINUS");
-    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators,2);
+    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 2);
 
     // booleanExpression
     char **booleanExpression = (char **)malloc(5 * sizeof(char *));
@@ -411,20 +423,20 @@ void initFirst(struct Dictionary *dict) {
     booleanExpression[2] = strdup("TK_NOT");
     booleanExpression[3] = strdup("TK_NUM");
     booleanExpression[4] = strdup("TK_RNUM");
-    insert(dict, strdup("booleanExpression"), booleanExpression,5);
+    insert(dict, strdup("booleanExpression"), booleanExpression, 5);
 
     // var
     char **var = (char **)malloc(3 * sizeof(char *));
     var[0] = strdup("TK_ID");
     var[1] = strdup("TK_NUM");
     var[2] = strdup("TK_RNUM");
-    insert(dict, strdup("var"), var,3);
+    insert(dict, strdup("var"), var, 3);
 
     // logicalOp
     char **logicalOp = (char **)malloc(2 * sizeof(char *));
     logicalOp[0] = strdup("TK_AND");
     logicalOp[1] = strdup("TK_OR");
-    insert(dict, strdup("logicalOp"), logicalOp,2);
+    insert(dict, strdup("logicalOp"), logicalOp, 2);
 
     // relationalOp
     char **relationalOp = (char **)malloc(6 * sizeof(char *));
@@ -434,49 +446,47 @@ void initFirst(struct Dictionary *dict) {
     relationalOp[3] = strdup("TK_GT");
     relationalOp[4] = strdup("TK_GE");
     relationalOp[5] = strdup("TK_NE");
-    insert(dict, strdup("relationalOp"), relationalOp,6);
+    insert(dict, strdup("relationalOp"), relationalOp, 6);
 
     // returnStmt
     char **returnStmt = (char **)malloc(1 * sizeof(char *));
     returnStmt[0] = strdup("TK_RETURN");
-    insert(dict, strdup("returnStmt"), returnStmt,1);
+    insert(dict, strdup("returnStmt"), returnStmt, 1);
 
     // optionalReturn
     char **optionalReturn = (char **)malloc(2 * sizeof(char *));
     optionalReturn[0] = strdup("TK_SQL");
     optionalReturn[1] = strdup("ε");
-    insert(dict, strdup("optionalReturn"), optionalReturn,2);
+    insert(dict, strdup("optionalReturn"), optionalReturn, 2);
 
     // idList
     char **idList = (char **)malloc(1 * sizeof(char *));
     idList[0] = strdup("TK_ID");
-    insert(dict, strdup("idList"), idList,1);
+    insert(dict, strdup("idList"), idList, 1);
 
     // more_ids
     char **more_ids = (char **)malloc(2 * sizeof(char *));
     more_ids[0] = strdup("TK_COMMA");
     more_ids[1] = strdup("ε");
-    insert(dict, strdup("more_ids"), more_ids,2);
+    insert(dict, strdup("more_ids"), more_ids, 2);
 
     // definetypestmt
     char **definetypestmt = (char **)malloc(1 * sizeof(char *));
     definetypestmt[0] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("definetypestmt"), definetypestmt,1);
+    insert(dict, strdup("definetypestmt"), definetypestmt, 1);
 
     // A
     char **A = (char **)malloc(2 * sizeof(char *));
     A[0] = strdup("TK_RECORD");
     A[1] = strdup("TK_UNION");
-    insert(dict, strdup("A"), A,2);
-
-    
+    insert(dict, strdup("A"), A, 2);
 
     // Free dictionary and exit
     // (Remember to free memory allocated for keys and values)
-    
 }
 
-void initFollow(struct Dictionary* dict){
+void initFollow(struct Dictionary *dict)
+{
     // program
     char **program = (char **)malloc(1 * sizeof(char *));
     program[0] = strdup("ε");
@@ -991,41 +1001,46 @@ void initFollow(struct Dictionary* dict){
     char **A = (char **)malloc(1 * sizeof(char *));
     A[0] = strdup("TK_RUID");
     insert(dict, strdup("A"), A, 1);
-
-
 }
 
-int searchF(struct Dictionary *dict, char *NT , char *T)
+int searchF(struct Dictionary *dict, char *NT, char *T)
 {
     int index = hash(NT);
-    int len = dict->table[index]->len; 
-    char** list = dict->table[index]->value;
+    int len = dict->table[index]->len;
+    char **list = dict->table[index]->value;
     int result = -1;
-    for(int i = 0; i < len ; i++){
-        if(!strcmp(list[i] , T)){
+    for (int i = 0; i < len; i++)
+    {
+        if (!strcmp(list[i], T))
+        {
             result = 1;
             break;
-        } else if(!strcmp(list[i] , "ε\0")){
+        }
+        else if (!strcmp(list[i], "ε\0"))
+        {
             result = 0;
         }
     }
     return result;
 }
 
-int main() {
+int main()
+{
     // Example usage
     struct Dictionary *dict = createDictionary();
     initFirst(dict);
-    //int j = searchF(dict,"more_ids","TK_MAIN");
-    //printf("%d\n",j);
+    // int j = searchF(dict,"more_ids","TK_MAIN");
+    // printf("%d\n",j);
     int j = 1;
-    
-    for(int i = 0; i < TABLE_SIZE; i++){
-        if(dict->table[i]!=NULL){
-            printf("%d %d\n",j++,i);
+
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        if (dict->table[i] != NULL)
+        {
+            printf("%d %d\n", j++, i);
         }
     }
-    
+
     /*
     int len;
     char **result = search(dict, "relationalOp",&len);
@@ -1040,7 +1055,7 @@ int main() {
         printf("Key not found\n");
     }
     // Free dynamically allocated memory for keys and values
-    
+
     for (int i = 0; i < TABLE_SIZE; ++i) {
         if (dict->table[i] != NULL) {
             free(dict->table[i]->key);
@@ -1055,11 +1070,6 @@ int main() {
 */
     return 0;
 }
-
-
-
-
-
 
 /*
 

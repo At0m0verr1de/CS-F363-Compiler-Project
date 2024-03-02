@@ -1,3 +1,13 @@
+/*
+    Group No. - 3
+    Aryan Bakshi        2021A7PS0532P
+    Aadeesh Garg        2021A7PS0446P
+    Vedant Tuli         2021A7PS0435P
+    Amandeep Singh      2021A7PS0575P
+    Rijul Bassamboo     2021A7PS0009P
+    Mihika Deshpande    2021A7PS2435P
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,132 +17,148 @@
 #define MAX_RULE_LENGTH 5 // Maximum length of a production rule
 
 // Node structure for a term in a production rule
-typedef struct node {
+typedef struct node
+{
     char name[50];
     bool terminal;
-    struct node* next;
+    struct node *next;
 } NODE;
 
 // Rules structure containing heads of production rules
-typedef struct Rules {
-    NODE* heads;
+typedef struct Rules
+{
+    NODE *heads;
     int length;
 } RULES;
 
 // Grammar structure
-typedef struct Grammar {
-    RULES* rules[TABLE_SIZE];
+typedef struct Grammar
+{
+    RULES *rules[TABLE_SIZE];
 } GRAMMAR;
 
 // Hash function
-static unsigned int hash (register const char *str)
+static unsigned int hash(register const char *str)
 {
-  static unsigned char asso_values[] =
-    {
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83,  0, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83,  0, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 30,  5, 26,
-      25,  0, 40,  5,  5,  0, 83, 83, 60, 10,
-      55,  0,  0, 83,  5, 35, 20,  0,  5, 83,
-      83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83
-    };
-  register unsigned int hval = strlen(str);
-  
+    static unsigned char asso_values[] =
+        {
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 0, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 0, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 30, 5, 26,
+            25, 0, 40, 5, 5, 0, 83, 83, 60, 10,
+            55, 0, 0, 83, 5, 35, 20, 0, 5, 83,
+            83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83};
+    register unsigned int hval = strlen(str);
 
-  switch (hval)
+    switch (hval)
     {
-      default:
+    default:
         hval += asso_values[(unsigned char)str[1]];
-      /*FALLTHROUGH*/
-      case 1:
+    /*FALLTHROUGH*/
+    case 1:
         hval += asso_values[(unsigned char)str[0]];
         break;
     }
 
-    if(!strcmp(str,"term\0")) hval = 23;
-    if(!strcmp(str,"primitiveDatatype\0")) hval = 21;
-    if(!strcmp(str,"arithmeticExpression\0")) hval = 57;
-    if(!strcmp(str,"expPrime\0")) hval = 81;
-    printf("%s %u\n", str , hval);
-  return hval;
+    if (!strcmp(str, "term\0"))
+        hval = 23;
+    if (!strcmp(str, "primitiveDatatype\0"))
+        hval = 21;
+    if (!strcmp(str, "arithmeticExpression\0"))
+        hval = 57;
+    if (!strcmp(str, "expPrime\0"))
+        hval = 81;
+    printf("%s %u\n", str, hval);
+    return hval;
 }
 
-void initRules(RULES* rules){
+void initRules(RULES *rules)
+{
     rules->heads = NULL;
     rules->length = 0;
 }
 
 // Function to add a rule to the grammar
-void addRule(GRAMMAR* grammar, char* nonTerminal, NODE* nodes) {
+void addRule(GRAMMAR *grammar, char *nonTerminal, NODE *nodes)
+{
     int index = hash(nonTerminal);
-    if (grammar->rules[index] == NULL) {
-        RULES* newRules = (RULES*)malloc(sizeof(RULES));
+    if (grammar->rules[index] == NULL)
+    {
+        RULES *newRules = (RULES *)malloc(sizeof(RULES));
         initRules(newRules);
         newRules->length++;
-        newRules->heads = (NODE*) malloc(10*sizeof(NODE));
+        newRules->heads = (NODE *)malloc(10 * sizeof(NODE));
         newRules->heads[0] = nodes[0];
         grammar->rules[index] = newRules;
     }
-    else {
-        grammar->rules[index]->heads[grammar->rules[index]->length]=nodes[0];
+    else
+    {
+        grammar->rules[index]->heads[grammar->rules[index]->length] = nodes[0];
         grammar->rules[index]->length++;
-        //printf("Non-terminal %s already has a rule defined.\n", nonTerminal);
+        // printf("Non-terminal %s already has a rule defined.\n", nonTerminal);
     }
 }
 
 // Function to retrieve rules for a non-terminal
-RULES* getRules(GRAMMAR* grammar, char* nonTerminal) {
+RULES *getRules(GRAMMAR *grammar, char *nonTerminal)
+{
     int index = hash(nonTerminal);
     return grammar->rules[index];
 }
 
-void printGrammar(GRAMMAR* grammar){
-    int count=1;
-    for(int i=0;i<TABLE_SIZE;i++){
-        if (grammar->rules[i] != NULL){
+void printGrammar(GRAMMAR *grammar)
+{
+    int count = 1;
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        if (grammar->rules[i] != NULL)
+        {
             printf("\n");
             printf("Non terminal number: %d\n", count++);
-            RULES* r = grammar->rules[i];
-            for (int i = 0; i < r->length; i++) {
-            printf("Rule %d:\n", i + 1);
-            printf("Name: %s, Terminal: %s\n",r->heads[i].name, r->heads[i].terminal ? "true" : "false");
-            NODE* head = r->heads[i].next;
-            while (head != NULL) {
-                printf("Name: %s, Terminal: %s\n", head->name, head->terminal ? "true" : "false");
-                head = head->next;
+            RULES *r = grammar->rules[i];
+            for (int i = 0; i < r->length; i++)
+            {
+                printf("Rule %d:\n", i + 1);
+                printf("Name: %s, Terminal: %s\n", r->heads[i].name, r->heads[i].terminal ? "true" : "false");
+                NODE *head = r->heads[i].next;
+                while (head != NULL)
+                {
+                    printf("Name: %s, Terminal: %s\n", head->name, head->terminal ? "true" : "false");
+                    head = head->next;
+                }
             }
-        }
         }
     }
 }
 
+void initGrammer(GRAMMAR *grammar)
+{
 
-void initGrammer(GRAMMAR* grammar){
-    
-    for (int i = 0; i < TABLE_SIZE; i++) {
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
         grammar->rules[i] = NULL;
     }
-    
+
     // <program> ===> <otherFunctions> <mainFunction>
     NODE *nodes_program = malloc(2 * sizeof(NODE));
 
@@ -173,7 +199,6 @@ void initGrammer(GRAMMAR* grammar){
     nodes_function[5] = (NODE){"TK_END", true, NULL};
 
     addRule(grammar, "function", nodes_function);
-    
 
     // <input_par>===>TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR
     NODE *nodes_input_par = malloc(6 * sizeof(NODE));
@@ -449,7 +474,7 @@ void initGrammer(GRAMMAR* grammar){
     addRule(grammar, "option_single_constructed", nodes_optionSingleConstructed_1);
     addRule(grammar, "option_single_constructed", nodes_optionSingleConstructed_2);
 
-    // <oneExpansion>===> TK_DOT TK_FIELDID 
+    // <oneExpansion>===> TK_DOT TK_FIELDID
     NODE *nodes_oneExpansion = malloc(2 * sizeof(NODE));
 
     nodes_oneExpansion[0] = (NODE){"TK_DOT", true, &nodes_oneExpansion[1]};
@@ -775,11 +800,11 @@ void initGrammer(GRAMMAR* grammar){
 
     addRule(grammar, "A", nodes_A_1);
     addRule(grammar, "A", nodes_A_2);
-
 }
 
-int main(){
-    GRAMMAR* grammar = (GRAMMAR*) malloc(sizeof(GRAMMAR));
+int main()
+{
+    GRAMMAR *grammar = (GRAMMAR *)malloc(sizeof(GRAMMAR));
     initGrammer(grammar);
     printGrammar(grammar);
 }

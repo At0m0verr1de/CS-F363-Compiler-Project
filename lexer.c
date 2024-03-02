@@ -1,3 +1,13 @@
+/*
+    Group No. - 3
+    Aryan Bakshi        2021A7PS0532P
+    Aadeesh Garg        2021A7PS0446P
+    Vedant Tuli         2021A7PS0435P
+    Amandeep Singh      2021A7PS0575P
+    Rijul Bassamboo     2021A7PS0009P
+    Mihika Deshpande    2021A7PS2435P
+*/
+
 // ---------------------------------------- Header Files -----------------------------------------
 #include <stdlib.h>
 #include <stdio.h>
@@ -799,8 +809,47 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
             return token;
         }
     }
-    printf("maa chud gyi");
     return token;
+}
+
+void removeComments(char *testcaseFile, char *cleanFile)
+{
+    FILE *inputFile, *outputFile;
+    char currentChar, nextChar;
+
+    // Open source code file for reading
+    if ((inputFile = fopen(testcaseFile, "r")) == NULL)
+    {
+        perror("Error opening input file");
+        return;
+    }
+
+    // Open clean code file for writing
+    if ((outputFile = fopen(cleanFile, "w")) == NULL)
+    {
+        perror("Error opening output file");
+        fclose(inputFile);
+        return;
+    }
+
+    // Process each character in the input file
+    while ((currentChar = fgetc(inputFile)) != '\0')
+    {
+        // Check for start of single-line comment
+        if (currentChar == '/' && (nextChar = fgetc(inputFile)) == '/')
+        {
+            // Skip until end of line
+            while ((currentChar = fgetc(inputFile)) != '\n' && currentChar != '\0')
+                ;
+            // Write newline character to output file
+            fputc('\n', outputFile);
+        }
+        // Write non-comment characters to output file
+        else
+        {
+            fputc(currentChar, outputFile);
+        }
+    }
 }
 
 // ---------------------------------------- Main Function -----------------------------------------
