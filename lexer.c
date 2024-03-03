@@ -932,16 +932,14 @@ void removeComments(char *testcaseFile, char *cleanFile)
     }
 
     // Process each character in the input file
-    while ((currentChar = fgetc(inputFile)) != '\0')
+    while ((currentChar = fgetc(inputFile)) != EOF)
     {
         // Check for start of single-line comment
-        if (currentChar == '/' && (nextChar = fgetc(inputFile)) == '/')
+        if (currentChar == '%')
         {
             // Skip until end of line
             while ((currentChar = fgetc(inputFile)) != '\n' && currentChar != '\0')
                 ;
-            // Write newline character to output file
-            fputc('\n', outputFile);
         }
         // Write non-comment characters to output file
         else
@@ -949,6 +947,8 @@ void removeComments(char *testcaseFile, char *cleanFile)
             fputc(currentChar, outputFile);
         }
     }
+    fclose(inputFile);
+    fclose(outputFile);
 }
 
 // Main Tokenizer Function
