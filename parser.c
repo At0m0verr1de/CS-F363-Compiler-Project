@@ -1047,7 +1047,7 @@ RULES *getRules(GRAMMAR *grammar, char *nonTerminal)
 void printGrammar(GRAMMAR *grammar)
 {
     int count = 1;
-    for (int i = 0; i < TABLE_SIZE; i++)
+    for (int i = 0; i < FAF_TABLE_SIZE; i++)
     {
         if (grammar->rules[i] != NULL)
         {
@@ -1072,7 +1072,7 @@ void printGrammar(GRAMMAR *grammar)
 void initGrammer(GRAMMAR *grammar)
 {
 
-    for (int i = 0; i < TABLE_SIZE; i++)
+    for (int i = 0; i < FAF_TABLE_SIZE; i++)
     {
         grammar->rules[i] = NULL;
     }

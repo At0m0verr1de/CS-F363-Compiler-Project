@@ -8,10 +8,10 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
-#define FAF_TABLE_SIZE 100
+#define FAF_TABLE_SIZE 84
 #define MAX_RULE_LENGTH 5    // Maximum length of a production rule
 #define MAX_NON_TERMINALS 100 // Maximum number of non-terminals in the grammar
-#define MAX_TERMINALS 100  // Maximum number of terminals in the grammar
+#define MAX_TERMINALS 126 // Maximum number of terminals in the grammar
 #define MAX_CHILDREN 15
 
 typedef struct KeyValuePairParser
@@ -65,5 +65,5 @@ typedef struct
 
 typedef struct DictionaryParser
 {
-    struct KeyValuePairParser *table[TABLE_SIZE];
+    struct KeyValuePairParser *table[FAF_TABLE_SIZE];
 } DictionaryParser;
