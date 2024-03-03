@@ -1,0 +1,15 @@
+Lexical Analyzer: Develop the lexical analyzer module of compiler for implementing the given language. This module takes as input the file containing user source code written in the given language and produces the tokens. The lexical analyzer module scans the input only once and collects all relevant information required by the other modules of compiler. The lexical analyzer ignores comments and white spaces, while recognizes the useful lexemes as valid tokens The lexical errors are reported by this module when it sees any symbol or pattern not belonging to the language. Your lexical analyzer must
+
+Tokenize lexemes appropriately
+Maintain all information collected during a single pass of the source code
+Be efficient with respect to time and space complexity
+Report lexical errors with line numbers appropriately
+Implementation Details
+
+Use C language ( Linux/ Ubuntu based GCC) to implement the modules. 
+Use of any other high level language or lexer/ parser generator packages is NOT allowed. 
+Test your code with the test cases given in the language specification document. 
+Generate more test cases and verify the correctness of your code. 
+You will be given more test cases later. 
+An appropriate interface support will be provided to you as you are through with the ground work.
+Instead of starting coding, first spend time in designing the structure of your compiler code.

@@ -1,0 +1,6 @@
+Syntax Analyzer: This module takes as input the token stream from the lexical analyzer module and verifies syntactic correctness of the source code. This uses predictive parser (using parsing table) to establish the syntactic structure of the source code. As the parser sees next token, verifies its correctness, it uses the token information to build a tree node and inserts appropriately in the parse tree corresponding to the input source code. If the source code (in given language) is syntactically correct, a corresponding parse tree is produced as the output. If the input is syntactically wrong, errors are reported appropriately. Your syntax analyzer (Parser) must
+
+Ensure time and space efficiency and use a single pass of the token stream
+Use predictive parser using parsing table
+Produce as output the parse tree, if the source code is syntactically correct
+Produce a list of syntax errors with appropriate messages and line numbers

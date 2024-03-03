@@ -1,13 +1,4 @@
-Group No. - 3
-Aryan Bakshi        2021A7PS0532P
-Aadeesh Garg        2021A7PS0446P
-Vedant Tuli         2021A7PS0435P
-Amandeep Singh      2021A7PS0575P
-Rijul Bassamboo     2021A7PS0009P
-Mihika Deshpande    2021A7PS2435P
-
 First
-
 program                     TK_MAIN TK_FUNID 
 mainFunction                TK_MAIN 
 otherFunctions              TK_FUNID ε 
@@ -62,11 +53,7 @@ more_ids                    TK_COMMA ε
 definetypestmt              TK_DEFINETYPE 
 A                           TK_RECORD TK_UNION
 
-
-
-
 Follow
-
 program                         ε 
 mainFunction                    ε 
 otherFunctions                  TK_MAIN 

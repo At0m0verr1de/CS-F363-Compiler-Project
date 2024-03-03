@@ -1,0 +1,1 @@
+In rule 17a, you can replace TK_RUID with <constructedDatatype>

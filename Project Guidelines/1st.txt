@@ -1,0 +1,4 @@
+a) On page 6, please eliminate TK_RUID from FIRST<otherStmts>. 
+b) FOLLOW <otherStmts> = {TK_RETURN, TK_ENDWHILE, TK_ENDIF, TK_ELSE} 
+c) FOLLOW <declarations>= { TK_ID, TK_WHILE, TK_SQL, TK_IF, TK_READ, TK_WRITE, TK_CALL, TK_RETURN} 
+d) FOLLOW<typeDefinitions>= {TK_ID, TK_WHILE, TK_SQL, TK_IF, TK_READ, TK_WRITE, TK_CALL, TK_RETURN, TK_TYPE} 
