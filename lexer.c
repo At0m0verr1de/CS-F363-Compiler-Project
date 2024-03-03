@@ -47,9 +47,9 @@ int hashLT(char *str)
     return hashValue % TABLE_SIZE;
 }
 
-Dictionary *createDictionary()
+DictionaryLexer *createDictionaryLexer()
 {
-    Dictionary *dict = (Dictionary *)malloc(sizeof(Dictionary));
+    DictionaryLexer *dict = (DictionaryLexer *)malloc(sizeof(DictionaryLexer));
     for (int i = 0; i < TABLE_SIZE; i++)
     {
         dict->table[i] = NULL;
@@ -57,7 +57,7 @@ Dictionary *createDictionary()
     return dict;
 }
 
-void insert(Dictionary *dict, char *key, char *value)
+void insertLexer(DictionaryLexer *dict, char *key, char *value)
 {
     int index = hashLT(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
@@ -66,7 +66,7 @@ void insert(Dictionary *dict, char *key, char *value)
     dict->table[index] = newPair;
 }
 
-char *search(Dictionary *dict, char *key)
+char *search(DictionaryLexer *dict, char *key)
 {
     // if (strlen(key) <=10 && strlen(key) >= 2){
     int index = hashLT(key);
@@ -78,39 +78,39 @@ char *search(Dictionary *dict, char *key)
     return NULL; // Key not found
 }
 
-Dictionary *initLookupTable()
+DictionaryLexer *initLookupTable()
 {
-    Dictionary *dict = createDictionary();
+    DictionaryLexer *dict = createDictionaryLexer();
 
     // Insert default key-value pairs
-    insert(dict, "call", "TK_CALL");
-    insert(dict, "record", "TK_RECORD");
-    insert(dict, "endrecord", "TK_ENDRECORD");
-    insert(dict, "else", "TK_ELSE");
-    insert(dict, "parameters", "TK_PARAMETERS");
-    insert(dict, "with", "TK_WITH");
-    insert(dict, "end", "TK_END");
-    insert(dict, "while", "TK_WHILE");
-    insert(dict, "union", "TK_UNION");
-    insert(dict, "endunion", "TK_ENDUNION");
-    insert(dict, "as", "TK_AS");
-    insert(dict, "type", "TK_TYPE");
-    insert(dict, "_main", "TK_MAIN");
-    insert(dict, "definetype", "TK_DEFINETYPE");
-    insert(dict, "global", "TK_GLOBAL");
-    insert(dict, "parameter", "TK_PARAMETER");
-    insert(dict, "list", "TK_LIST");
-    insert(dict, "input", "TK_INPUT");
-    insert(dict, "output", "TK_OUTPUT");
-    insert(dict, "int", "TK_INT");
-    insert(dict, "real", "TK_REAL");
-    insert(dict, "endwhile", "TK_ENDWHILE");
-    insert(dict, "if", "TK_IF");
-    insert(dict, "then", "TK_THEN");
-    insert(dict, "endif", "TK_ENDIF");
-    insert(dict, "read", "TK_READ");
-    insert(dict, "write", "TK_WRITE");
-    insert(dict, "return", "TK_RETURN");
+    insertLexer(dict, "call", "TK_CALL");
+    insertLexer(dict, "record", "TK_RECORD");
+    insertLexer(dict, "endrecord", "TK_ENDRECORD");
+    insertLexer(dict, "else", "TK_ELSE");
+    insertLexer(dict, "parameters", "TK_PARAMETERS");
+    insertLexer(dict, "with", "TK_WITH");
+    insertLexer(dict, "end", "TK_END");
+    insertLexer(dict, "while", "TK_WHILE");
+    insertLexer(dict, "union", "TK_UNION");
+    insertLexer(dict, "endunion", "TK_ENDUNION");
+    insertLexer(dict, "as", "TK_AS");
+    insertLexer(dict, "type", "TK_TYPE");
+    insertLexer(dict, "_main", "TK_MAIN");
+    insertLexer(dict, "definetype", "TK_DEFINETYPE");
+    insertLexer(dict, "global", "TK_GLOBAL");
+    insertLexer(dict, "parameter", "TK_PARAMETER");
+    insertLexer(dict, "list", "TK_LIST");
+    insertLexer(dict, "input", "TK_INPUT");
+    insertLexer(dict, "output", "TK_OUTPUT");
+    insertLexer(dict, "int", "TK_INT");
+    insertLexer(dict, "real", "TK_REAL");
+    insertLexer(dict, "endwhile", "TK_ENDWHILE");
+    insertLexer(dict, "if", "TK_IF");
+    insertLexer(dict, "then", "TK_THEN");
+    insertLexer(dict, "endif", "TK_ENDIF");
+    insertLexer(dict, "read", "TK_READ");
+    insertLexer(dict, "write", "TK_WRITE");
+    insertLexer(dict, "return", "TK_RETURN");
 
     return dict;
 }
@@ -174,7 +174,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
 }
 
 // Function to get next token
-TokenInfo getNextToken(twinBuffer *B, FILE *fp, Dictionary *dict)
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 {
     int state = 0;
     TokenInfo token;
@@ -975,7 +975,7 @@ void lexer(FILE *fp)
         perror("Error opening file");
     }
 
-    Dictionary *dict = initLookupTable();
+    DictionaryLexer *dict = initLookupTable();
 
     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
     initTwinBuffer(B, fp);

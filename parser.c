@@ -1,9 +1,9 @@
 #include "lexer.h"
 #include "parser.h"
 
-Dictionary *createDictionary()
+DictionaryParser *createDictionaryParser()
 {
-    Dictionary *dict = (Dictionary *)malloc(sizeof(Dictionary));
+    DictionaryParser *dict = (DictionaryParser *)malloc(sizeof(DictionaryParser));
     for (int i = 0; i < FAF_TABLE_SIZE; i++)
     {
         dict->table[i] = NULL;
@@ -66,10 +66,10 @@ int hashNT(char *str)
     return hval;
 }
 
-void insert(Dictionary *dict, char *key, char **value, int len)
+void insertParser(DictionaryParser *dict, char *key, char **value, int len)
 {
     int index = hashNT(key);
-    struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
+    struct KeyValuePairParser *newPair = (struct KeyValuePairParser *)malloc(sizeof(struct KeyValuePairParser));
     newPair->key = strdup(key); // strdup dynamically allocates memory for the string
     newPair->value = value;
     newPair->len = len;
@@ -78,41 +78,41 @@ void insert(Dictionary *dict, char *key, char **value, int len)
     dict->table[index] = newPair;
 }
 
-void initFirst(Dictionary *dict)
+void initFirst(DictionaryParser *dict)
 {
 
     // Insert key-value pairs
     char **program = (char **)malloc(2 * sizeof(char *));
     program[0] = strdup("TK_MAIN");
     program[1] = strdup("TK_FUNID");
-    insert(dict, strdup("program"), program, 2);
+    insertParser(dict, strdup("program"), program, 2);
 
     // mainFunction
     char **mainFunction = (char **)malloc(1 * sizeof(char *));
     mainFunction[0] = strdup("TK_MAIN");
-    insert(dict, strdup("mainFunction"), mainFunction, 1);
+    insertParser(dict, strdup("mainFunction"), mainFunction, 1);
 
     // otherFunctions
     char **otherFunctions = (char **)malloc(2 * sizeof(char *));
     otherFunctions[0] = strdup("TK_FUNID");
     otherFunctions[1] = strdup("ε");
-    insert(dict, strdup("otherFunctions"), otherFunctions, 2);
+    insertParser(dict, strdup("otherFunctions"), otherFunctions, 2);
 
     // function
     char **function = (char **)malloc(1 * sizeof(char *));
     function[0] = strdup("TK_FUNID");
-    insert(dict, strdup("function"), function, 1);
+    insertParser(dict, strdup("function"), function, 1);
 
     // input_par
     char **input_par = (char **)malloc(1 * sizeof(char *));
     input_par[0] = strdup("TK_INPUT");
-    insert(dict, strdup("input_par"), input_par, 1);
+    insertParser(dict, strdup("input_par"), input_par, 1);
 
     // output_par
     char **output_par = (char **)malloc(2 * sizeof(char *));
     output_par[0] = strdup("TK_OUTPUT");
     output_par[1] = strdup("ε");
-    insert(dict, strdup("output_par"), output_par, 2);
+    insertParser(dict, strdup("output_par"), output_par, 2);
 
     // parameter_list
     char **parameter_list = (char **)malloc(5 * sizeof(char *));
@@ -121,7 +121,7 @@ void initFirst(Dictionary *dict)
     parameter_list[2] = strdup("TK_RECORD");
     parameter_list[3] = strdup("TK_RUID");
     parameter_list[4] = strdup("TK_UNION");
-    insert(dict, strdup("parameter_list"), parameter_list, 5);
+    insertParser(dict, strdup("parameter_list"), parameter_list, 5);
 
     // dataType
     char **dataType = (char **)malloc(5 * sizeof(char *));
@@ -130,26 +130,26 @@ void initFirst(Dictionary *dict)
     dataType[2] = strdup("TK_RECORD");
     dataType[3] = strdup("TK_RUID");
     dataType[4] = strdup("TK_UNION");
-    insert(dict, strdup("dataType"), dataType, 5);
+    insertParser(dict, strdup("dataType"), dataType, 5);
 
     // primitiveDatatype
     char **primitiveDatatype = (char **)malloc(2 * sizeof(char *));
     primitiveDatatype[0] = strdup("TK_INT");
     primitiveDatatype[1] = strdup("TK_REAL");
-    insert(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
+    insertParser(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
 
     // constructedDatatype
     char **constructedDatatype = (char **)malloc(3 * sizeof(char *));
     constructedDatatype[0] = strdup("TK_RECORD");
     constructedDatatype[1] = strdup("TK_RUID");
     constructedDatatype[2] = strdup("TK_UNION");
-    insert(dict, strdup("constructedDatatype"), constructedDatatype, 3);
+    insertParser(dict, strdup("constructedDatatype"), constructedDatatype, 3);
 
     // remaining_list
     char **remaining_list = (char **)malloc(2 * sizeof(char *));
     remaining_list[0] = strdup("TK_COMMA");
     remaining_list[1] = strdup("ε");
-    insert(dict, strdup("remaining_list"), remaining_list, 2);
+    insertParser(dict, strdup("remaining_list"), remaining_list, 2);
 
     // stmts
     char **stmts = (char **)malloc(12 * sizeof(char *));
@@ -165,7 +165,7 @@ void initFirst(Dictionary *dict)
     stmts[9] = strdup("TK_WRITE");
     stmts[10] = strdup("TK_RETURN");
     stmts[11] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("stmts"), stmts, 12);
+    insertParser(dict, strdup("stmts"), stmts, 12);
 
     // typeDefinitions
     char **typeDefinitions = (char **)malloc(4 * sizeof(char *));
@@ -173,30 +173,30 @@ void initFirst(Dictionary *dict)
     typeDefinitions[1] = strdup("TK_UNION");
     typeDefinitions[2] = strdup("TK_DEFINETYPE");
     typeDefinitions[3] = strdup("ε");
-    insert(dict, strdup("typeDefinitions"), typeDefinitions, 4);
+    insertParser(dict, strdup("typeDefinitions"), typeDefinitions, 4);
 
     // actualOrRedefined
     char **actualOrRedefined = (char **)malloc(3 * sizeof(char *));
     actualOrRedefined[0] = strdup("TK_RECORD");
     actualOrRedefined[1] = strdup("TK_UNION");
     actualOrRedefined[2] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("actualOrRedefined"), actualOrRedefined, 3);
+    insertParser(dict, strdup("actualOrRedefined"), actualOrRedefined, 3);
 
     // typeDefinition
     char **typeDefinition = (char **)malloc(2 * sizeof(char *));
     typeDefinition[0] = strdup("TK_RECORD");
     typeDefinition[1] = strdup("TK_UNION");
-    insert(dict, strdup("typeDefinition"), typeDefinition, 2);
+    insertParser(dict, strdup("typeDefinition"), typeDefinition, 2);
 
     // fieldDefinitions
     char **fieldDefinitions = (char **)malloc(1 * sizeof(char *));
     fieldDefinitions[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinitions"), fieldDefinitions, 1);
+    insertParser(dict, strdup("fieldDefinitions"), fieldDefinitions, 1);
 
     // fieldDefinition
     char **fieldDefinition = (char **)malloc(1 * sizeof(char *));
     fieldDefinition[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinition"), fieldDefinition, 1);
+    insertParser(dict, strdup("fieldDefinition"), fieldDefinition, 1);
 
     // fieldType
     char **fieldType = (char **)malloc(5 * sizeof(char *));
@@ -205,30 +205,30 @@ void initFirst(Dictionary *dict)
     fieldType[2] = strdup("TK_RUID");
     fieldType[3] = strdup("TK_RECORD");
     fieldType[4] = strdup("TK_UNION");
-    insert(dict, strdup("fieldType"), fieldType, 5);
+    insertParser(dict, strdup("fieldType"), fieldType, 5);
 
     // moreFields
     char **moreFields = (char **)malloc(2 * sizeof(char *));
     moreFields[0] = strdup("TK_TYPE");
     moreFields[1] = strdup("ε");
-    insert(dict, strdup("moreFields"), moreFields, 2);
+    insertParser(dict, strdup("moreFields"), moreFields, 2);
 
     // declarations
     char **declarations = (char **)malloc(2 * sizeof(char *));
     declarations[0] = strdup("TK_TYPE");
     declarations[1] = strdup("ε");
-    insert(dict, strdup("declarations"), declarations, 2);
+    insertParser(dict, strdup("declarations"), declarations, 2);
 
     // declaration
     char **declaration = (char **)malloc(1 * sizeof(char *));
     declaration[0] = strdup("TK_TYPE");
-    insert(dict, strdup("declaration"), declaration, 1);
+    insertParser(dict, strdup("declaration"), declaration, 1);
 
     // global_or_not
     char **global_or_not = (char **)malloc(2 * sizeof(char *));
     global_or_not[0] = strdup("TK_COLON");
     global_or_not[1] = strdup("ε");
-    insert(dict, strdup("global_or_not"), global_or_not, 2);
+    insertParser(dict, strdup("global_or_not"), global_or_not, 2);
 
     // otherStmts
     char **otherStmts = (char **)malloc(8 * sizeof(char *));
@@ -240,7 +240,7 @@ void initFirst(Dictionary *dict)
     otherStmts[5] = strdup("TK_READ");
     otherStmts[6] = strdup("TK_WRITE");
     otherStmts[7] = strdup("ε");
-    insert(dict, strdup("otherStmts"), otherStmts, 8);
+    insertParser(dict, strdup("otherStmts"), otherStmts, 8);
 
     // stmt
     char **stmt = (char **)malloc(7 * sizeof(char *));
@@ -251,73 +251,73 @@ void initFirst(Dictionary *dict)
     stmt[4] = strdup("TK_IF");
     stmt[5] = strdup("TK_READ");
     stmt[6] = strdup("TK_WRITE");
-    insert(dict, strdup("stmt"), stmt, 7);
+    insertParser(dict, strdup("stmt"), stmt, 7);
 
     // assignmentStmt
     char **assignmentStmt = (char **)malloc(1 * sizeof(char *));
     assignmentStmt[0] = strdup("TK_ID");
-    insert(dict, strdup("assignmentStmt"), assignmentStmt, 1);
+    insertParser(dict, strdup("assignmentStmt"), assignmentStmt, 1);
 
     // SingleOrRecId
     char **SingleOrRecId = (char **)malloc(1 * sizeof(char *));
     SingleOrRecId[0] = strdup("TK_ID");
-    insert(dict, strdup("SingleOrRecId"), SingleOrRecId, 1);
+    insertParser(dict, strdup("SingleOrRecId"), SingleOrRecId, 1);
 
     // option_single_constructed
     char **option_single_constructed = (char **)malloc(2 * sizeof(char *));
     option_single_constructed[0] = strdup("TK_DOT");
     option_single_constructed[1] = strdup("ε");
-    insert(dict, strdup("option_single_constructed"), option_single_constructed, 2);
+    insertParser(dict, strdup("option_single_constructed"), option_single_constructed, 2);
 
     // oneExpansion
     char **oneExpansion = (char **)malloc(1 * sizeof(char *));
     oneExpansion[0] = strdup("TK_DOT");
-    insert(dict, strdup("oneExpansion"), oneExpansion, 1);
+    insertParser(dict, strdup("oneExpansion"), oneExpansion, 1);
 
     // moreExpansions
     char **moreExpansions = (char **)malloc(2 * sizeof(char *));
     moreExpansions[0] = strdup("TK_DOT");
     moreExpansions[1] = strdup("ε");
-    insert(dict, strdup("moreExpansions"), moreExpansions, 2);
+    insertParser(dict, strdup("moreExpansions"), moreExpansions, 2);
 
     // funCallStmt
     char **funCallStmt = (char **)malloc(2 * sizeof(char *));
     funCallStmt[0] = strdup("TK_SQL");
     funCallStmt[1] = strdup("TK_CALL");
-    insert(dict, strdup("funCallStmt"), funCallStmt, 2);
+    insertParser(dict, strdup("funCallStmt"), funCallStmt, 2);
 
     // outputParameters
     char **outputParameters = (char **)malloc(2 * sizeof(char *));
     outputParameters[0] = strdup("TK_SQL");
     outputParameters[1] = strdup("ε");
-    insert(dict, strdup("outputParameters"), outputParameters, 2);
+    insertParser(dict, strdup("outputParameters"), outputParameters, 2);
 
     // inputParameters
     char **inputParameters = (char **)malloc(1 * sizeof(char *));
     inputParameters[0] = strdup("TK_SQL");
-    insert(dict, strdup("inputParameters"), inputParameters, 1);
+    insertParser(dict, strdup("inputParameters"), inputParameters, 1);
 
     // iterativeStmt
     char **iterativeStmt = (char **)malloc(1 * sizeof(char *));
     iterativeStmt[0] = strdup("TK_WHILE");
-    insert(dict, strdup("iterativeStmt"), iterativeStmt, 1);
+    insertParser(dict, strdup("iterativeStmt"), iterativeStmt, 1);
 
     // conditionalStmt
     char **conditionalStmt = (char **)malloc(1 * sizeof(char *));
     conditionalStmt[0] = strdup("TK_IF");
-    insert(dict, strdup("conditionalStmt"), conditionalStmt, 1);
+    insertParser(dict, strdup("conditionalStmt"), conditionalStmt, 1);
 
     // elsePart
     char **elsePart = (char **)malloc(2 * sizeof(char *));
     elsePart[0] = strdup("TK_ELSE");
     elsePart[1] = strdup("TK_ENDIF");
-    insert(dict, strdup("elsePart"), elsePart, 2);
+    insertParser(dict, strdup("elsePart"), elsePart, 2);
 
     // ioStmt
     char **ioStmt = (char **)malloc(2 * sizeof(char *));
     ioStmt[0] = strdup("TK_READ");
     ioStmt[1] = strdup("TK_WRITE");
-    insert(dict, strdup("ioStmt"), ioStmt, 2);
+    insertParser(dict, strdup("ioStmt"), ioStmt, 2);
 
     // arithmeticExpression
     char **arithmeticExpression = (char **)malloc(4 * sizeof(char *));
@@ -325,14 +325,14 @@ void initFirst(Dictionary *dict)
     arithmeticExpression[1] = strdup("TK_OP");
     arithmeticExpression[2] = strdup("TK_NUM");
     arithmeticExpression[3] = strdup("TK_RNUM");
-    insert(dict, strdup("arithmeticExpression"), arithmeticExpression, 4);
+    insertParser(dict, strdup("arithmeticExpression"), arithmeticExpression, 4);
 
     // expPrime
     char **expPrime = (char **)malloc(3 * sizeof(char *));
     expPrime[0] = strdup("TK_PLUS");
     expPrime[1] = strdup("TK_MINUS");
     expPrime[2] = strdup("ε");
-    insert(dict, strdup("expPrime"), expPrime, 3);
+    insertParser(dict, strdup("expPrime"), expPrime, 3);
 
     // term
     char **term = (char **)malloc(4 * sizeof(char *));
@@ -340,14 +340,14 @@ void initFirst(Dictionary *dict)
     term[1] = strdup("TK_OP");
     term[2] = strdup("TK_NUM");
     term[3] = strdup("TK_RNUM");
-    insert(dict, strdup("term"), term, 4);
+    insertParser(dict, strdup("term"), term, 4);
 
     // termPrime
     char **termPrime = (char **)malloc(3 * sizeof(char *));
     termPrime[0] = strdup("TK_MUL");
     termPrime[1] = strdup("TK_DIV");
     termPrime[2] = strdup("ε");
-    insert(dict, strdup("termPrime"), termPrime, 3);
+    insertParser(dict, strdup("termPrime"), termPrime, 3);
 
     // factor
     char **factor = (char **)malloc(4 * sizeof(char *));
@@ -355,19 +355,19 @@ void initFirst(Dictionary *dict)
     factor[1] = strdup("TK_OP");
     factor[2] = strdup("TK_NUM");
     factor[3] = strdup("TK_RNUM");
-    insert(dict, strdup("factor"), factor, 4);
+    insertParser(dict, strdup("factor"), factor, 4);
 
     // highPrecedenceOperators
     char **highPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     highPrecedenceOperators[0] = strdup("TK_MUL");
     highPrecedenceOperators[1] = strdup("TK_DIV");
-    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 2);
+    insertParser(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 2);
 
     // lowPrecedenceOperators
     char **lowPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     lowPrecedenceOperators[0] = strdup("TK_PLUS");
     lowPrecedenceOperators[1] = strdup("TK_MINUS");
-    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 2);
+    insertParser(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 2);
 
     // booleanExpression
     char **booleanExpression = (char **)malloc(5 * sizeof(char *));
@@ -376,20 +376,20 @@ void initFirst(Dictionary *dict)
     booleanExpression[2] = strdup("TK_NOT");
     booleanExpression[3] = strdup("TK_NUM");
     booleanExpression[4] = strdup("TK_RNUM");
-    insert(dict, strdup("booleanExpression"), booleanExpression, 5);
+    insertParser(dict, strdup("booleanExpression"), booleanExpression, 5);
 
     // var
     char **var = (char **)malloc(3 * sizeof(char *));
     var[0] = strdup("TK_ID");
     var[1] = strdup("TK_NUM");
     var[2] = strdup("TK_RNUM");
-    insert(dict, strdup("var"), var, 3);
+    insertParser(dict, strdup("var"), var, 3);
 
     // logicalOp
     char **logicalOp = (char **)malloc(2 * sizeof(char *));
     logicalOp[0] = strdup("TK_AND");
     logicalOp[1] = strdup("TK_OR");
-    insert(dict, strdup("logicalOp"), logicalOp, 2);
+    insertParser(dict, strdup("logicalOp"), logicalOp, 2);
 
     // relationalOp
     char **relationalOp = (char **)malloc(6 * sizeof(char *));
@@ -399,111 +399,111 @@ void initFirst(Dictionary *dict)
     relationalOp[3] = strdup("TK_GT");
     relationalOp[4] = strdup("TK_GE");
     relationalOp[5] = strdup("TK_NE");
-    insert(dict, strdup("relationalOp"), relationalOp, 6);
+    insertParser(dict, strdup("relationalOp"), relationalOp, 6);
 
     // returnStmt
     char **returnStmt = (char **)malloc(1 * sizeof(char *));
     returnStmt[0] = strdup("TK_RETURN");
-    insert(dict, strdup("returnStmt"), returnStmt, 1);
+    insertParser(dict, strdup("returnStmt"), returnStmt, 1);
 
     // optionalReturn
     char **optionalReturn = (char **)malloc(2 * sizeof(char *));
     optionalReturn[0] = strdup("TK_SQL");
     optionalReturn[1] = strdup("ε");
-    insert(dict, strdup("optionalReturn"), optionalReturn, 2);
+    insertParser(dict, strdup("optionalReturn"), optionalReturn, 2);
 
     // idList
     char **idList = (char **)malloc(1 * sizeof(char *));
     idList[0] = strdup("TK_ID");
-    insert(dict, strdup("idList"), idList, 1);
+    insertParser(dict, strdup("idList"), idList, 1);
 
     // more_ids
     char **more_ids = (char **)malloc(2 * sizeof(char *));
     more_ids[0] = strdup("TK_COMMA");
     more_ids[1] = strdup("ε");
-    insert(dict, strdup("more_ids"), more_ids, 2);
+    insertParser(dict, strdup("more_ids"), more_ids, 2);
 
     // definetypestmt
     char **definetypestmt = (char **)malloc(1 * sizeof(char *));
     definetypestmt[0] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("definetypestmt"), definetypestmt, 1);
+    insertParser(dict, strdup("definetypestmt"), definetypestmt, 1);
 
     // A
     char **A = (char **)malloc(2 * sizeof(char *));
     A[0] = strdup("TK_RECORD");
     A[1] = strdup("TK_UNION");
-    insert(dict, strdup("A"), A, 2);
+    insertParser(dict, strdup("A"), A, 2);
 
     // Free dictionary and exit
     // (Remember to free memory allocated for keys and values)
 }
 
-void initFollow(Dictionary *dict)
+void initFollow(DictionaryParser *dict)
 {
     // program
     char **program = (char **)malloc(1 * sizeof(char *));
     program[0] = strdup("ε");
-    insert(dict, strdup("program"), program, 1);
+    insertParser(dict, strdup("program"), program, 1);
 
     // mainFunction
     char **mainFunction = (char **)malloc(1 * sizeof(char *));
     mainFunction[0] = strdup("ε");
-    insert(dict, strdup("mainFunction"), mainFunction, 1);
+    insertParser(dict, strdup("mainFunction"), mainFunction, 1);
 
     // otherFunctions
     char **otherFunctions = (char **)malloc(1 * sizeof(char *));
     otherFunctions[0] = strdup("TK_MAIN");
-    insert(dict, strdup("otherFunctions"), otherFunctions, 1);
+    insertParser(dict, strdup("otherFunctions"), otherFunctions, 1);
 
     // function
     char **function = (char **)malloc(2 * sizeof(char *));
     function[0] = strdup("TK_MAIN");
     function[1] = strdup("TK_FUNID");
-    insert(dict, strdup("function"), function, 2);
+    insertParser(dict, strdup("function"), function, 2);
 
     // input_par
     char **input_par = (char **)malloc(2 * sizeof(char *));
     input_par[0] = strdup("TK_SEM");
     input_par[1] = strdup("TK_OUTPUT");
-    insert(dict, strdup("input_par"), input_par, 2);
+    insertParser(dict, strdup("input_par"), input_par, 2);
 
     // output_par
     char **output_par = (char **)malloc(1 * sizeof(char *));
     output_par[0] = strdup("TK_SEM");
-    insert(dict, strdup("output_par"), output_par, 1);
+    insertParser(dict, strdup("output_par"), output_par, 1);
 
     // parameter_list
     char **parameter_list = (char **)malloc(1 * sizeof(char *));
     parameter_list[0] = strdup("TK_SQR");
-    insert(dict, strdup("parameter_list"), parameter_list, 1);
+    insertParser(dict, strdup("parameter_list"), parameter_list, 1);
 
     // dataType
     char **dataType = (char **)malloc(2 * sizeof(char *));
     dataType[0] = strdup("TK_ID");
     dataType[1] = strdup("TK_COLON");
-    insert(dict, strdup("dataType"), dataType, 2);
+    insertParser(dict, strdup("dataType"), dataType, 2);
 
     // primitiveDatatype
     char **primitiveDatatype = (char **)malloc(2 * sizeof(char *));
     primitiveDatatype[0] = strdup("TK_ID");
     primitiveDatatype[1] = strdup("TK_COLON");
-    insert(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
+    insertParser(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
 
     // constructedDatatype
     char **constructedDatatype = (char **)malloc(2 * sizeof(char *));
     constructedDatatype[0] = strdup("TK_ID");
     constructedDatatype[1] = strdup("TK_COLON");
-    insert(dict, strdup("constructedDatatype"), constructedDatatype, 2);
+    insertParser(dict, strdup("constructedDatatype"), constructedDatatype, 2);
 
     // remaining_list
     char **remaining_list = (char **)malloc(1 * sizeof(char *));
     remaining_list[0] = strdup("TK_SQR");
-    insert(dict, strdup("remaining_list"), remaining_list, 1);
+    insertParser(dict, strdup("remaining_list"), remaining_list, 1);
 
     // stmts
     char **stmts = (char **)malloc(1 * sizeof(char *));
     stmts[0] = strdup("TK_END");
-    insert(dict, strdup("stmts"), stmts, 1);
+    insertParser(dict, strdup("stmts"), stmts, 1);
 
     // typeDefinitions
     char **typeDefinitions = (char **)malloc(12 * sizeof(char *));
@@ -519,7 +519,7 @@ void initFollow(Dictionary *dict)
     typeDefinitions[9] = strdup("TK_DEFINETYPE");
     typeDefinitions[10] = strdup("TK_RECORD");
     typeDefinitions[11] = strdup("TK_UNION");
-    insert(dict, strdup("typeDefinitions"), typeDefinitions, 12);
+    insertParser(dict, strdup("typeDefinitions"), typeDefinitions, 12);
 
     // actualOrRedefined
     char **actualOrRedefined = (char **)malloc(13 * sizeof(char *));
@@ -536,7 +536,7 @@ void initFollow(Dictionary *dict)
     actualOrRedefined[10] = strdup("TK_RETURN");
     actualOrRedefined[11] = strdup("TK_DEFINETYPE");
     actualOrRedefined[12] = strdup("TK_SEM");
-    insert(dict, strdup("actualOrRedefined"), actualOrRedefined, 13);
+    insertParser(dict, strdup("actualOrRedefined"), actualOrRedefined, 13);
 
     // typeDefinition
     char **typeDefinition = (char **)malloc(12 * sizeof(char *));
@@ -552,32 +552,32 @@ void initFollow(Dictionary *dict)
     typeDefinition[9] = strdup("TK_WRITE");
     typeDefinition[10] = strdup("TK_RETURN");
     typeDefinition[11] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("typeDefinition"), typeDefinition, 12);
+    insertParser(dict, strdup("typeDefinition"), typeDefinition, 12);
 
     // fieldDefinitions
     char **fieldDefinitions = (char **)malloc(3 * sizeof(char *));
     fieldDefinitions[0] = strdup("TK_ENDRECORD");
     fieldDefinitions[1] = strdup("TK_ENDUNION");
     fieldDefinitions[2] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinitions"), fieldDefinitions, 3);
+    insertParser(dict, strdup("fieldDefinitions"), fieldDefinitions, 3);
 
     // fieldDefinition
     char **fieldDefinition = (char **)malloc(3 * sizeof(char *));
     fieldDefinition[0] = strdup("TK_ENDRECORD");
     fieldDefinition[1] = strdup("TK_ENDUNION");
     fieldDefinition[2] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinition"), fieldDefinition, 3);
+    insertParser(dict, strdup("fieldDefinition"), fieldDefinition, 3);
 
     // fieldType
     char **fieldType = (char **)malloc(1 * sizeof(char *));
     fieldType[0] = strdup("TK_COLON");
-    insert(dict, strdup("fieldType"), fieldType, 1);
+    insertParser(dict, strdup("fieldType"), fieldType, 1);
 
     // moreFields
     char **moreFields = (char **)malloc(2 * sizeof(char *));
     moreFields[0] = strdup("TK_ENDRECORD");
     moreFields[1] = strdup("TK_ENDUNION");
-    insert(dict, strdup("moreFields"), moreFields, 2);
+    insertParser(dict, strdup("moreFields"), moreFields, 2);
 
     // declarations
     char **declarations = (char **)malloc(8 * sizeof(char *));
@@ -589,7 +589,7 @@ void initFollow(Dictionary *dict)
     declarations[5] = strdup("TK_READ");
     declarations[6] = strdup("TK_WRITE");
     declarations[7] = strdup("TK_RETURN");
-    insert(dict, strdup("declarations"), declarations, 8);
+    insertParser(dict, strdup("declarations"), declarations, 8);
 
     // declaration
     char **declaration = (char **)malloc(9 * sizeof(char *));
@@ -602,12 +602,12 @@ void initFollow(Dictionary *dict)
     declaration[6] = strdup("TK_READ");
     declaration[7] = strdup("TK_WRITE");
     declaration[8] = strdup("TK_RETURN");
-    insert(dict, strdup("declaration"), declaration, 9);
+    insertParser(dict, strdup("declaration"), declaration, 9);
 
     // global_or_not
     char **global_or_not = (char **)malloc(1 * sizeof(char *));
     global_or_not[0] = strdup("TK_SEM");
-    insert(dict, strdup("global_or_not"), global_or_not, 1);
+    insertParser(dict, strdup("global_or_not"), global_or_not, 1);
 
     // otherStmts
     char **otherStmts = (char **)malloc(4 * sizeof(char *));
@@ -615,7 +615,7 @@ void initFollow(Dictionary *dict)
     otherStmts[1] = strdup("TK_ELSE");
     otherStmts[2] = strdup("TK_ENDIF");
     otherStmts[3] = strdup("TK_RETURN");
-    insert(dict, strdup("otherStmts"), otherStmts, 4);
+    insertParser(dict, strdup("otherStmts"), otherStmts, 4);
 
     // stmt
     char **stmt = (char **)malloc(12 * sizeof(char *));
@@ -631,7 +631,7 @@ void initFollow(Dictionary *dict)
     stmt[9] = strdup("TK_WRITE");
     stmt[10] = strdup("TK_RETURN");
     stmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("stmt"), stmt, 12);
+    insertParser(dict, strdup("stmt"), stmt, 12);
 
     // assignmentStmt
     char **assignmentStmt = (char **)malloc(12 * sizeof(char *));
@@ -647,7 +647,7 @@ void initFollow(Dictionary *dict)
     assignmentStmt[9] = strdup("TK_WRITE");
     assignmentStmt[10] = strdup("TK_RETURN");
     assignmentStmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("assignmentStmt"), assignmentStmt, 12);
+    insertParser(dict, strdup("assignmentStmt"), assignmentStmt, 12);
 
     // SingleOrRecId
     char **SingleOrRecId = (char **)malloc(15 * sizeof(char *));
@@ -666,7 +666,7 @@ void initFollow(Dictionary *dict)
     SingleOrRecId[12] = strdup("TK_NE");
     SingleOrRecId[13] = strdup("TK_ID");
     SingleOrRecId[14] = strdup("TK_RECORD");
-    insert(dict, strdup("SingleOrRecId"), SingleOrRecId, 15);
+    insertParser(dict, strdup("SingleOrRecId"), SingleOrRecId, 15);
 
     // option_single_constructed
     char **option_single_constructed = (char **)malloc(15 * sizeof(char *));
@@ -685,7 +685,7 @@ void initFollow(Dictionary *dict)
     option_single_constructed[12] = strdup("TK_NE");
     option_single_constructed[13] = strdup("TK_ID");
     option_single_constructed[14] = strdup("TK_RECORD");
-    insert(dict, strdup("option_single_constructed"), option_single_constructed, 15);
+    insertParser(dict, strdup("option_single_constructed"), option_single_constructed, 15);
 
     // oneExpansion
     char **oneExpansion = (char **)malloc(15 * sizeof(char *));
@@ -704,7 +704,7 @@ void initFollow(Dictionary *dict)
     oneExpansion[12] = strdup("TK_GE");
     oneExpansion[13] = strdup("TK_NE");
     oneExpansion[14] = strdup("TK_ID");
-    insert(dict, strdup("oneExpansion"), oneExpansion, 15);
+    insertParser(dict, strdup("oneExpansion"), oneExpansion, 15);
 
     // moreExpansions
     char **moreExpansions = (char **)malloc(15 * sizeof(char *));
@@ -723,7 +723,7 @@ void initFollow(Dictionary *dict)
     moreExpansions[12] = strdup("TK_NE");
     moreExpansions[13] = strdup("TK_ID");
     moreExpansions[14] = strdup("TK_RECORD");
-    insert(dict, strdup("moreExpansions"), moreExpansions, 15);
+    insertParser(dict, strdup("moreExpansions"), moreExpansions, 15);
 
     // funCallStmt
     char **funCallStmt = (char **)malloc(12 * sizeof(char *));
@@ -739,17 +739,17 @@ void initFollow(Dictionary *dict)
     funCallStmt[9] = strdup("TK_WRITE");
     funCallStmt[10] = strdup("TK_RETURN");
     funCallStmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("funCallStmt"), funCallStmt, 12);
+    insertParser(dict, strdup("funCallStmt"), funCallStmt, 12);
 
     // outputParameters
     char **outputParameters = (char **)malloc(1 * sizeof(char *));
     outputParameters[0] = strdup("TK_CALL");
-    insert(dict, strdup("outputParameters"), outputParameters, 1);
+    insertParser(dict, strdup("outputParameters"), outputParameters, 1);
 
     // inputParameters
     char **inputParameters = (char **)malloc(1 * sizeof(char *));
     inputParameters[0] = strdup("TK_SEM");
-    insert(dict, strdup("inputParameters"), inputParameters, 1);
+    insertParser(dict, strdup("inputParameters"), inputParameters, 1);
 
     // iterativeStmt
     char **iterativeStmt = (char **)malloc(12 * sizeof(char *));
@@ -765,7 +765,7 @@ void initFollow(Dictionary *dict)
     iterativeStmt[9] = strdup("TK_WRITE");
     iterativeStmt[10] = strdup("TK_RETURN");
     iterativeStmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("iterativeStmt"), iterativeStmt, 12);
+    insertParser(dict, strdup("iterativeStmt"), iterativeStmt, 12);
 
     // conditionalStmt
     char **conditionalStmt = (char **)malloc(12 * sizeof(char *));
@@ -781,7 +781,7 @@ void initFollow(Dictionary *dict)
     conditionalStmt[9] = strdup("TK_WRITE");
     conditionalStmt[10] = strdup("TK_RETURN");
     conditionalStmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("conditionalStmt"), conditionalStmt, 12);
+    insertParser(dict, strdup("conditionalStmt"), conditionalStmt, 12);
 
     // elsePart
     char **elsePart = (char **)malloc(12 * sizeof(char *));
@@ -797,7 +797,7 @@ void initFollow(Dictionary *dict)
     elsePart[9] = strdup("TK_WRITE");
     elsePart[10] = strdup("TK_RETURN");
     elsePart[11] = strdup("TK_SEM");
-    insert(dict, strdup("elsePart"), elsePart, 12);
+    insertParser(dict, strdup("elsePart"), elsePart, 12);
 
     // ioStmt
     char **ioStmt = (char **)malloc(12 * sizeof(char *));
@@ -813,7 +813,7 @@ void initFollow(Dictionary *dict)
     ioStmt[9] = strdup("TK_WRITE");
     ioStmt[10] = strdup("TK_RETURN");
     ioStmt[11] = strdup("TK_SEM");
-    insert(dict, strdup("ioStmt"), ioStmt, 12);
+    insertParser(dict, strdup("ioStmt"), ioStmt, 12);
 
     // arithmeticExpression
     char **arithmeticExpression = (char **)malloc(8 * sizeof(char *));
@@ -825,7 +825,7 @@ void initFollow(Dictionary *dict)
     arithmeticExpression[5] = strdup("TK_DIV");
     arithmeticExpression[6] = strdup("TK_ID");
     arithmeticExpression[7] = strdup("TK_NUM");
-    insert(dict, strdup("arithmeticExpression"), arithmeticExpression, 8);
+    insertParser(dict, strdup("arithmeticExpression"), arithmeticExpression, 8);
 
     // expPrime
     char **expPrime = (char **)malloc(6 * sizeof(char *));
@@ -835,7 +835,7 @@ void initFollow(Dictionary *dict)
     expPrime[3] = strdup("TK_MINUS");
     expPrime[4] = strdup("TK_ID");
     expPrime[5] = strdup("TK_NUM");
-    insert(dict, strdup("expPrime"), expPrime, 6);
+    insertParser(dict, strdup("expPrime"), expPrime, 6);
 
     // term
     char **term = (char **)malloc(4 * sizeof(char *));
@@ -843,7 +843,7 @@ void initFollow(Dictionary *dict)
     term[1] = strdup("TK_CL");
     term[2] = strdup("TK_PLUS");
     term[3] = strdup("TK_MINUS");
-    insert(dict, strdup("term"), term, 4);
+    insertParser(dict, strdup("term"), term, 4);
 
     // termPrime
     char **termPrime = (char **)malloc(4 * sizeof(char *));
@@ -851,7 +851,7 @@ void initFollow(Dictionary *dict)
     termPrime[1] = strdup("TK_CL");
     termPrime[2] = strdup("TK_PLUS");
     termPrime[3] = strdup("TK_MINUS");
-    insert(dict, strdup("termPrime"), termPrime, 4);
+    insertParser(dict, strdup("termPrime"), termPrime, 4);
 
     // factor
     char **factor = (char **)malloc(6 * sizeof(char *));
@@ -861,26 +861,26 @@ void initFollow(Dictionary *dict)
     factor[3] = strdup("TK_DIV");
     factor[4] = strdup("TK_PLUS");
     factor[5] = strdup("TK_MINUS");
-    insert(dict, strdup("factor"), factor, 6);
+    insertParser(dict, strdup("factor"), factor, 6);
 
     // highPrecedenceOperators
     char **highPrecedenceOperators = (char **)malloc(3 * sizeof(char *));
     highPrecedenceOperators[0] = strdup("TK_ID");
     highPrecedenceOperators[1] = strdup("TK_OP");
     highPrecedenceOperators[2] = strdup("TK_NUM");
-    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 3);
+    insertParser(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 3);
 
     // lowPrecedenceOperators
     char **lowPrecedenceOperators = (char **)malloc(3 * sizeof(char *));
     lowPrecedenceOperators[0] = strdup("TK_ID");
     lowPrecedenceOperators[1] = strdup("TK_OP");
     lowPrecedenceOperators[2] = strdup("TK_NUM");
-    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 3);
+    insertParser(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 3);
 
     // booleanExpression
     char **booleanExpression = (char **)malloc(1 * sizeof(char *));
     booleanExpression[0] = strdup("TK_CL");
-    insert(dict, strdup("booleanExpression"), booleanExpression, 1);
+    insertParser(dict, strdup("booleanExpression"), booleanExpression, 1);
 
     // var
     char **var = (char **)malloc(12 * sizeof(char *));
@@ -896,7 +896,7 @@ void initFollow(Dictionary *dict)
     var[9] = strdup("TK_GT");
     var[10] = strdup("TK_GE");
     var[11] = strdup("TK_NE");
-    insert(dict, strdup("var"), var, 12);
+    insertParser(dict, strdup("var"), var, 12);
 
     // logicalOp
     char **logicalOp = (char **)malloc(4 * sizeof(char *));
@@ -904,7 +904,7 @@ void initFollow(Dictionary *dict)
     logicalOp[1] = strdup("TK_OR");
     logicalOp[2] = strdup("TK_NOT");
     logicalOp[3] = strdup("TK_OP");
-    insert(dict, strdup("logicalOp"), logicalOp, 4);
+    insertParser(dict, strdup("logicalOp"), logicalOp, 4);
 
     // relationalOp
     char **relationalOp = (char **)malloc(4 * sizeof(char *));
@@ -912,27 +912,27 @@ void initFollow(Dictionary *dict)
     relationalOp[1] = strdup("TK_NUM");
     relationalOp[2] = strdup("TK_RNUM");
     relationalOp[3] = strdup("TK_OP");
-    insert(dict, strdup("relationalOp"), relationalOp, 4);
+    insertParser(dict, strdup("relationalOp"), relationalOp, 4);
 
     // returnStmt
     char **returnStmt = (char **)malloc(1 * sizeof(char *));
     returnStmt[0] = strdup("TK_END");
-    insert(dict, strdup("returnStmt"), returnStmt, 1);
+    insertParser(dict, strdup("returnStmt"), returnStmt, 1);
 
     // optionalReturn
     char **optionalReturn = (char **)malloc(1 * sizeof(char *));
     optionalReturn[0] = strdup("TK_SEM");
-    insert(dict, strdup("optionalReturn"), optionalReturn, 1);
+    insertParser(dict, strdup("optionalReturn"), optionalReturn, 1);
 
     // idList
     char **idList = (char **)malloc(1 * sizeof(char *));
     idList[0] = strdup("TK_SQR");
-    insert(dict, strdup("idList"), idList, 1);
+    insertParser(dict, strdup("idList"), idList, 1);
 
     // more_ids
     char **more_ids = (char **)malloc(1 * sizeof(char *));
     more_ids[0] = strdup("TK_SQR");
-    insert(dict, strdup("more_ids"), more_ids, 1);
+    insertParser(dict, strdup("more_ids"), more_ids, 1);
 
     // definetypestmt
     char **definetypestmt = (char **)malloc(12 * sizeof(char *));
@@ -948,15 +948,15 @@ void initFollow(Dictionary *dict)
     definetypestmt[9] = strdup("TK_WRITE");
     definetypestmt[10] = strdup("TK_RETURN");
     definetypestmt[11] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("definetypestmt"), definetypestmt, 12);
+    insertParser(dict, strdup("definetypestmt"), definetypestmt, 12);
 
     // A
     char **A = (char **)malloc(1 * sizeof(char *));
     A[0] = strdup("TK_RUID");
-    insert(dict, strdup("A"), A, 1);
+    insertParser(dict, strdup("A"), A, 1);
 }
 
-int searchF(Dictionary *dict, char *NT, char *T)
+int searchF(DictionaryParser *dict, char *NT, char *T)
 {
     int index = hashNT(NT);
     int len = dict->table[index]->len;
@@ -1762,11 +1762,11 @@ NODE ***initPredictiveParsingTable()
     nodes_e[0] = (NODE){"ε", true, NULL};
 
     // Initializing first set
-    Dictionary *firstSet = createDictionary();
+    DictionaryParser *firstSet = createDictionaryParser();
     initFirst(firstSet);
 
     // Initializing follow set
-    Dictionary *followSet = createDictionary();
+    DictionaryParser *followSet = createDictionaryParser();
     initFollow(followSet);
 
     NODE ***predictiveParsingTable = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));

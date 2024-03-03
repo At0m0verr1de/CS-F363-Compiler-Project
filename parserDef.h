@@ -14,6 +14,12 @@
 #define MAX_TERMINALS 100  // Maximum number of terminals in the grammar
 #define MAX_CHILDREN 15
 
+typedef struct KeyValuePairParser
+{
+    char *key;
+    char **value;
+    int len;
+} KeyValuePairParser;
 typedef struct TreeNode
 {
     char *name;
@@ -56,3 +62,8 @@ typedef struct
 {
     StackNode *top;
 } Stack;
+
+typedef struct DictionaryParser
+{
+    struct KeyValuePairParser *table[TABLE_SIZE];
+} DictionaryParser;

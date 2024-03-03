@@ -43,10 +43,9 @@ typedef struct KeyValuePair
 {
     char *key;
     char *value;
-    int len;
 } KeyValuePair;
 
-typedef struct Dictionary
+typedef struct DictionayLexer
 {
     struct KeyValuePair *table[TABLE_SIZE];
-} Dictionary;
+} DictionaryLexer;
