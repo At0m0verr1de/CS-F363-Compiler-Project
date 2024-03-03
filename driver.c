@@ -65,13 +65,13 @@ int main(int argc, char *argv[])
             lexer(inputFile); // prints the tokens to command line
             break;
         case 3:
-            // lexer(argv[1]);
-            // parseAndPrintParseTree(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
+            lexer(inputFile);
+            // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case 4:
             start_time = clock();
             lexer(inputFile);
-            // parser(argv[1]);
+            // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;

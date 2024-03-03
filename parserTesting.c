@@ -2069,83 +2069,52 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
     }
 }
 
-// void parseInputSourceCode(char *testcaseFile, NODE ***T)
-// {
-//     Stack stack;
-//     initializeStack(&stack);
-//     TreeNode *root = createTreeNode("Root");
-
-//     FILE *fp = fopen(testcaseFile, "r");
-//     if (fp == NULL)
-//     {
-//         perror("Error opening file");
-//     }
-
-//     DictionaryLexer *dict = initLookupTable();
-
-//     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
-//     initTwinBuffer(B, fp);
-
-//     TokenInfo token;
-//     do
-//     {
-//         token = getNextToken(B, fp, dict);
-//         if (token.lexeme[0] == '\0')
-//             break;
-//         if (!strcmp(token.type, "TK_ERROR") || !strcmp(token.type, "TK_COMMENT"))
-//             continue;
-
-//         NODE *rule = T[hashNT(token.lexeme)][hashT(token.type)];
-//         printf("%s\n", rule->name);
-
-//         TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
-//         *current = root;
-
-//         addRuleToStack(&stack, rule, current);
-//     } while (!token.end);
-
-//     // display(&stack);
-//     // printTree(root, 0);
-
-//     fclose(fp);
-//     free(B);
-//     freeStack(&stack);
-//     freeTree(root);
-// }
-
-// void parser(char *sourceFile, char *treeFile)
-// {
-//     NODE ***predictiveParsingTable = initPredictiveParsingTable();
-//     parseInputSourceCode(sourceFile, predictiveParsingTable);
-// }
-
-int main()
+void parseInputSourceCode(char *testcaseFile, NODE ***T)
 {
-    NODE ***predictiveParsingTable = initPredictiveParsingTable();
-    char *terminal = "TK_OUTPUT";
-    char *nonTerminal = "output_par";
-
-    NODE *rule = predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)];
-    printf("%s\n", rule->name);
-
     Stack stack;
     initializeStack(&stack);
-
     TreeNode *root = createTreeNode("Root");
-    TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
-    *current = root;
 
-    addRuleToStack(&stack, rule, current);
+    FILE *fp = fopen(testcaseFile, "r");
+    if (fp == NULL)
+    {
+        perror("Error opening file");
+    }
 
-    // Display the stack contents
-    display(&stack);
+    DictionaryLexer *dict = initLookupTable();
 
-    // Free the stack memory
+    twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
+    initTwinBuffer(B, fp);
+
+    TokenInfo token;
+    do
+    {
+        token = getNextToken(B, fp, dict);
+        if (token.lexeme[0] == '\0')
+            break;
+        if (!strcmp(token.type, "TK_ERROR") || !strcmp(token.type, "TK_COMMENT"))
+            continue;
+
+        NODE *rule = T[hashNT(token.lexeme)][hashT(token.type)];
+        printf("%s\n", rule->name);
+
+        TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
+        *current = root;
+
+        addRuleToStack(&stack, rule, current);
+    } while (!token.end);
+
+    // display(&stack);
+    // printTree(root, 0);
+
+    fclose(fp);
+    free(B);
     freeStack(&stack);
-
-    printTree(root, 0);
-    // Free memory
     freeTree(root);
+}
 
-    return 0;
+void parser(char *sourceFile, char *treeFile)
+{
+    NODE ***predictiveParsingTable = initPredictiveParsingTable();
+    parseInputSourceCode(sourceFile, predictiveParsingTable);
 }
