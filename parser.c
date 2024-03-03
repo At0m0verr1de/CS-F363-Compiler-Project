@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-//#include "./FirstFollow.c"
+//#include "lexer.h"
+
 
 #define TABLE_SIZE 84
 #define MAX_RULE_LENGTH 5 // Maximum length of a production rule
@@ -2088,17 +2089,12 @@ int main() {
     // Display the stack contents
     display(&stack);
 
-    // Display the stack contents after popping
-    display(&stack);
-
     // Free the stack memory
     freeStack(&stack);
 
     printTree(root, 0);
     // Free memory
     freeTree(root);
-
-
 
     return 0;
 }
