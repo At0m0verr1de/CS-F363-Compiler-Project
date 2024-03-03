@@ -990,6 +990,8 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
+            // FILE *tk = fopen("tokens.txt", "w");
+            // writeTokenToFile(tk, token);
             printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
             continue;
         }
