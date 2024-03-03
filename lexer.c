@@ -43,7 +43,6 @@ int hashLT(char *str)
             50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
             50, 50, 50, 50, 50, 50, 50};
     int hashValue = strlen(str) + asso_values[(unsigned char)str[1] + 1] + asso_values[(unsigned char)str[strlen(str) - 1]];
-    printf("%d\n", hashValue % TABLE_SIZE);
     return hashValue % TABLE_SIZE;
 }
 
@@ -991,9 +990,6 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
-            // create a file to write tokens to
-            FILE *tk = fopen("tokens.txt", "w");
-            writeTokenToFile(tk, token);
             printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
             continue;
         }
