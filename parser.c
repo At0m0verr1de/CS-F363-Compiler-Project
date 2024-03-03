@@ -11,9 +11,9 @@ Dictionary *createDictionary()
     return dict;
 }
 
-int hashNT(register const char *str)
+int hashNT(char *str)
 {
-    static unsigned char asso_values[] =
+    char asso_values[] =
         {
             83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
             83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
@@ -41,7 +41,7 @@ int hashNT(register const char *str)
             83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
             83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
             83, 83, 83, 83, 83, 83};
-    register unsigned int hval = strlen(str);
+    int hval = strlen(str);
 
     switch (hval)
     {
