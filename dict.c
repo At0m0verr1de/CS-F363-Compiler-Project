@@ -8,26 +8,13 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "dict.h"
+#define TABLE_SIZE 50
 
-int hash(char *key)
+int hash (char *str)
 {
-    int hashValue = 0;
-    for (int i = 0; key[i] != '\0'; i++)
-    {
-        hashValue += key[i] * (i + 1);
-    }
-    return hashValue % TABLE_SIZE; // Table size 50 for new hash theoretically
-}
-
-/*
-static unsigned int
-hash (register const char *str)
-{
-  static unsigned char asso_values[] =
+   char asso_values[] =
     {
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
@@ -56,9 +43,11 @@ hash (register const char *str)
       50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
       50, 50, 50, 50, 50, 50, 50
     };
-  return strlen(str) + asso_values[(unsigned char)str[1]+1] + asso_values[(unsigned char)str[strlen(str) - 1]];
+    int hashValue = strlen(str) + asso_values[(unsigned char)str[1]+1] + asso_values[(unsigned char)str[strlen(str) - 1]];
+    printf("%d\n",hashValue % TABLE_SIZE);
+    return hashValue % TABLE_SIZE;
 }
-*/
+
 
 struct Dictionary *createDictionary()
 {

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TABLE_SIZE 500
+#define TABLE_SIZE 50
 
 struct KeyValuePair
 {
