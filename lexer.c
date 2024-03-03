@@ -47,9 +47,9 @@ int hashLT(char *str)
     return hashValue % TABLE_SIZE;
 }
 
-struct Dictionary *createDictionary()
+Dictionary *createDictionary()
 {
-    struct Dictionary *dict = (struct Dictionary *)malloc(sizeof(struct Dictionary));
+    Dictionary *dict = (Dictionary *)malloc(sizeof(Dictionary));
     for (int i = 0; i < TABLE_SIZE; i++)
     {
         dict->table[i] = NULL;
@@ -57,7 +57,7 @@ struct Dictionary *createDictionary()
     return dict;
 }
 
-void insert(struct Dictionary *dict, char *key, char *value)
+void insert(Dictionary *dict, char *key, char *value)
 {
     int index = hashLT(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
@@ -66,7 +66,7 @@ void insert(struct Dictionary *dict, char *key, char *value)
     dict->table[index] = newPair;
 }
 
-char *search(struct Dictionary *dict, char *key)
+char *search(Dictionary *dict, char *key)
 {
     // if (strlen(key) <=10 && strlen(key) >= 2){
     int index = hashLT(key);
@@ -78,9 +78,9 @@ char *search(struct Dictionary *dict, char *key)
     return NULL; // Key not found
 }
 
-struct Dictionary *initLookupTable()
+Dictionary *initLookupTable()
 {
-    struct Dictionary *dict = createDictionary();
+    Dictionary *dict = createDictionary();
 
     // Insert default key-value pairs
     insert(dict, "call", "TK_CALL");
@@ -174,7 +174,7 @@ void initTwinBuffer(twinBuffer *B, FILE *fp)
 }
 
 // Function to get next token
-TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict)
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, Dictionary *dict)
 {
     int state = 0;
     TokenInfo token;
@@ -975,7 +975,7 @@ void lexer(FILE *fp)
         perror("Error opening file");
     }
 
-    struct Dictionary *dict = initLookupTable();
+    Dictionary *dict = initLookupTable();
 
     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
     initTwinBuffer(B, fp);

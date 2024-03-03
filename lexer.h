@@ -11,7 +11,7 @@
 #include "lexerDef.h"
 
 // Function declarations
-TokenInfo getNextToken(twinBuffer *B, FILE *fp, struct Dictionary *dict);
+TokenInfo getNextToken(twinBuffer *B, FILE *fp, Dictionary *dict);
 char getNextChar(twinBuffer *B);
 void initTwinBuffer(twinBuffer *B, FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);
@@ -20,7 +20,7 @@ TokenInfo readTokenFromFile(FILE *file);
 void writeTokenToFile(FILE *file, TokenInfo token);
 
 int hashLT(char *key);
-struct Dictionary *createDictionary();
-void insert(struct Dictionary *dict, char *key, char *value);
-char *search(struct Dictionary *dict, char *key);
-struct Dictionary *initLookupTable();
+Dictionary *createDictionary();
+void insert(Dictionary *dict, char *key, char *value);
+char *search(Dictionary *dict, char *key);
+Dictionary *initLookupTable();

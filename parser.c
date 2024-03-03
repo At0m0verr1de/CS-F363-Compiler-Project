@@ -3,7 +3,7 @@
 
 Dictionary *createDictionary()
 {
-    struct Dictionary *dict = (struct Dictionary *)malloc(sizeof(struct Dictionary));
+    Dictionary *dict = (Dictionary *)malloc(sizeof(Dictionary));
     for (int i = 0; i < FAF_TABLE_SIZE; i++)
     {
         dict->table[i] = NULL;
@@ -66,7 +66,7 @@ int hashNT(char *str)
     return hval;
 }
 
-void insert(struct Dictionary *dict, char *key, char **value, int len)
+void insert(Dictionary *dict, char *key, char **value, int len)
 {
     int index = hashNT(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
@@ -78,7 +78,7 @@ void insert(struct Dictionary *dict, char *key, char **value, int len)
     dict->table[index] = newPair;
 }
 
-void initFirst(struct Dictionary *dict)
+void initFirst(Dictionary *dict)
 {
 
     // Insert key-value pairs
@@ -438,7 +438,7 @@ void initFirst(struct Dictionary *dict)
     // (Remember to free memory allocated for keys and values)
 }
 
-void initFollow(struct Dictionary *dict)
+void initFollow(Dictionary *dict)
 {
     // program
     char **program = (char **)malloc(1 * sizeof(char *));
@@ -956,7 +956,7 @@ void initFollow(struct Dictionary *dict)
     insert(dict, strdup("A"), A, 1);
 }
 
-int searchF(struct Dictionary *dict, char *NT, char *T)
+int searchF(Dictionary *dict, char *NT, char *T)
 {
     int index = hashNT(NT);
     int len = dict->table[index]->len;
@@ -1762,11 +1762,11 @@ NODE ***initPredictiveParsingTable()
     nodes_e[0] = (NODE){"ε", true, NULL};
 
     // Initializing first set
-    struct Dictionary *firstSet = createDictionary();
+    Dictionary *firstSet = createDictionary();
     initFirst(firstSet);
 
     // Initializing follow set
-    struct Dictionary *followSet = createDictionary();
+    Dictionary *followSet = createDictionary();
     initFollow(followSet);
 
     NODE ***predictiveParsingTable = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
