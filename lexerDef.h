@@ -39,14 +39,14 @@ typedef struct
     bool dblret; // double retraction flag
 } twinBuffer;
 
-struct KeyValuePair
+typedef struct KeyValuePair
 {
     char *key;
     char *value;
     int len;
-};
+} KeyValuePair;
 
-struct Dictionary
+typedef struct Dictionary
 {
     struct KeyValuePair *table[TABLE_SIZE];
-};
+} Dictionary;
