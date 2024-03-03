@@ -19,7 +19,7 @@ void lexer(FILE *fp);
 TokenInfo readTokenFromFile(FILE *file);
 void writeTokenToFile(FILE *file, TokenInfo token);
 
-int hash(char *key);
+int hashLT(char *key);
 struct Dictionary *createDictionary();
 void insert(struct Dictionary *dict, char *key, char *value);
 char *search(struct Dictionary *dict, char *key);

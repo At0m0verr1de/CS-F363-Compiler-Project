@@ -8,13 +8,10 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
-#define TABLE_SIZE 84
+#define FAF_TABLE_SIZE 100
 #define MAX_RULE_LENGTH 5    // Maximum length of a production rule
 #define MAX_NON_TERMINALS 83 // Maximum number of non-terminals in the grammar
 #define MAX_TERMINALS 125    // Maximum number of terminals in the grammar
-#define MAX_LEXEME_SIZE 100
-#define MAX_TOKEN_SIZE 15
-#define MAX_BUFFER_SIZE 5
 #define MAX_CHILDREN 15
 
 typedef struct TreeNode
@@ -44,7 +41,7 @@ typedef struct Rules
 // Grammar structure
 typedef struct Grammar
 {
-    RULES *rules[TABLE_SIZE];
+    RULES *rules[FAF_TABLE_SIZE];
 } GRAMMAR;
 
 // Define the structure for each node in the stack

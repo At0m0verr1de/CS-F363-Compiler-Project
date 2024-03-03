@@ -4,7 +4,7 @@
 Dictionary *createDictionary()
 {
     struct Dictionary *dict = (struct Dictionary *)malloc(sizeof(struct Dictionary));
-    for (int i = 0; i < TABLE_SIZE; i++)
+    for (int i = 0; i < FAF_TABLE_SIZE; i++)
     {
         dict->table[i] = NULL;
     }

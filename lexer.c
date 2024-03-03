@@ -12,7 +12,7 @@
 
 // -------------------------------- LookUp Table Functions -------------------------------------
 
-int hash(char *str)
+int hashLT(char *str)
 {
     char asso_values[] =
         {
@@ -59,7 +59,7 @@ struct Dictionary *createDictionary()
 
 void insert(struct Dictionary *dict, char *key, char *value)
 {
-    int index = hash(key);
+    int index = hashLT(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
     newPair->key = strdup(key); // strdup dynamically allocates memory for the string
     newPair->value = value;
@@ -69,7 +69,7 @@ void insert(struct Dictionary *dict, char *key, char *value)
 char *search(struct Dictionary *dict, char *key)
 {
     // if (strlen(key) <=10 && strlen(key) >= 2){
-    int index = hash(key);
+    int index = hashLT(key);
     //} else return NULL:
     if (dict->table[index] != NULL && strcmp(dict->table[index]->key, key) == 0)
     {
