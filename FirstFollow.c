@@ -18,49 +18,105 @@ char first_set[MAX_LEN][MAX_LEN];
 char follow_set[MAX_LEN][MAX_LEN];
 int num_productions = 0;
 
-int main()
-{
-    readGrammar();
-    calculateFirst();
-    calculateFollow();
-    writeFirstAndFollow();
-    return 0;
-}
-
+// Read the grammar from the file
 void readGrammar()
 {
     FILE *fp;
     char buffer[MAX_LEN];
 
-    // Open the grammar file for reading
     fp = fopen("grammar.txt", "r");
     if (fp == NULL)
     {
         printf("Error opening grammar file.\n");
-        exit(1);
+        return;
     }
 
-    // Read the grammar productions
     while (fgets(buffer, MAX_LEN, fp) != NULL)
     {
         buffer[strcspn(buffer, "\n")] = '\0'; // Remove newline character
         strcpy(productions[num_productions++], buffer);
     }
 
-    // Close the file
     fclose(fp);
 }
 
+// Calculate First sets
 void calculateFirst()
 {
-    // Implement first set calculation
-    // Your code here
-}
+    int i, j, k, l;
+    char *production;
+    int changed;
 
-void calculateFollow()
-{
-    // Implement follow set calculation
-    // Your code here
+    // Initialize First sets with epsilon
+    for (i = 0; i < num_productions; i++)
+    {
+        if (productions[i][0] != '<')
+        {
+            first_set[i][0] = productions[i][0];
+        }
+    }
+
+    // Iterate until there are no changes in First sets
+    do
+    {
+        changed = 0;
+
+        for (i = 0; i < num_productions; i++)
+        {
+            production = productions[i];
+            j = 0;
+
+            while (production[j] != '>' && production[j] != '\0')
+            {
+                if (!isupper(production[j]))
+                {
+                    // Terminal symbol
+                    if (production[j] != ' ')
+                    {
+                        if (!strchr(first_set[i], production[j]))
+                        {
+                            strcat(first_set[i], " ");
+                            strncat(first_set[i], &production[j], 1);
+                            changed = 1;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    // Non-terminal symbol
+                    for (k = 0; k < num_productions; k++)
+                    {
+                        if (productions[k][0] == production[j])
+                        {
+                            for (l = 0; productions[k][l] != '>' && productions[k][l] != '\0'; l++)
+                            {
+                                if (productions[k][l] == ' ')
+                                {
+                                    continue;
+                                }
+                                if (!strchr(first_set[i], productions[k][l]))
+                                {
+                                    strcat(first_set[i], " ");
+                                    strncat(first_set[i], &productions[k][l], 1);
+                                    changed = 1;
+                                }
+                                if (productions[k][l] != '#')
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!strchr(productions[i], '#'))
+                    {
+                        break;
+                    }
+                }
+                j++;
+            }
+        }
+    } while (changed);
 }
 
 void writeFirstAndFollow()

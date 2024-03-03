@@ -2,19 +2,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-//#include "lexer.h"
-
+// #include "lexer.h"
+#include "parser.h"
 
 #define TABLE_SIZE 84
-#define MAX_RULE_LENGTH 5 // Maximum length of a production rule
+#define MAX_RULE_LENGTH 5    // Maximum length of a production rule
 #define MAX_NON_TERMINALS 83 // Maximum number of non-terminals in the grammar
-#define MAX_TERMINALS 125 // Maximum number of terminals in the grammar
+#define MAX_TERMINALS 125    // Maximum number of terminals in the grammar
 #define MAX_LEXEME_SIZE 100
 #define MAX_TOKEN_SIZE 15
 #define MAX_BUFFER_SIZE 5
 #define MAX_CHILDREN 15
 
-typedef struct TreeNode {
+typedef struct TreeNode
+{
     char *name;
     struct TreeNode *parent;
     struct TreeNode *children[MAX_CHILDREN];
@@ -22,7 +23,7 @@ typedef struct TreeNode {
     int index_in_parent;
 } TreeNode;
 
-//Token information structure
+// Token information structure
 typedef struct
 {
     char type[MAX_TOKEN_SIZE];
@@ -44,31 +45,36 @@ struct Dictionary
 };
 
 // StackNode structure for a term in a production rule
-typedef struct node {
+typedef struct node
+{
     char name[50];
     bool terminal;
-    struct node* next;
+    struct node *next;
 } NODE;
 
 // Rules structure containing heads of production rules
-typedef struct Rules {
-    NODE* heads;
+typedef struct Rules
+{
+    NODE *heads;
     int length;
 } RULES;
 
 // Grammar structure
-typedef struct Grammar {
-    RULES* rules[TABLE_SIZE];
+typedef struct Grammar
+{
+    RULES *rules[TABLE_SIZE];
 } GRAMMAR;
 
 // Define the structure for each node in the stack
-typedef struct StackNode {
+typedef struct StackNode
+{
     NODE *data;
     struct StackNode *next;
 } StackNode;
 
 // Define the stack structure
-typedef struct {
+typedef struct
+{
     StackNode *top;
 } Stack;
 
@@ -82,104 +88,108 @@ struct Dictionary *createDictionary()
     return dict;
 }
 
-int hashNT (register const char *str)
+int hashNT(register const char *str)
 {
-  static unsigned char asso_values[] =
-    {
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83,  0, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83,  0, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 30,  5, 26,
-      25,  0, 40,  5,  5,  0, 83, 83, 60, 10,
-      55,  0,  0, 83,  5, 35, 20,  0,  5, 83,
-      83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
-      83, 83, 83, 83, 83, 83
-    };
-  register unsigned int hval = strlen(str);
-  
+    static unsigned char asso_values[] =
+        {
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 0, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 0, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 30, 5, 26,
+            25, 0, 40, 5, 5, 0, 83, 83, 60, 10,
+            55, 0, 0, 83, 5, 35, 20, 0, 5, 83,
+            83, 40, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
+            83, 83, 83, 83, 83, 83};
+    register unsigned int hval = strlen(str);
 
-  switch (hval)
+    switch (hval)
     {
-      default:
+    default:
         hval += asso_values[(unsigned char)str[1]];
-      /*FALLTHROUGH*/
-      case 1:
+    /*FALLTHROUGH*/
+    case 1:
         hval += asso_values[(unsigned char)str[0]];
         break;
     }
 
-    if(!strcmp(str,"term\0")) hval = 23;
-    if(!strcmp(str,"primitiveDatatype\0")) hval = 21;
-    if(!strcmp(str,"arithmeticExpression\0")) hval = 57;
-    if(!strcmp(str,"expPrime\0")) hval = 81;
-    if(!strcmp(str,"ε\0")) hval = 83;
-  return hval;
+    if (!strcmp(str, "term\0"))
+        hval = 23;
+    if (!strcmp(str, "primitiveDatatype\0"))
+        hval = 21;
+    if (!strcmp(str, "arithmeticExpression\0"))
+        hval = 57;
+    if (!strcmp(str, "expPrime\0"))
+        hval = 81;
+    if (!strcmp(str, "ε\0"))
+        hval = 83;
+    return hval;
 }
 
-void insert(struct Dictionary *dict, char *key, char **value,int len)
+void insert(struct Dictionary *dict, char *key, char **value, int len)
 {
     int index = hashNT(key);
     struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
     newPair->key = strdup(key); // strdup dynamically allocates memory for the string
     newPair->value = value;
     newPair->len = len;
-    //printf("%d %s %u\n", bleh++ ,key , index);
+    // printf("%d %s %u\n", bleh++ ,key , index);
 
     dict->table[index] = newPair;
 }
 
-void initFirst(struct Dictionary *dict) {
-   
+void initFirst(struct Dictionary *dict)
+{
+
     // Insert key-value pairs
     char **program = (char **)malloc(2 * sizeof(char *));
     program[0] = strdup("TK_MAIN");
     program[1] = strdup("TK_FUNID");
-    insert(dict, strdup("program"), program,2);
+    insert(dict, strdup("program"), program, 2);
 
     // mainFunction
     char **mainFunction = (char **)malloc(1 * sizeof(char *));
     mainFunction[0] = strdup("TK_MAIN");
-    insert(dict, strdup("mainFunction"), mainFunction,1);
+    insert(dict, strdup("mainFunction"), mainFunction, 1);
 
     // otherFunctions
     char **otherFunctions = (char **)malloc(2 * sizeof(char *));
     otherFunctions[0] = strdup("TK_FUNID");
     otherFunctions[1] = strdup("ε");
-    insert(dict, strdup("otherFunctions"), otherFunctions,2);
+    insert(dict, strdup("otherFunctions"), otherFunctions, 2);
 
     // function
     char **function = (char **)malloc(1 * sizeof(char *));
     function[0] = strdup("TK_FUNID");
-    insert(dict, strdup("function"), function,1);
+    insert(dict, strdup("function"), function, 1);
 
     // input_par
     char **input_par = (char **)malloc(1 * sizeof(char *));
     input_par[0] = strdup("TK_INPUT");
-    insert(dict, strdup("input_par"), input_par,1);
+    insert(dict, strdup("input_par"), input_par, 1);
 
     // output_par
     char **output_par = (char **)malloc(2 * sizeof(char *));
     output_par[0] = strdup("TK_OUTPUT");
     output_par[1] = strdup("ε");
-    insert(dict, strdup("output_par"), output_par,2);
+    insert(dict, strdup("output_par"), output_par, 2);
 
     // parameter_list
     char **parameter_list = (char **)malloc(5 * sizeof(char *));
@@ -188,7 +198,7 @@ void initFirst(struct Dictionary *dict) {
     parameter_list[2] = strdup("TK_RECORD");
     parameter_list[3] = strdup("TK_RUID");
     parameter_list[4] = strdup("TK_UNION");
-    insert(dict, strdup("parameter_list"), parameter_list,5);
+    insert(dict, strdup("parameter_list"), parameter_list, 5);
 
     // dataType
     char **dataType = (char **)malloc(5 * sizeof(char *));
@@ -197,26 +207,26 @@ void initFirst(struct Dictionary *dict) {
     dataType[2] = strdup("TK_RECORD");
     dataType[3] = strdup("TK_RUID");
     dataType[4] = strdup("TK_UNION");
-    insert(dict, strdup("dataType"), dataType,5);
+    insert(dict, strdup("dataType"), dataType, 5);
 
     // primitiveDatatype
     char **primitiveDatatype = (char **)malloc(2 * sizeof(char *));
     primitiveDatatype[0] = strdup("TK_INT");
     primitiveDatatype[1] = strdup("TK_REAL");
-    insert(dict, strdup("primitiveDatatype"), primitiveDatatype,2);
+    insert(dict, strdup("primitiveDatatype"), primitiveDatatype, 2);
 
     // constructedDatatype
     char **constructedDatatype = (char **)malloc(3 * sizeof(char *));
     constructedDatatype[0] = strdup("TK_RECORD");
     constructedDatatype[1] = strdup("TK_RUID");
     constructedDatatype[2] = strdup("TK_UNION");
-    insert(dict, strdup("constructedDatatype"), constructedDatatype,3);
+    insert(dict, strdup("constructedDatatype"), constructedDatatype, 3);
 
     // remaining_list
     char **remaining_list = (char **)malloc(2 * sizeof(char *));
     remaining_list[0] = strdup("TK_COMMA");
     remaining_list[1] = strdup("ε");
-    insert(dict, strdup("remaining_list"), remaining_list,2);
+    insert(dict, strdup("remaining_list"), remaining_list, 2);
 
     // stmts
     char **stmts = (char **)malloc(12 * sizeof(char *));
@@ -232,7 +242,7 @@ void initFirst(struct Dictionary *dict) {
     stmts[9] = strdup("TK_WRITE");
     stmts[10] = strdup("TK_RETURN");
     stmts[11] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("stmts"), stmts,12);
+    insert(dict, strdup("stmts"), stmts, 12);
 
     // typeDefinitions
     char **typeDefinitions = (char **)malloc(4 * sizeof(char *));
@@ -240,30 +250,30 @@ void initFirst(struct Dictionary *dict) {
     typeDefinitions[1] = strdup("TK_UNION");
     typeDefinitions[2] = strdup("TK_DEFINETYPE");
     typeDefinitions[3] = strdup("ε");
-    insert(dict, strdup("typeDefinitions"), typeDefinitions,4);
+    insert(dict, strdup("typeDefinitions"), typeDefinitions, 4);
 
     // actualOrRedefined
     char **actualOrRedefined = (char **)malloc(3 * sizeof(char *));
     actualOrRedefined[0] = strdup("TK_RECORD");
     actualOrRedefined[1] = strdup("TK_UNION");
     actualOrRedefined[2] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("actualOrRedefined"), actualOrRedefined,3);
+    insert(dict, strdup("actualOrRedefined"), actualOrRedefined, 3);
 
     // typeDefinition
     char **typeDefinition = (char **)malloc(2 * sizeof(char *));
     typeDefinition[0] = strdup("TK_RECORD");
     typeDefinition[1] = strdup("TK_UNION");
-    insert(dict, strdup("typeDefinition"), typeDefinition,2);
+    insert(dict, strdup("typeDefinition"), typeDefinition, 2);
 
     // fieldDefinitions
     char **fieldDefinitions = (char **)malloc(1 * sizeof(char *));
     fieldDefinitions[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinitions"), fieldDefinitions,1);
+    insert(dict, strdup("fieldDefinitions"), fieldDefinitions, 1);
 
     // fieldDefinition
     char **fieldDefinition = (char **)malloc(1 * sizeof(char *));
     fieldDefinition[0] = strdup("TK_TYPE");
-    insert(dict, strdup("fieldDefinition"), fieldDefinition,1);
+    insert(dict, strdup("fieldDefinition"), fieldDefinition, 1);
 
     // fieldType
     char **fieldType = (char **)malloc(5 * sizeof(char *));
@@ -272,30 +282,30 @@ void initFirst(struct Dictionary *dict) {
     fieldType[2] = strdup("TK_RUID");
     fieldType[3] = strdup("TK_RECORD");
     fieldType[4] = strdup("TK_UNION");
-    insert(dict, strdup("fieldType"), fieldType,5);
+    insert(dict, strdup("fieldType"), fieldType, 5);
 
     // moreFields
     char **moreFields = (char **)malloc(2 * sizeof(char *));
     moreFields[0] = strdup("TK_TYPE");
     moreFields[1] = strdup("ε");
-    insert(dict, strdup("moreFields"), moreFields,2);
+    insert(dict, strdup("moreFields"), moreFields, 2);
 
     // declarations
     char **declarations = (char **)malloc(2 * sizeof(char *));
     declarations[0] = strdup("TK_TYPE");
     declarations[1] = strdup("ε");
-    insert(dict, strdup("declarations"), declarations,2);
+    insert(dict, strdup("declarations"), declarations, 2);
 
     // declaration
     char **declaration = (char **)malloc(1 * sizeof(char *));
     declaration[0] = strdup("TK_TYPE");
-    insert(dict, strdup("declaration"), declaration,1);
+    insert(dict, strdup("declaration"), declaration, 1);
 
     // global_or_not
     char **global_or_not = (char **)malloc(2 * sizeof(char *));
     global_or_not[0] = strdup("TK_COLON");
     global_or_not[1] = strdup("ε");
-    insert(dict, strdup("global_or_not"), global_or_not,2);
+    insert(dict, strdup("global_or_not"), global_or_not, 2);
 
     // otherStmts
     char **otherStmts = (char **)malloc(8 * sizeof(char *));
@@ -307,7 +317,7 @@ void initFirst(struct Dictionary *dict) {
     otherStmts[5] = strdup("TK_READ");
     otherStmts[6] = strdup("TK_WRITE");
     otherStmts[7] = strdup("ε");
-    insert(dict, strdup("otherStmts"), otherStmts,8);
+    insert(dict, strdup("otherStmts"), otherStmts, 8);
 
     // stmt
     char **stmt = (char **)malloc(7 * sizeof(char *));
@@ -318,73 +328,73 @@ void initFirst(struct Dictionary *dict) {
     stmt[4] = strdup("TK_IF");
     stmt[5] = strdup("TK_READ");
     stmt[6] = strdup("TK_WRITE");
-    insert(dict, strdup("stmt"), stmt,7);
+    insert(dict, strdup("stmt"), stmt, 7);
 
     // assignmentStmt
     char **assignmentStmt = (char **)malloc(1 * sizeof(char *));
     assignmentStmt[0] = strdup("TK_ID");
-    insert(dict, strdup("assignmentStmt"), assignmentStmt,1);
+    insert(dict, strdup("assignmentStmt"), assignmentStmt, 1);
 
     // SingleOrRecId
     char **SingleOrRecId = (char **)malloc(1 * sizeof(char *));
     SingleOrRecId[0] = strdup("TK_ID");
-    insert(dict, strdup("SingleOrRecId"), SingleOrRecId,1);
+    insert(dict, strdup("SingleOrRecId"), SingleOrRecId, 1);
 
     // option_single_constructed
     char **option_single_constructed = (char **)malloc(2 * sizeof(char *));
     option_single_constructed[0] = strdup("TK_DOT");
     option_single_constructed[1] = strdup("ε");
-    insert(dict, strdup("option_single_constructed"), option_single_constructed,2);
+    insert(dict, strdup("option_single_constructed"), option_single_constructed, 2);
 
     // oneExpansion
     char **oneExpansion = (char **)malloc(1 * sizeof(char *));
     oneExpansion[0] = strdup("TK_DOT");
-    insert(dict, strdup("oneExpansion"), oneExpansion,1);
+    insert(dict, strdup("oneExpansion"), oneExpansion, 1);
 
     // moreExpansions
     char **moreExpansions = (char **)malloc(2 * sizeof(char *));
     moreExpansions[0] = strdup("TK_DOT");
     moreExpansions[1] = strdup("ε");
-    insert(dict, strdup("moreExpansions"), moreExpansions,2);
+    insert(dict, strdup("moreExpansions"), moreExpansions, 2);
 
     // funCallStmt
     char **funCallStmt = (char **)malloc(2 * sizeof(char *));
     funCallStmt[0] = strdup("TK_SQL");
     funCallStmt[1] = strdup("TK_CALL");
-    insert(dict, strdup("funCallStmt"), funCallStmt,2);
+    insert(dict, strdup("funCallStmt"), funCallStmt, 2);
 
     // outputParameters
     char **outputParameters = (char **)malloc(2 * sizeof(char *));
     outputParameters[0] = strdup("TK_SQL");
     outputParameters[1] = strdup("ε");
-    insert(dict, strdup("outputParameters"), outputParameters,2);
+    insert(dict, strdup("outputParameters"), outputParameters, 2);
 
     // inputParameters
     char **inputParameters = (char **)malloc(1 * sizeof(char *));
     inputParameters[0] = strdup("TK_SQL");
-    insert(dict, strdup("inputParameters"), inputParameters,1);
+    insert(dict, strdup("inputParameters"), inputParameters, 1);
 
     // iterativeStmt
     char **iterativeStmt = (char **)malloc(1 * sizeof(char *));
     iterativeStmt[0] = strdup("TK_WHILE");
-    insert(dict, strdup("iterativeStmt"), iterativeStmt,1);
+    insert(dict, strdup("iterativeStmt"), iterativeStmt, 1);
 
     // conditionalStmt
     char **conditionalStmt = (char **)malloc(1 * sizeof(char *));
     conditionalStmt[0] = strdup("TK_IF");
-    insert(dict, strdup("conditionalStmt"), conditionalStmt,1);
+    insert(dict, strdup("conditionalStmt"), conditionalStmt, 1);
 
     // elsePart
     char **elsePart = (char **)malloc(2 * sizeof(char *));
     elsePart[0] = strdup("TK_ELSE");
     elsePart[1] = strdup("TK_ENDIF");
-    insert(dict, strdup("elsePart"), elsePart,2);
+    insert(dict, strdup("elsePart"), elsePart, 2);
 
     // ioStmt
     char **ioStmt = (char **)malloc(2 * sizeof(char *));
     ioStmt[0] = strdup("TK_READ");
     ioStmt[1] = strdup("TK_WRITE");
-    insert(dict, strdup("ioStmt"), ioStmt,2);
+    insert(dict, strdup("ioStmt"), ioStmt, 2);
 
     // arithmeticExpression
     char **arithmeticExpression = (char **)malloc(4 * sizeof(char *));
@@ -392,14 +402,14 @@ void initFirst(struct Dictionary *dict) {
     arithmeticExpression[1] = strdup("TK_OP");
     arithmeticExpression[2] = strdup("TK_NUM");
     arithmeticExpression[3] = strdup("TK_RNUM");
-    insert(dict, strdup("arithmeticExpression"), arithmeticExpression,4);
+    insert(dict, strdup("arithmeticExpression"), arithmeticExpression, 4);
 
     // expPrime
     char **expPrime = (char **)malloc(3 * sizeof(char *));
     expPrime[0] = strdup("TK_PLUS");
     expPrime[1] = strdup("TK_MINUS");
     expPrime[2] = strdup("ε");
-    insert(dict, strdup("expPrime"), expPrime,3);
+    insert(dict, strdup("expPrime"), expPrime, 3);
 
     // term
     char **term = (char **)malloc(4 * sizeof(char *));
@@ -407,14 +417,14 @@ void initFirst(struct Dictionary *dict) {
     term[1] = strdup("TK_OP");
     term[2] = strdup("TK_NUM");
     term[3] = strdup("TK_RNUM");
-    insert(dict, strdup("term"), term,4);
+    insert(dict, strdup("term"), term, 4);
 
     // termPrime
     char **termPrime = (char **)malloc(3 * sizeof(char *));
     termPrime[0] = strdup("TK_MUL");
     termPrime[1] = strdup("TK_DIV");
     termPrime[2] = strdup("ε");
-    insert(dict, strdup("termPrime"), termPrime,3);
+    insert(dict, strdup("termPrime"), termPrime, 3);
 
     // factor
     char **factor = (char **)malloc(4 * sizeof(char *));
@@ -422,19 +432,19 @@ void initFirst(struct Dictionary *dict) {
     factor[1] = strdup("TK_OP");
     factor[2] = strdup("TK_NUM");
     factor[3] = strdup("TK_RNUM");
-    insert(dict, strdup("factor"), factor,4);
+    insert(dict, strdup("factor"), factor, 4);
 
     // highPrecedenceOperators
     char **highPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     highPrecedenceOperators[0] = strdup("TK_MUL");
     highPrecedenceOperators[1] = strdup("TK_DIV");
-    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators,2);
+    insert(dict, strdup("highPrecedenceOperators"), highPrecedenceOperators, 2);
 
     // lowPrecedenceOperators
     char **lowPrecedenceOperators = (char **)malloc(2 * sizeof(char *));
     lowPrecedenceOperators[0] = strdup("TK_PLUS");
     lowPrecedenceOperators[1] = strdup("TK_MINUS");
-    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators,2);
+    insert(dict, strdup("lowPrecedenceOperators"), lowPrecedenceOperators, 2);
 
     // booleanExpression
     char **booleanExpression = (char **)malloc(5 * sizeof(char *));
@@ -443,20 +453,20 @@ void initFirst(struct Dictionary *dict) {
     booleanExpression[2] = strdup("TK_NOT");
     booleanExpression[3] = strdup("TK_NUM");
     booleanExpression[4] = strdup("TK_RNUM");
-    insert(dict, strdup("booleanExpression"), booleanExpression,5);
+    insert(dict, strdup("booleanExpression"), booleanExpression, 5);
 
     // var
     char **var = (char **)malloc(3 * sizeof(char *));
     var[0] = strdup("TK_ID");
     var[1] = strdup("TK_NUM");
     var[2] = strdup("TK_RNUM");
-    insert(dict, strdup("var"), var,3);
+    insert(dict, strdup("var"), var, 3);
 
     // logicalOp
     char **logicalOp = (char **)malloc(2 * sizeof(char *));
     logicalOp[0] = strdup("TK_AND");
     logicalOp[1] = strdup("TK_OR");
-    insert(dict, strdup("logicalOp"), logicalOp,2);
+    insert(dict, strdup("logicalOp"), logicalOp, 2);
 
     // relationalOp
     char **relationalOp = (char **)malloc(6 * sizeof(char *));
@@ -466,49 +476,47 @@ void initFirst(struct Dictionary *dict) {
     relationalOp[3] = strdup("TK_GT");
     relationalOp[4] = strdup("TK_GE");
     relationalOp[5] = strdup("TK_NE");
-    insert(dict, strdup("relationalOp"), relationalOp,6);
+    insert(dict, strdup("relationalOp"), relationalOp, 6);
 
     // returnStmt
     char **returnStmt = (char **)malloc(1 * sizeof(char *));
     returnStmt[0] = strdup("TK_RETURN");
-    insert(dict, strdup("returnStmt"), returnStmt,1);
+    insert(dict, strdup("returnStmt"), returnStmt, 1);
 
     // optionalReturn
     char **optionalReturn = (char **)malloc(2 * sizeof(char *));
     optionalReturn[0] = strdup("TK_SQL");
     optionalReturn[1] = strdup("ε");
-    insert(dict, strdup("optionalReturn"), optionalReturn,2);
+    insert(dict, strdup("optionalReturn"), optionalReturn, 2);
 
     // idList
     char **idList = (char **)malloc(1 * sizeof(char *));
     idList[0] = strdup("TK_ID");
-    insert(dict, strdup("idList"), idList,1);
+    insert(dict, strdup("idList"), idList, 1);
 
     // more_ids
     char **more_ids = (char **)malloc(2 * sizeof(char *));
     more_ids[0] = strdup("TK_COMMA");
     more_ids[1] = strdup("ε");
-    insert(dict, strdup("more_ids"), more_ids,2);
+    insert(dict, strdup("more_ids"), more_ids, 2);
 
     // definetypestmt
     char **definetypestmt = (char **)malloc(1 * sizeof(char *));
     definetypestmt[0] = strdup("TK_DEFINETYPE");
-    insert(dict, strdup("definetypestmt"), definetypestmt,1);
+    insert(dict, strdup("definetypestmt"), definetypestmt, 1);
 
     // A
     char **A = (char **)malloc(2 * sizeof(char *));
     A[0] = strdup("TK_RECORD");
     A[1] = strdup("TK_UNION");
-    insert(dict, strdup("A"), A,2);
-
-    
+    insert(dict, strdup("A"), A, 2);
 
     // Free dictionary and exit
     // (Remember to free memory allocated for keys and values)
-    
 }
 
-void initFollow(struct Dictionary* dict){
+void initFollow(struct Dictionary *dict)
+{
     // program
     char **program = (char **)malloc(1 * sizeof(char *));
     program[0] = strdup("ε");
@@ -1023,116 +1031,129 @@ void initFollow(struct Dictionary* dict){
     char **A = (char **)malloc(1 * sizeof(char *));
     A[0] = strdup("TK_RUID");
     insert(dict, strdup("A"), A, 1);
-
-
 }
 
-int searchF(struct Dictionary *dict, char *NT , char *T)
+int searchF(struct Dictionary *dict, char *NT, char *T)
 {
     int index = hashNT(NT);
-    int len = dict->table[index]->len; 
-    char** list = dict->table[index]->value;
+    int len = dict->table[index]->len;
+    char **list = dict->table[index]->value;
     int result = -1;
-    for(int i = 0; i < len ; i++){
-        if(!strcmp(list[i] , T)){
+    for (int i = 0; i < len; i++)
+    {
+        if (!strcmp(list[i], T))
+        {
             result = 1;
             break;
-        } else if(!strcmp(list[i] , "ε\0")){
+        }
+        else if (!strcmp(list[i], "ε\0"))
+        {
             result = 0;
         }
     }
     return result;
 }
 
-int hashT (char *str)
+int hashT(char *str)
 {
-  static unsigned char asso_values[] =
-    {
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126,  30, 126,  30,   0,  10,
-       45,  45,  50,   0, 126, 126,  15,  35,   5,  20,
-       30,  55,   0,   0,   0,   0,   0,  10, 126,  20,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-      126, 126, 126, 126, 126, 126
-    };
-  return strlen(str) + asso_values[(unsigned char)str[4]] + asso_values[(unsigned char)str[3]] + asso_values[(unsigned char)str[strlen(str) - 1]];
+    static unsigned char asso_values[] =
+        {
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 30, 126, 30, 0, 10,
+            45, 45, 50, 0, 126, 126, 15, 35, 5, 20,
+            30, 55, 0, 0, 0, 0, 0, 10, 126, 20,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
+            126, 126, 126, 126, 126, 126};
+    return strlen(str) + asso_values[(unsigned char)str[4]] + asso_values[(unsigned char)str[3]] + asso_values[(unsigned char)str[strlen(str) - 1]];
 }
 
-void initRules(RULES* rules){
+void initRules(RULES *rules)
+{
     rules->heads = NULL;
     rules->length = 0;
 }
 
 // Function to add a rule to the grammar
-void addRule(GRAMMAR* grammar, char* nonTerminal, NODE* nodes) {
+void addRule(GRAMMAR *grammar, char *nonTerminal, NODE *nodes)
+{
     int index = hashNT(nonTerminal);
-    if (grammar->rules[index] == NULL) {
-        RULES* newRules = (RULES*)malloc(sizeof(RULES));
+    if (grammar->rules[index] == NULL)
+    {
+        RULES *newRules = (RULES *)malloc(sizeof(RULES));
         initRules(newRules);
         newRules->length++;
-        newRules->heads = (NODE*) malloc(10*sizeof(NODE));
+        newRules->heads = (NODE *)malloc(10 * sizeof(NODE));
         newRules->heads[0] = nodes[0];
         grammar->rules[index] = newRules;
     }
-    else {
-        grammar->rules[index]->heads[grammar->rules[index]->length]=nodes[0];
+    else
+    {
+        grammar->rules[index]->heads[grammar->rules[index]->length] = nodes[0];
         grammar->rules[index]->length++;
-        //printf("Non-terminal %s already has a rule defined.\n", nonTerminal);
+        // printf("Non-terminal %s already has a rule defined.\n", nonTerminal);
     }
 }
 
 // Function to retrieve rules for a non-terminal
-RULES* getRules(GRAMMAR* grammar, char* nonTerminal) {
+RULES *getRules(GRAMMAR *grammar, char *nonTerminal)
+{
     int index = hashNT(nonTerminal);
     return grammar->rules[index];
 }
 
-void printGrammar(GRAMMAR* grammar){
-    int count=1;
-    for(int i=0;i<TABLE_SIZE;i++){
-        if (grammar->rules[i] != NULL){
+void printGrammar(GRAMMAR *grammar)
+{
+    int count = 1;
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        if (grammar->rules[i] != NULL)
+        {
             printf("\n");
             printf("Non terminal number: %d\n", count++);
-            RULES* r = grammar->rules[i];
-            for (int i = 0; i < r->length; i++) {
-            printf("Rule %d:\n", i + 1);
-            printf("Name: %s, Terminal: %s\n",r->heads[i].name, r->heads[i].terminal ? "true" : "false");
-            NODE* head = r->heads[i].next;
-            while (head != NULL) {
-                printf("Name: %s, Terminal: %s\n", head->name, head->terminal ? "true" : "false");
-                head = head->next;
+            RULES *r = grammar->rules[i];
+            for (int i = 0; i < r->length; i++)
+            {
+                printf("Rule %d:\n", i + 1);
+                printf("Name: %s, Terminal: %s\n", r->heads[i].name, r->heads[i].terminal ? "true" : "false");
+                NODE *head = r->heads[i].next;
+                while (head != NULL)
+                {
+                    printf("Name: %s, Terminal: %s\n", head->name, head->terminal ? "true" : "false");
+                    head = head->next;
+                }
             }
-        }
         }
     }
 }
 
-void initGrammer(GRAMMAR* grammar){
-    
-    for (int i = 0; i < TABLE_SIZE; i++) {
+void initGrammer(GRAMMAR *grammar)
+{
+
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
         grammar->rules[i] = NULL;
     }
-    
+
     // <program> ===> <otherFunctions> <mainFunction>
     NODE *nodes_program = malloc(2 * sizeof(NODE));
 
@@ -1151,7 +1172,7 @@ void initGrammer(GRAMMAR* grammar){
     addRule(grammar, "mainFunction", nodes_mainFunction);
 
     // <otherFunctions> ===> <function><otherFunctions> | ε
-    NODE *nodes_otherFunctions_1 = (NODE*) malloc(2 * sizeof(NODE));
+    NODE *nodes_otherFunctions_1 = (NODE *)malloc(2 * sizeof(NODE));
     NODE *nodes_otherFunctions_2 = malloc(1 * sizeof(NODE));
 
     nodes_otherFunctions_1[0] = (NODE){"function", false, &nodes_otherFunctions_1[1]};
@@ -1173,7 +1194,6 @@ void initGrammer(GRAMMAR* grammar){
     nodes_function[5] = (NODE){"TK_END", true, NULL};
 
     addRule(grammar, "function", nodes_function);
-    
 
     // <input_par>===>TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR
     NODE *nodes_input_par = malloc(6 * sizeof(NODE));
@@ -1449,7 +1469,7 @@ void initGrammer(GRAMMAR* grammar){
     addRule(grammar, "option_single_constructed", nodes_optionSingleConstructed_1);
     addRule(grammar, "option_single_constructed", nodes_optionSingleConstructed_2);
 
-    // <oneExpansion>===> TK_DOT TK_FIELDID 
+    // <oneExpansion>===> TK_DOT TK_FIELDID
     NODE *nodes_oneExpansion = malloc(2 * sizeof(NODE));
 
     nodes_oneExpansion[0] = (NODE){"TK_DOT", true, &nodes_oneExpansion[1]};
@@ -1775,38 +1795,38 @@ void initGrammer(GRAMMAR* grammar){
 
     addRule(grammar, "A", nodes_A_1);
     addRule(grammar, "A", nodes_A_2);
-
 }
 
-NODE*** initPredictiveParsingTable(){
+NODE ***initPredictiveParsingTable()
+{
 
     char *Terminals[] = {
-    "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT", 
-    "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT", 
-    "TK_COMMA", "TK_ID", "TK_INT", "TK_REAL", "TK_RECORD", 
-    "TK_RUID", "TK_UNION", "TK_TYPE", "TK_COLON", "TK_FIELDID", 
-    "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL", "TK_ASSIGNOP", 
-    "TK_DOT", "TK_CALL", "TK_WITH", "TK_PARAMETERS", "TK_OP", 
-    "TK_CL", "TK_WHILE", "TK_ENDWHILE", "TK_IF", "TK_THEN", 
-    "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM", 
-    "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS", 
-    "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", 
-    "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS", 
-    NULL // NULL terminator to indicate end of array
-};
+        "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT",
+        "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT",
+        "TK_COMMA", "TK_ID", "TK_INT", "TK_REAL", "TK_RECORD",
+        "TK_RUID", "TK_UNION", "TK_TYPE", "TK_COLON", "TK_FIELDID",
+        "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL", "TK_ASSIGNOP",
+        "TK_DOT", "TK_CALL", "TK_WITH", "TK_PARAMETERS", "TK_OP",
+        "TK_CL", "TK_WHILE", "TK_ENDWHILE", "TK_IF", "TK_THEN",
+        "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
+        "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
+        "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS",
+        NULL // NULL terminator to indicate end of array
+    };
 
     char *NonTerminals[] = {
         "program", "mainFunction", "otherFunctions", "function", "input_par", "output_par", "parameter_list",
         "dataType", "primitiveDatatype", "constructedDatatype", "remaining_list", "stmts", "typeDefinitions",
-        "actualOrRedefined", "typeDefinition", "fieldDefinitions",  "fieldDefinition", "fieldType", "moreFields",
+        "actualOrRedefined", "typeDefinition", "fieldDefinitions", "fieldDefinition", "fieldType", "moreFields",
         "declarations", "declaration", "global_or_not", "otherStmts", "stmt", "assignmentStmt", "SingleOrRecId",
         "option_single_constructed", "oneExpansion", "moreExpansions", "funCallStmt", "outputParameters",
         "inputParameters", "iterativeStmt", "conditionalStmt", "elsePart", "ioStmt", "arithmeticExpression",
         "expPrime", "term", "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators",
-        "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn","idList",
+        "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
         "more_ids", "definetypestmt", "A", NULL};
 
-    GRAMMAR* grammar = (GRAMMAR*) malloc(sizeof(GRAMMAR));
+    GRAMMAR *grammar = (GRAMMAR *)malloc(sizeof(GRAMMAR));
     initGrammer(grammar);
 
     NODE *nodes_error = malloc(1 * sizeof(NODE));
@@ -1818,69 +1838,86 @@ NODE*** initPredictiveParsingTable(){
     NODE *nodes_e = malloc(1 * sizeof(NODE));
     nodes_e[0] = (NODE){"ε", true, NULL};
 
-    //Initializing first set
-    struct Dictionary* firstSet = createDictionary();
+    // Initializing first set
+    struct Dictionary *firstSet = createDictionary();
     initFirst(firstSet);
-    
-    //Initializing follow set
-    struct Dictionary* followSet = createDictionary();
-    initFollow(followSet);
-    
-    NODE*** predictiveParsingTable = (NODE***) malloc(MAX_NON_TERMINALS * sizeof(NODE**));        
 
-    //Initializing predictive parsing table
-    for(int i=0; i<MAX_NON_TERMINALS; i++){
-        predictiveParsingTable[i] = (NODE**) malloc(MAX_TERMINALS * sizeof(NODE*));
-        for(int j=0; j<MAX_TERMINALS; j++){
+    // Initializing follow set
+    struct Dictionary *followSet = createDictionary();
+    initFollow(followSet);
+
+    NODE ***predictiveParsingTable = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
+
+    // Initializing predictive parsing table
+    for (int i = 0; i < MAX_NON_TERMINALS; i++)
+    {
+        predictiveParsingTable[i] = (NODE **)malloc(MAX_TERMINALS * sizeof(NODE *));
+        for (int j = 0; j < MAX_TERMINALS; j++)
+        {
             predictiveParsingTable[i][j] = NULL;
         }
     }
 
-
-    for(int i=0; i<53;i++){
-        for(int j=0; j<55;j++){
-            char* nonTerminal=NonTerminals[i];
-            char* terminal=Terminals[j];
-            if(searchF(firstSet, nonTerminal, terminal)==-1){
-                if (searchF(followSet, nonTerminal, terminal)==1){
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)]=nodes_syn;
+    for (int i = 0; i < 53; i++)
+    {
+        for (int j = 0; j < 55; j++)
+        {
+            char *nonTerminal = NonTerminals[i];
+            char *terminal = Terminals[j];
+            if (searchF(firstSet, nonTerminal, terminal) == -1)
+            {
+                if (searchF(followSet, nonTerminal, terminal) == 1)
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
                 }
-                else{
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)]=nodes_error;
+                else
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
                 }
-            }else if(searchF(firstSet, nonTerminal, terminal)==0){
-                predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)]=nodes_e;
-            }else{
-                NODE* rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+            }
+            else if (searchF(firstSet, nonTerminal, terminal) == 0)
+            {
+                predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+            }
+            else
+            {
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
                 int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
-                for(int k=0;k<rulesListLength;k++){
+                for (int k = 0; k < rulesListLength; k++)
+                {
                     NODE rule = rulesList[k];
-                    if((!rule.terminal && searchF(firstSet, rule.name, terminal)==1) || (rule.terminal && strcmp(rule.name, terminal)==0)|| (!rule.terminal && searchF(firstSet, rule.name, terminal)==0 && searchF(followSet, rule.name, terminal)==1)){
-                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)]=&rulesList[k];
+                    if ((!rule.terminal && searchF(firstSet, rule.name, terminal) == 1) || (rule.terminal && strcmp(rule.name, terminal) == 0) || (!rule.terminal && searchF(firstSet, rule.name, terminal) == 0 && searchF(followSet, rule.name, terminal) == 1))
+                    {
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
                         break;
                     }
                 }
             }
         }
     }
-    
-    for(int i=0;i<53;i++){
-        char* nonTerminal=NonTerminals[i];
-        if(searchF(firstSet, nonTerminal, "ε")==1){
-            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")]=nodes_e;
-        }else{
-            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")]=nodes_error;
+
+    for (int i = 0; i < 53; i++)
+    {
+        char *nonTerminal = NonTerminals[i];
+        if (searchF(firstSet, nonTerminal, "ε") == 1)
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_e;
+        }
+        else
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
         }
     }
-
 
     return predictiveParsingTable;
 }
 
 // Function to create a new node with given NODE data
-StackNode* createStackNode(NODE *data) {
-    StackNode *newStackNode = (StackNode*)malloc(sizeof(StackNode));
-    if (newStackNode == NULL) {
+StackNode *createStackNode(NODE *data)
+{
+    StackNode *newStackNode = (StackNode *)malloc(sizeof(StackNode));
+    if (newStackNode == NULL)
+    {
         printf("Memory allocation failed\n");
         exit(1);
     }
@@ -1890,20 +1927,24 @@ StackNode* createStackNode(NODE *data) {
 }
 
 // Function to initialize the stack
-void initializeStack(Stack *stack) {
+void initializeStack(Stack *stack)
+{
     stack->top = NULL;
 }
 
 // Function to push a NODE pointer onto the stack
-void push(Stack *stack, NODE *data) {
+void push(Stack *stack, NODE *data)
+{
     StackNode *newStackNode = createStackNode(data);
     newStackNode->next = stack->top;
     stack->top = newStackNode;
 }
 
 // Function to pop a NODE pointer from the stack
-NODE* pop(Stack *stack) {
-    if (stack->top == NULL) {
+NODE *pop(Stack *stack)
+{
+    if (stack->top == NULL)
+    {
         printf("Stack underflow\n");
         exit(1);
     }
@@ -1915,59 +1956,71 @@ NODE* pop(Stack *stack) {
 }
 
 // Function to check if the stack is empty
-bool isEmpty(Stack *stack) {
+bool isEmpty(Stack *stack)
+{
     return stack->top == NULL;
 }
 
 // Function to display the elements of the stack (for debugging)
-void display(Stack *stack) {
-    if (isEmpty(stack)) {
+void display(Stack *stack)
+{
+    if (isEmpty(stack))
+    {
         printf("Stack is empty\n");
         return;
     }
     StackNode *current = stack->top;
     printf("Stack elements:\n");
-    while (current != NULL) {
-        printf("Name: %s, Terminal: %s\n", 
-                current->data->name, current->data->terminal ? "true" : "false");
+    while (current != NULL)
+    {
+        printf("Name: %s, Terminal: %s\n",
+               current->data->name, current->data->terminal ? "true" : "false");
         current = current->next;
     }
     printf("\n");
 }
 
 // Function to free memory allocated for the stack nodes
-void freeStack(Stack *stack) {
-    while (!isEmpty(stack)) {
+void freeStack(Stack *stack)
+{
+    while (!isEmpty(stack))
+    {
         StackNode *temp = stack->top;
         stack->top = temp->next;
-        free(temp);       // Free the StackNode itself
+        free(temp); // Free the StackNode itself
     }
 }
 
 // Function to create a new tree node
-TreeNode* createTreeNode(char *name) {
-    TreeNode *newNode = (TreeNode*)malloc(sizeof(TreeNode));
-    if (newNode == NULL) {
+TreeNode *createTreeNode(char *name)
+{
+    TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
+    if (newNode == NULL)
+    {
         fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
     newNode->name = strdup(name); // Allocate memory for name and copy the string
-    if (newNode->name == NULL) {
+    if (newNode->name == NULL)
+    {
         fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
     newNode->parent = NULL;
     newNode->num_children = 0;
     newNode->index_in_parent = -1;
-    for (int i = 0; i < MAX_CHILDREN; i++) {
+    for (int i = 0; i < MAX_CHILDREN; i++)
+    {
         newNode->children[i] = NULL;
     }
     return newNode;
 }
 
 // Function to add a child to a parent node
-void addChild(TreeNode *parent, TreeNode *child) {
-    if (parent->num_children >= MAX_CHILDREN) {
+void addChild(TreeNode *parent, TreeNode *child)
+{
+    if (parent->num_children >= MAX_CHILDREN)
+    {
         fprintf(stderr, "Maximum number of children reached\n");
         exit(EXIT_FAILURE);
     }
@@ -1977,29 +2030,34 @@ void addChild(TreeNode *parent, TreeNode *child) {
 }
 
 // Function to print the tree recursively
-void printTree(TreeNode *root, int depth) {
+void printTree(TreeNode *root, int depth)
+{
     if (root == NULL)
         return;
     for (int i = 0; i < depth; i++)
         printf("  ");
     printf("%s\n", root->name);
-    for (int i = 0; i < root->num_children; i++) {
+    for (int i = 0; i < root->num_children; i++)
+    {
         printTree(root->children[i], depth + 1);
     }
 }
 
 // Function to free the memory allocated for the tree nodes
-void freeTree(TreeNode *root) {
+void freeTree(TreeNode *root)
+{
     if (root == NULL)
         return;
-    for (int i = 0; i < root->num_children; i++) {
+    for (int i = 0; i < root->num_children; i++)
+    {
         freeTree(root->children[i]);
     }
     free(root->name);
     free(root);
 }
 
-TreeNode* getNextSibling(TreeNode *node) {
+TreeNode *getNextSibling(TreeNode *node)
+{
     if (node == NULL || node->parent == NULL || node->index_in_parent == -1)
         return NULL; // No parent or invalid index_in_parent means no siblings
 
@@ -2010,55 +2068,77 @@ TreeNode* getNextSibling(TreeNode *node) {
         return getNextSibling(node->parent); // Recursively search for next sibling of parent
 }
 
-void addRuleToStack(Stack *stack, NODE* rule, TreeNode** cur){
+void addRuleToStack(Stack *stack, NODE *rule, TreeNode **cur)
+{
     Stack s;
     initializeStack(&s);
     NODE *current = rule;
-    while(current != NULL){
+    while (current != NULL)
+    {
         push(&s, current);
-        TreeNode* temp = createTreeNode(current->name);
+        TreeNode *temp = createTreeNode(current->name);
         addChild(*cur, temp);
         current = current->next;
     }
-    while(isEmpty(&s) != true){
+    while (isEmpty(&s) != true)
+    {
         push(stack, pop(&s));
     }
     freeStack(&s);
 }
 
-void processToken(Stack *stack, NODE*** predictiveParsingTable, TokenInfo Token, TreeNode **current){
-    while(true){
-        if(isEmpty(stack)){
-            printf("Stack is empty\n"); // give error 
+void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token, TreeNode **current)
+{
+    while (true)
+    {
+        if (isEmpty(stack))
+        {
+            printf("Stack is empty\n"); // give error
             return;
-        } else if (stack->top->data->terminal){
-            if(strcmp(stack->top->data->name, Token.type) == 0){
+        }
+        else if (stack->top->data->terminal)
+        {
+            if (strcmp(stack->top->data->name, Token.type) == 0)
+            {
                 pop(stack);
                 *current = getNextSibling(*current);
                 return;
-            } else {
+            }
+            else
+            {
                 pop(stack);
                 *current = getNextSibling(*current);
                 printf("Error: Terminal mismatch\n"); // give error
             }
-        } else {
-            NODE* rule = predictiveParsingTable[hashNT(stack->top->data->name)][hashT(Token.type)];
-            if(rule == NULL){
+        }
+        else
+        {
+            NODE *rule = predictiveParsingTable[hashNT(stack->top->data->name)][hashT(Token.type)];
+            if (rule == NULL)
+            {
                 printf("Error: No rule found\n"); // give error
                 return;
-            } else if (!strcmp(rule->name,"error")){
+            }
+            else if (!strcmp(rule->name, "error"))
+            {
                 // report error
                 return;
-            } else if (!strcmp(rule->name,"syn")){
+            }
+            else if (!strcmp(rule->name, "syn"))
+            {
                 // report error
                 pop(stack);
                 *current = getNextSibling(*current);
-            } else if (!strcmp(rule->name,"ε")){
+            }
+            else if (!strcmp(rule->name, "ε"))
+            {
                 pop(stack);
-                TreeNode* temp = createTreeNode("ε");
+                TreeNode *temp = createTreeNode("ε");
                 addChild(*current, temp);
                 *current = getNextSibling(*current);
-            } else {
+            }
+            else
+            {
                 pop(stack);
                 addRuleToStack(stack, rule, current);
                 *current = (*current)->children[0];
@@ -2067,21 +2147,21 @@ void processToken(Stack *stack, NODE*** predictiveParsingTable, TokenInfo Token,
     }
 }
 
-int main() {
+int main()
+{
 
-    NODE*** predictiveParsingTable = initPredictiveParsingTable();
-    char* terminal = "TK_OUTPUT";
-    char* nonTerminal = "output_par";
+    NODE ***predictiveParsingTable = initPredictiveParsingTable();
+    char *terminal = "TK_OUTPUT";
+    char *nonTerminal = "output_par";
 
-    NODE* rule = predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)];
-    printf("%s\n",rule->name);
-
+    NODE *rule = predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)];
+    printf("%s\n", rule->name);
 
     Stack stack;
     initializeStack(&stack);
 
     TreeNode *root = createTreeNode("Root");
-    TreeNode **current = (TreeNode**)malloc(sizeof(TreeNode*));
+    TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
     *current = root;
 
     addRuleToStack(&stack, rule, current);

@@ -8,11 +8,6 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <ctype.h>
-#include "dict.h"
 #include "lexerDef.h"
 
 // Function declarations
@@ -23,3 +18,9 @@ void removeComments(char *testcaseFile, char *cleanFile);
 void lexer(FILE *fp);
 TokenInfo readTokenFromFile(FILE *file);
 void writeTokenToFile(FILE *file, TokenInfo token);
+
+int hash(char *key);
+struct Dictionary *createDictionary();
+void insert(struct Dictionary *dict, char *key, char *value);
+char *search(struct Dictionary *dict, char *key);
+struct Dictionary *initLookupTable();

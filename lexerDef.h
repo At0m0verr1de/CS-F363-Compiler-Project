@@ -8,12 +8,18 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
 // Define necessary constants and structures
 #define MAX_LEXEME_SIZE 100
 #define MAX_TOKEN_SIZE 15
 #define MAX_BUFFER_SIZE 5
+#define TABLE_SIZE 50
 
-// Token information structure
 typedef struct
 {
     char type[MAX_TOKEN_SIZE];
@@ -22,7 +28,6 @@ typedef struct
     bool end;
 } TokenInfo;
 
-// Define structure for twin buffer
 typedef struct
 {
     char buffer0[MAX_BUFFER_SIZE];
@@ -33,3 +38,15 @@ typedef struct
     FILE *fp;    // File pointer for input stream
     bool dblret; // double retraction flag
 } twinBuffer;
+
+struct KeyValuePair
+{
+    char *key;
+    char *value;
+    int len;
+};
+
+struct Dictionary
+{
+    struct KeyValuePair *table[TABLE_SIZE];
+};

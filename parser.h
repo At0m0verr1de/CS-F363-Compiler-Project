@@ -7,3 +7,9 @@
     Rijul Bassamboo     2021A7PS0009P
     Mihika Deshpande    2021A7PS2435P
 */
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+#include "dict.h"
