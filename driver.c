@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
             removeComments(argv[1], "clean_source_code.txt"); // Call removeComments function from lexer.c
             break;
         case 2:
-            lexer(argv[1]); // prints the tokens to command line
+            lexer(inputFile); // prints the tokens to command line
             break;
         case 3:
             // lexer(argv[1]);
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
             break;
         case 4:
             start_time = clock();
-            lexer(argv[1]);
+            lexer(inputFile);
             // parser(argv[1]);
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);

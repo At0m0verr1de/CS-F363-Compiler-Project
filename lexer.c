@@ -951,20 +951,6 @@ void removeComments(char *testcaseFile, char *cleanFile)
     }
 }
 
-// Function to write a token to a file
-void writeTokenToFile(FILE *file, TokenInfo token)
-{
-    fprintf(file, "%s %s %d %d\n", token.type, token.lexeme, token.lineNumber, token.end ? 1 : 0);
-}
-
-// Function to read a token from a file
-TokenInfo readTokenFromFile(FILE *file)
-{
-    TokenInfo token;
-    fscanf(file, "%s %s %d %d", token.type, token.lexeme, &token.lineNumber, &token.end);
-    return token;
-}
-
 // Main Tokenizer Function
 void lexer(FILE *fp)
 {
@@ -990,8 +976,6 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
-            // FILE *tk = fopen("tokens.txt", "w");
-            // writeTokenToFile(tk, token);
             printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
             continue;
         }
