@@ -21,7 +21,6 @@ typedef struct TreeNode {
     int index_in_parent;
 } TreeNode;
 
-
 //Token information structure
 typedef struct
 {
@@ -30,7 +29,6 @@ typedef struct
     int lineNumber;
     bool end;
 } TokenInfo;
-
 
 struct KeyValuePair
 {
@@ -2026,8 +2024,6 @@ void addRuleToStack(Stack *stack, NODE* rule, TreeNode** cur){
     }
     freeStack(&s);
 }
-
-
 
 void processToken(Stack *stack, NODE*** predictiveParsingTable, TokenInfo Token, TreeNode **current){
     while(true){
