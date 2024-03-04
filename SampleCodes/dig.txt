@@ -1,0 +1,30 @@
+_sumOfDigits
+input parameter list [int num]
+output parameter list [int sum];
+
+type int: digit;
+type int: temp;
+
+sum <--- 0;
+temp <--- num;
+
+while (temp > 0)
+    digit <--- temp % 10;
+    sum <--- sum + digit;
+    temp <--- temp / 10;
+endwhile
+
+return [sum];
+end
+
+_main
+type int: number;
+type int: digitSum;
+
+number <--- 12345;
+
+[digitSum] <--- call _sumOfDigits with parameters [number];
+write(digitSum);
+
+return;
+end

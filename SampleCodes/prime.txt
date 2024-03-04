@@ -1,0 +1,34 @@
+_isPrime
+input parameter list [int num]
+output parameter list [int primeFlag];
+
+type int: i;
+
+primeFlag <--- 1;  % Assume num is prime initially
+
+if (num <= 1) then
+    primeFlag <--- 0;  % Set flag to 0 if num is less than or equal to 1
+else
+    i <--- 2;
+    while (i * i <= num)
+        if (num % i == 0)
+            primeFlag <--- 0;  % Set flag to 0 if num is divisible by i
+        endif
+        i <--- i + 1;
+    endwhile
+endif
+
+return [primeFlag];
+end
+
+_main
+type int: num;
+type int: isPrime;
+
+num <--- 17;  % Check if 17 is prime
+
+[isPrime] <--- call _isPrime with parameters [num];
+write(isPrime);
+
+return;
+end

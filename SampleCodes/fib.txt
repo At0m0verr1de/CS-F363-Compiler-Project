@@ -1,0 +1,26 @@
+_fibonacci
+input parameter list [int n]
+output parameter list [int result];
+
+if (n <= 1) then
+    result <--- n;
+else
+    type int: fib1, fib2;
+    [fib1] <--- call _fibonacci with parameters [n - 1];
+    [fib2] <--- call _fibonacci with parameters [n - 2];
+    result <--- fib1 + fib2;
+endif
+
+return [result];
+end
+
+_main
+type int: term;
+type int: fibonacciTerm;
+
+term <--- 10;
+[fibonacciTerm] <--- call _fibonacci with parameters [term];
+write(fibonacciTerm);
+
+return;
+end

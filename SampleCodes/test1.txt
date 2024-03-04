@@ -1,0 +1,50 @@
+_main
+type int: a1;
+type real: b1;
+type record #book book1;
+type record #book book2;
+type record #student student1;
+type record #student student2;
+type union #data data1;
+type union #data data2;
+type record #finance finance1;
+type record #finance finance2;
+
+a1 <--- 10;
+b1 <--- 3.14;
+
+book1.title <--- "The Great Gatsby";
+book1.author <--- "F. Scott Fitzgerald";
+book1.price <--- 15.99;
+
+book2.title <--- "To Kill a Mockingbird";
+book2.author <--- "Harper Lee";
+book2.price <--- 12.50;
+
+student1.name <--- "Alice";
+student1.age <--- 20;
+student1.grade <--- 'A';
+
+student2.name <--- "Bob";
+student2.age <--- 22;
+student2.grade <--- 'B';
+
+data1.intdata <--- 42;
+data2.realdata <--- 3.14;
+
+finance1.value <--- 1000;
+finance1.rate <--- 0.05;
+finance1.interest <--- 50;
+
+finance2.value <--- 2000;
+finance2.rate <--- 0.06;
+finance2.interest <--- 120;
+
+call _function1 with parameters [a1, b1];
+call _function2 with parameters [book1, book2];
+call _function3 with parameters [student1, student2];
+call _function4 with parameters [data1, data2];
+call _function5 with parameters [finance1, finance2];
+
+return;
+end

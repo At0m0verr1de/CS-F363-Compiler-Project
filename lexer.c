@@ -56,6 +56,19 @@ DictionaryLexer *createDictionaryLexer()
     return dict;
 }
 
+void freeDictionaryLexer(DictionaryLexer *dict)
+{
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        if (dict->table[i] != NULL)
+        {
+            free(dict->table[i]->key);
+            free(dict->table[i]);
+        }
+    }
+    free(dict);
+}
+
 void insertLexer(DictionaryLexer *dict, char *key, char *value)
 {
     int index = hashLT(key);
@@ -984,4 +997,5 @@ void lexer(FILE *fp)
 
     fclose(fp);
     free(B);
+    freeDictionaryLexer(dict);
 }

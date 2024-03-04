@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    FILE *inputFile = fopen(argv[1], "r");
+    FILE *inputFile;
     FILE *outputFile = fopen(argv[2], "w");
 
     if (inputFile == NULL)
@@ -34,14 +34,14 @@ int main(int argc, char *argv[])
     }
 
     // Menu-driven interface
-    int option;
+    char option;
     clock_t start_time, end_time;
     double total_CPU_time, total_CPU_time_in_seconds;
 
     GRAMMAR grammar = (GRAMMAR)malloc(sizeof(struct Grammar));
     initGrammer(grammar);
 
-    FirstAndFollow faf = computeFirstAndFollowSets(grammar);
+    FirstAndFollow faf = ComputeFirstAndFollowSets(grammar);
 
     Table T = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
     createParseTable(faf, T);
@@ -55,28 +55,31 @@ int main(int argc, char *argv[])
         printf("3: Parse and print parse tree\n");
         printf("4: Measure execution time\n");
         printf("Enter option: ");
-        scanf("%d", &option);
-
+        scanf("%s", &option);
+        
         switch (option)
         {
-        case 0:
+        case '0':
             printf("Exiting...\n");
             break;
-        case 1:
+        case '1':
             removeComments(argv[1], "clean_source_code.txt"); // Call removeComments function from lexer.c
             break;
-        case 2:
+        case '2':
+            inputFile = fopen(argv[1], "r");
             lexer(inputFile); // prints the tokens to command line
             break;
-        case 3:
+        case '3':
             // lexer(inputFile);
-            parseTree root = parseInputSourceCode(inputFile, T);
-            printParseTree(root, outputFile);
+            parseTree root = parseInputSourceCode(argv[1], T);
+            //printTree(root, 0);
+            //printParseTree(root, outputFile);
             // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
-        case 4:
+        case '4':
             start_time = clock();
-            // lexer(inputFile);
+            inputFile = fopen(argv[1], "r");           
+            lexer(inputFile);
             // parseInputSourceCode();
             // if correct syntactically print parse tree
             // printParseTree();
@@ -88,10 +91,10 @@ int main(int argc, char *argv[])
             break;
         default:
             printf("Invalid option. Please try again.\n");
+            break;
         }
-    } while (option != 0);
+    } while (option != '0');
 
-    fclose(inputFile);
     fclose(outputFile);
 
     return 0;

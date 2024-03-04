@@ -25,7 +25,8 @@ d3 <--- 20;
 
 while (b3 < 50) 
     while (b3 < 100) 
-                [b3, b3] <--- call _function2 with parameters [b3, b3];
+        %type int: b3, b3;
+        [b3, b3] <--- call _function2 with parameters [b3, b3];
         [b3, b3] <--- call _function3 with parameters [b3, b3];
         b3 <--- b3 + 2;
     endwhile

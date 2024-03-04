@@ -1,0 +1,25 @@
+_factorial
+input parameter list [int num]
+output parameter list [int result];
+
+if (num <= 1) then
+    result <--- 1;
+else
+    type int: temp;
+    [temp] <--- call _factorial with parameters [num - 1];
+    result <--- num * temp;
+endif
+
+return [result];
+end
+
+_main
+type int: number;
+type int: factorial;
+
+number <--- 5;
+[factorial] <--- call _factorial with parameters [number];
+write(factorial);
+
+return;
+end

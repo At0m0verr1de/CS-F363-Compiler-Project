@@ -24,3 +24,4 @@ DictionaryLexer *createDictionaryLexer();
 void insertLexer(DictionaryLexer *dict, char *key, char *value);
 char *search(DictionaryLexer *dict, char *key);
 DictionaryLexer *initLookupTable();
+void freeDictionaryLexer(DictionaryLexer *dict);

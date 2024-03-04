@@ -1,0 +1,27 @@
+_findMax
+input parameter list [int num1, int num2]
+output parameter list [int max];
+
+if (num1 > num2) then
+    max <--- num1;
+else
+    max <--- num2;
+endif
+
+return [max];
+end
+
+_main
+type int: a;
+type int: b;
+type int: maximum;
+
+a <--- 10;
+b <--- 20;
+
+[maximum] <--- call _findMax with parameters [a, b];
+write(maximum);
+
+return;
+end
+

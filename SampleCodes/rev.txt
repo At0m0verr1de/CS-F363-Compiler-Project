@@ -1,0 +1,30 @@
+_reverseNumber
+input parameter list [int num]
+output parameter list [int reversed];
+
+type int: temp;
+type int: digit;
+
+reversed <--- 0;
+temp <--- num;
+
+while (temp > 0)
+    digit <--- temp % 10;
+    reversed <--- reversed * 10 + digit;
+    temp <--- temp / 10;
+endwhile
+
+return [reversed];
+end
+
+_main
+type int: originalNumber;
+type int: reversedNumber;
+
+originalNumber <--- 12345;  % Reverse the number 12345
+
+[reversedNumber] <--- call _reverseNumber with parameters [originalNumber];
+write(reversedNumber);
+
+return;
+end

@@ -1,0 +1,24 @@
+_simpleInterest
+input parameter list [real principal, real rate, int time]
+output parameter list [real interest];
+
+interest <--- (principal * rate * time) / 100.0;
+
+return [interest];
+end
+
+_main
+type real: principalAmount;
+type real: interestRate;
+type int: timePeriod;
+type real: simpleInterestAmount;
+
+principalAmount <--- 1000.0;
+interestRate <--- 5.0;
+timePeriod <--- 2;
+
+[simpleInterestAmount] <--- call _simpleInterest with parameters [principalAmount, interestRate, timePeriod];
+write(simpleInterestAmount);
+
+return;
+end
