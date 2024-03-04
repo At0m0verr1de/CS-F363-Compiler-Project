@@ -524,7 +524,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
                 }
                 else
                 {
-                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    printf("Line %d Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
 
@@ -562,7 +562,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
                 }
                 else
                 {
-                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    printf("Line %d Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
 
@@ -722,7 +722,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
                 if (strlen(token.lexeme) > 20)
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    printf("Line %d Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
                 else
@@ -750,7 +750,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
                 if (strlen(token.lexeme) > 20)
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    printf("Line %d Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
                 else
@@ -880,7 +880,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
         if (strlen(token.lexeme) == 1 && !strcmp(token.type, "TK_ERROR"))
         {
-            printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
+            printf("Line %d Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
             return token;
         }
         else if (!strcmp(token.type, "TK_ERROR"))
@@ -892,7 +892,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
             }
             // single retraction and return error
             B->currentPosition--;
-            printf("Line No. %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
+            printf("Line %d Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
             return token;
         }
     }
@@ -2672,7 +2672,7 @@ NODE ***initPredictiveParsingTable()
         "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
         "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
         "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
-        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
         NULL // NULL terminator to indicate end of array
     };
 
@@ -2721,7 +2721,7 @@ NODE ***initPredictiveParsingTable()
 
     for (int i = 0; i < 53; i++)
     {
-        for (int j = 0; j < 55; j++)
+        for (int j = 0; j < 56; j++)
         {
             char *nonTerminal = NonTerminals[i];
             char *terminal = Terminals[j];
@@ -2957,7 +2957,7 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
     {
         if (isEmpty(stack))
         {
-            printf("Stack is empty\n"); // give error
+            printf("Line %d Error: Invalid token %s encountered with value %s stack top NULL\n",Token.lineNumber,Token.type,Token.lexeme); 
             return;
         }
         else if (stack->top->data->terminal)
@@ -2970,9 +2970,9 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             }
             else
             {
+                printf("Line %d Error: The token %s for lexeme %s  does not match with the expected token %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name); // give error
                 pop(stack);
                 *current = getNextSibling(*current);
-                printf("Error: Terminal mismatch\n"); // give error
             }
         }
         else
@@ -2980,18 +2980,17 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             NODE *rule = predictiveParsingTable[hashNT(stack->top->data->name)][hashT(Token.type)];
             if (rule == NULL)
             {
-                printf("Error: No rule found\n"); // give error
+                printf("Error: No rule found\n"); 
                 return;
             }
             else if (!strcmp(rule->name, "error"))
             {
-                // report error
+                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name);
                 return;
             }
             else if (!strcmp(rule->name, "syn"))
             {
-                // report error
-
+                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name);
                 pop(stack);
                 *current = getNextSibling(*current);
             }
@@ -3069,7 +3068,8 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
 int main()
 {
     NODE ***predictiveParsingTable = initPredictiveParsingTable();
-    
+
+
     Stack stack;
     initializeStack(&stack);
 
@@ -3112,5 +3112,6 @@ int main()
         freeStack(&stack);
         printTree(root, 0);
         freeTree(root);
+
     return 0;
 }
