@@ -437,6 +437,10 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
                 B->currentPosition--;
                 return token;
             }
+            else
+            {
+                token.lexeme[strlen(token.lexeme) - 1] = '\0';
+            }
             break;
 
         case 26:
@@ -951,7 +955,7 @@ void removeComments(char *testcaseFile, char *cleanFile)
         if (currentChar == '%')
         {
             // Skip until end of line
-            while ((currentChar = fgetc(inputFile)) != '\n' && currentChar != '\0')
+            while ((currentChar = fgetc(inputFile)) != '\n' && currentChar != EOF)
                 ;
         }
         // Write non-comment characters to output file

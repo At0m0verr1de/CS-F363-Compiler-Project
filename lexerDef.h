@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 // Define necessary constants and structures
-#define MAX_LEXEME_SIZE 100
+#define MAX_LEXEME_SIZE 1000
 #define MAX_TOKEN_SIZE 15
 #define MAX_BUFFER_SIZE 5
 #define TABLE_SIZE 50
