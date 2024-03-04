@@ -7,12 +7,10 @@
     Rijul Bassamboo     2021A7PS0009P
     Mihika Deshpande    2021A7PS2435P
 */
-
-#include <stdio.h>
-#include <stdlib.h>
 #include "lexer.h"
-// #include "parser.h"
 #include <time.h>
+
+
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +40,16 @@ int main(int argc, char *argv[])
     clock_t start_time, end_time;
     double total_CPU_time, total_CPU_time_in_seconds;
 
+
+
+    // GRAMMAR grammar = (GRAMMAR)malloc(sizeof(struct Grammar));
+    // initGrammer(grammar);
+
+    // FirstAndFollow faf = computeFirstAndFollowSets(grammar);
+
+    // Table T = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
+    // createParseTable(faf,T,grammar);
+
     do
     {
         printf("\nOptions:\n");
@@ -65,13 +73,17 @@ int main(int argc, char *argv[])
             lexer(inputFile); // prints the tokens to command line
             break;
         case 3:
-            lexer(inputFile);
+            // lexer(inputFile);
+            // parseTree root = parseInputSourceCode(inputFile,T);
+            // printParseTree(root, outputFile);
             // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case 4:
             start_time = clock();
-            lexer(inputFile);
-            // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
+            // lexer(inputFile);
+            //parseInputSourceCode();
+            // if correct syntactically print parse tree
+            //printParseTree();            
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;

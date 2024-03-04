@@ -1,5 +1,3 @@
-
-
 #include "parser.h"
 
 int hashLT(char *str)
@@ -1957,7 +1955,7 @@ void initRules(RULES *rules)
 }
 
 // Function to add a rule to the grammar
-void addRule(GRAMMAR *grammar, char *nonTerminal, NODE *nodes)
+void addRule(GRAMMAR grammar, char *nonTerminal, NODE *nodes)
 {
     int index = hashNT(nonTerminal);
     if (grammar->rules[index] == NULL)
@@ -1978,13 +1976,13 @@ void addRule(GRAMMAR *grammar, char *nonTerminal, NODE *nodes)
 }
 
 // Function to retrieve rules for a non-terminal
-RULES *getRules(GRAMMAR *grammar, char *nonTerminal)
+RULES *getRules(GRAMMAR grammar, char *nonTerminal)
 {
     int index = hashNT(nonTerminal);
     return grammar->rules[index];
 }
 
-void printGrammar(GRAMMAR *grammar)
+void printGrammar(GRAMMAR grammar)
 {
     int count = 1;
     for (int i = 0; i < FAF_TABLE_SIZE; i++)
@@ -2009,7 +2007,7 @@ void printGrammar(GRAMMAR *grammar)
     }
 }
 
-void initGrammer(GRAMMAR *grammar)
+void initGrammer(GRAMMAR grammar)
 {
 
     for (int i = 0; i < FAF_TABLE_SIZE; i++)
@@ -2660,139 +2658,6 @@ void initGrammer(GRAMMAR *grammar)
     addRule(grammar, "A", nodes_A_2);
 }
 
-NODE ***initPredictiveParsingTable()
-{
-
-    char *Terminals[] = {
-        "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT",
-        "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT",
-        "TK_COMMA", "TK_ID", "TK_INT", "TK_REAL", "TK_RECORD",
-        "TK_RUID", "TK_UNION", "TK_TYPE", "TK_COLON", "TK_FIELDID",
-        "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL", "TK_ASSIGNOP",
-        "TK_DOT", "TK_CALL", "TK_WITH", "TK_PARAMETERS", "TK_OP",
-        "TK_CL", "TK_WHILE", "TK_ENDWHILE", "TK_IF", "TK_THEN",
-        "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
-        "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
-        "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
-        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
-        NULL // NULL terminator to indicate end of array
-    };
-
-    char *NonTerminals[] = {
-        "program", "mainFunction", "otherFunctions", "function", "input_par", "output_par", "parameter_list",
-        "dataType", "primitiveDatatype", "constructedDatatype", "remaining_list", "stmts", "typeDefinitions",
-        "actualOrRedefined", "typeDefinition", "fieldDefinitions", "fieldDefinition", "fieldType", "moreFields",
-        "declarations", "declaration", "global_or_not", "otherStmts", "stmt", "assignmentStmt", "SingleOrRecId",
-        "option_single_constructed", "oneExpansion", "moreExpansions", "funCallStmt", "outputParameters",
-        "inputParameters", "iterativeStmt", "conditionalStmt", "elsePart", "ioStmt", "arithmeticExpression",
-        "expPrime", "term", "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators",
-        "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
-        "more_ids", "definetypestmt", "A", NULL};
-
-    GRAMMAR *grammar = (GRAMMAR *)malloc(sizeof(GRAMMAR));
-    initGrammer(grammar);
-
-    NODE *nodes_error = malloc(1 * sizeof(NODE));
-    nodes_error[0] = (NODE){"error", false, NULL};
-
-    NODE *nodes_syn = malloc(1 * sizeof(NODE));
-    nodes_syn[0] = (NODE){"syn", false, NULL};
-
-    NODE *nodes_e = malloc(1 * sizeof(NODE));
-    nodes_e[0] = (NODE){"ε", true, NULL};
-
-    // Initializing first set
-    DictionaryParser *firstSet = createDictionaryParser();
-    initFirst(firstSet);
-
-    // Initializing follow set
-    DictionaryParser *followSet = createDictionaryParser();
-    initFollow(followSet);
-
-    NODE ***predictiveParsingTable = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
-
-    // Initializing predictive parsing table
-    for (int i = 0; i < MAX_NON_TERMINALS; i++)
-    {
-        predictiveParsingTable[i] = (NODE **)malloc(MAX_TERMINALS * sizeof(NODE *));
-        for (int j = 0; j < MAX_TERMINALS; j++)
-        {
-            predictiveParsingTable[i][j] = NULL;
-        }
-    }
-
-    for (int i = 0; i < 53; i++)
-    {
-        for (int j = 0; j < 56; j++)
-        {
-            char *nonTerminal = NonTerminals[i];
-            char *terminal = Terminals[j];
-            if (searchF(firstSet, nonTerminal, terminal) == -1)
-            {
-                if (searchF(followSet, nonTerminal, terminal) == 1)
-                {
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
-                }
-                else
-                {
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
-                }
-            }
-            else if (searchF(firstSet, nonTerminal, terminal) == 0)
-            {
-                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
-                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
-                int flag=0;
-                for(int k=0;k<rulesListLength;k++){
-                    if((strcmp(rulesList[k].name,"ε")==0)){
-                        flag=1;
-                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
-                        break;
-                    }
-                }
-                if(flag==0){
-                   for(int k=0;k<rulesListLength;k++){
-                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
-                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
-                            break;
-                        }
-                    }
-                }
-                
-            }
-            else
-            {
-                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
-                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
-                for (int k = 0; k < rulesListLength; k++)
-                {
-                    NODE rule = rulesList[k];
-                    if ((!rule.terminal && searchF(firstSet, rule.name, terminal) == 1) || (rule.terminal && strcmp(rule.name, terminal) == 0) || (!rule.terminal && searchF(firstSet, rule.name, terminal) == 0 && searchF(followSet, rule.name, terminal) == 1))
-                    {
-                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < 53; i++)
-    {
-        char *nonTerminal = NonTerminals[i];
-        if (searchF(firstSet, nonTerminal, "ε") == 1)
-        {
-            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_e;
-        }
-        else
-        {
-            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
-        }
-    }
-
-    return predictiveParsingTable;
-}
-
 // Function to create a new node with given NODE data
 StackNode *createStackNode(NODE *data)
 {
@@ -2998,7 +2863,7 @@ void addRuleToStack(Stack *stack, NODE *rule, TreeNode **cur)
     freeStack(&s);
 }
 
-void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token, TreeNode **current)
+void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token, TreeNode **current, bool* flag)
 {
     while (true)
     {
@@ -3059,59 +2924,329 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
     }
 }
 
+FirstAndFollow ComputeFirstAndFollowSets (GRAMMAR G){
+    FirstAndFollow F = (FirstAndFollow)malloc(sizeof(struct FirstFollow));
+    F->first = createDictionaryParser();
+    F->follow = createDictionaryParser();
+    initFirst(F->first);
+    initFollow(F->follow);
+    return F;
+}
 
-/*
-// void parseInputSourceCode(char *testcaseFile, NODE ***T)
-// {
-//     Stack stack;
-//     initializeStack(&stack);
-//     TreeNode *root = createTreeNode("Root");
+void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR grammar){
+    char *Terminals[] = {
+        "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT",
+        "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT",
+        "TK_COMMA", "TK_ID", "TK_INT", "TK_REAL", "TK_RECORD",
+        "TK_RUID", "TK_UNION", "TK_TYPE", "TK_COLON", "TK_FIELDID",
+        "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL", "TK_ASSIGNOP",
+        "TK_DOT", "TK_CALL", "TK_WITH", "TK_PARAMETERS", "TK_OP",
+        "TK_CL", "TK_WHILE", "TK_ENDWHILE", "TK_IF", "TK_THEN",
+        "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
+        "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
+        "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
+        NULL // NULL terminator to indicate end of array
+    };
 
-//     FILE *fp = fopen(testcaseFile, "r");
-//     if (fp == NULL)
-//     {
-//         perror("Error opening file");
-//     }
+    char *NonTerminals[] = {
+        "program", "mainFunction", "otherFunctions", "function", "input_par", "output_par", "parameter_list",
+        "dataType", "primitiveDatatype", "constructedDatatype", "remaining_list", "stmts", "typeDefinitions",
+        "actualOrRedefined", "typeDefinition", "fieldDefinitions", "fieldDefinition", "fieldType", "moreFields",
+        "declarations", "declaration", "global_or_not", "otherStmts", "stmt", "assignmentStmt", "SingleOrRecId",
+        "option_single_constructed", "oneExpansion", "moreExpansions", "funCallStmt", "outputParameters",
+        "inputParameters", "iterativeStmt", "conditionalStmt", "elsePart", "ioStmt", "arithmeticExpression",
+        "expPrime", "term", "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators",
+        "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
+        "more_ids", "definetypestmt", "A", NULL};
 
-//     DictionaryLexer *dict = initLookupTable();
+    NODE *nodes_error = malloc(1 * sizeof(NODE));
+    nodes_error[0] = (NODE){"error", false, NULL};
 
-//     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
-//     initTwinBuffer(B, fp);
+    NODE *nodes_syn = malloc(1 * sizeof(NODE));
+    nodes_syn[0] = (NODE){"syn", false, NULL};
 
-//     TokenInfo token;
-//     do
-//     {
-//         token = getNextToken(B, fp, dict);
-//         if (token.lexeme[0] == '\0')
-//             break;
-//         if (!strcmp(token.type, "TK_ERROR") || !strcmp(token.type, "TK_COMMENT"))
-//             continue;
+    NODE *nodes_e = malloc(1 * sizeof(NODE));
+    nodes_e[0] = (NODE){"ε", true, NULL};
 
-//         NODE *rule = T[hashNT(token.lexeme)][hashT(token.type)];
-//         printf("%s\n", rule->name);
+    // Initializing first set
+    DictionaryParser *firstSet = F->first;
+    
+    // Initializing follow set
+    DictionaryParser *followSet = F->follow;
 
-//         TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
-//         *current = root;
+    // Initializing predictive parsing table
+    for (int i = 0; i < MAX_NON_TERMINALS; i++)
+    {
+        predictiveParsingTable[i] = (NODE **)malloc(MAX_TERMINALS * sizeof(NODE *));
+        for (int j = 0; j < MAX_TERMINALS; j++)
+        {
+            predictiveParsingTable[i][j] = NULL;
+        }
+    }
 
-//         addRuleToStack(&stack, rule, current);
-//     } while (!token.end);
+    for (int i = 0; i < 53; i++)
+    {
+        for (int j = 0; j < 56; j++)
+        {
+            char *nonTerminal = NonTerminals[i];
+            char *terminal = Terminals[j];
+            if (searchF(firstSet, nonTerminal, terminal) == -1)
+            {
+                if (searchF(followSet, nonTerminal, terminal) == 1)
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
+                }
+                else
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
+                }
+            }
+            else if (searchF(firstSet, nonTerminal, terminal) == 0)
+            {
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
+                int flag=0;
+                for(int k=0;k<rulesListLength;k++){
+                    if((strcmp(rulesList[k].name,"ε")==0)){
+                        flag=1;
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                        break;
+                    }
+                }
+                if(flag==0){
+                   for(int k=0;k<rulesListLength;k++){
+                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                            break;
+                        }
+                    }
+                }
+                
+            }
+            else
+            {
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
+                for (int k = 0; k < rulesListLength; k++)
+                {
+                    NODE rule = rulesList[k];
+                    if ((!rule.terminal && searchF(firstSet, rule.name, terminal) == 1) || (rule.terminal && strcmp(rule.name, terminal) == 0) || (!rule.terminal && searchF(firstSet, rule.name, terminal) == 0 && searchF(followSet, rule.name, terminal) == 1))
+                    {
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-//     // display(&stack);
-//     // printTree(root, 0);
+    for (int i = 0; i < 53; i++)
+    {
+        char *nonTerminal = NonTerminals[i];
+        if (searchF(firstSet, nonTerminal, "ε") == 1)
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_e;
+        }
+        else
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
+        }
+    }
 
-//     fclose(fp);
-//     free(B);
-//     freeStack(&stack);
-//     freeTree(root);
-// }
 
-// void parser(char *sourceFile, char *treeFile)
-// {
-//     NODE ***predictiveParsingTable = initPredictiveParsingTable();
-//     parseInputSourceCode(sourceFile, predictiveParsingTable);
-// }
 
-*/
+}
+
+
+
+NODE ***initPredictiveParsingTable()
+{
+
+    char *Terminals[] = {
+        "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT",
+        "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT",
+        "TK_COMMA", "TK_ID", "TK_INT", "TK_REAL", "TK_RECORD",
+        "TK_RUID", "TK_UNION", "TK_TYPE", "TK_COLON", "TK_FIELDID",
+        "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL", "TK_ASSIGNOP",
+        "TK_DOT", "TK_CALL", "TK_WITH", "TK_PARAMETERS", "TK_OP",
+        "TK_CL", "TK_WHILE", "TK_ENDWHILE", "TK_IF", "TK_THEN",
+        "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
+        "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
+        "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
+        NULL // NULL terminator to indicate end of array
+    };
+
+    char *NonTerminals[] = {
+        "program", "mainFunction", "otherFunctions", "function", "input_par", "output_par", "parameter_list",
+        "dataType", "primitiveDatatype", "constructedDatatype", "remaining_list", "stmts", "typeDefinitions",
+        "actualOrRedefined", "typeDefinition", "fieldDefinitions", "fieldDefinition", "fieldType", "moreFields",
+        "declarations", "declaration", "global_or_not", "otherStmts", "stmt", "assignmentStmt", "SingleOrRecId",
+        "option_single_constructed", "oneExpansion", "moreExpansions", "funCallStmt", "outputParameters",
+        "inputParameters", "iterativeStmt", "conditionalStmt", "elsePart", "ioStmt", "arithmeticExpression",
+        "expPrime", "term", "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators",
+        "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
+        "more_ids", "definetypestmt", "A", NULL};
+
+    GRAMMAR grammar = (GRAMMAR )malloc(sizeof(struct Grammar));
+    initGrammer(grammar);
+
+    NODE *nodes_error = malloc(1 * sizeof(NODE));
+    nodes_error[0] = (NODE){"error", false, NULL};
+
+    NODE *nodes_syn = malloc(1 * sizeof(NODE));
+    nodes_syn[0] = (NODE){"syn", false, NULL};
+
+    NODE *nodes_e = malloc(1 * sizeof(NODE));
+    nodes_e[0] = (NODE){"ε", true, NULL};
+
+    // Initializing first set
+    DictionaryParser *firstSet = createDictionaryParser();
+    initFirst(firstSet);
+
+    // Initializing follow set
+    DictionaryParser *followSet = createDictionaryParser();
+    initFollow(followSet);
+
+    NODE ***predictiveParsingTable = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
+
+    // Initializing predictive parsing table
+    for (int i = 0; i < MAX_NON_TERMINALS; i++)
+    {
+        predictiveParsingTable[i] = (NODE **)malloc(MAX_TERMINALS * sizeof(NODE *));
+        for (int j = 0; j < MAX_TERMINALS; j++)
+        {
+            predictiveParsingTable[i][j] = NULL;
+        }
+    }
+
+    for (int i = 0; i < 53; i++)
+    {
+        for (int j = 0; j < 56; j++)
+        {
+            char *nonTerminal = NonTerminals[i];
+            char *terminal = Terminals[j];
+            if (searchF(firstSet, nonTerminal, terminal) == -1)
+            {
+                if (searchF(followSet, nonTerminal, terminal) == 1)
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
+                }
+                else
+                {
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
+                }
+            }
+            else if (searchF(firstSet, nonTerminal, terminal) == 0)
+            {
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
+                int flag=0;
+                for(int k=0;k<rulesListLength;k++){
+                    if((strcmp(rulesList[k].name,"ε")==0)){
+                        flag=1;
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                        break;
+                    }
+                }
+                if(flag==0){
+                   for(int k=0;k<rulesListLength;k++){
+                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                            break;
+                        }
+                    }
+                }
+                
+            }
+            else
+            {
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
+                for (int k = 0; k < rulesListLength; k++)
+                {
+                    NODE rule = rulesList[k];
+                    if ((!rule.terminal && searchF(firstSet, rule.name, terminal) == 1) || (rule.terminal && strcmp(rule.name, terminal) == 0) || (!rule.terminal && searchF(firstSet, rule.name, terminal) == 0 && searchF(followSet, rule.name, terminal) == 1))
+                    {
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < 53; i++)
+    {
+        char *nonTerminal = NonTerminals[i];
+        if (searchF(firstSet, nonTerminal, "ε") == 1)
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_e;
+        }
+        else
+        {
+            predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
+        }
+    }
+
+    return predictiveParsingTable;
+}
+
+parseTree parseInputSourceCode(char *testcaseFile, Table T){
+    bool flag = true;
+    Stack stack;
+    initializeStack(&stack);
+
+    TreeNode *root = createTreeNode("program");
+    TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
+    *current = root;
+
+    FILE *fp = fopen(testcaseFile, "r");
+
+    if (fp == NULL)
+        {
+            perror("Error opening file");
+        }
+
+        DictionaryLexer *dict = initLookupTable();
+
+        twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
+        initTwinBuffer(B, fp);
+
+        // Get next token and process
+        TokenInfo token;
+        do
+        {
+            token = getNextToken(B, fp, dict);
+            if (token.lexeme[0] == '\0')
+                break;
+            if (!strcmp(token.type, "TK_ERROR"))
+                continue;
+            else if (!strcmp(token.type, "TK_COMMENT"))
+            {
+                continue;
+            }
+            processToken(&stack, T , token, current, &flag);
+        } while (!token.end);
+
+        fclose(fp);
+        free(B);
+        freeStack(&stack);
+
+        return root;
+}
+
+void printParseTree(parseTree PT, char *outfile){
+    FILE *fp = fopen(outfile, "w");
+    if (fp == NULL)
+    {
+        perror("Error opening file");
+    }
+    printTree(PT, 0);
+    fclose(fp);
+}
+
 
 int main()
 {
@@ -3150,7 +3285,7 @@ int main()
             {
                 continue;
             }
-            processToken(&stack, predictiveParsingTable, token, current);
+            processToken(&stack, predictiveParsingTable, token, current, NULL);
         } while (!token.end);
 
         fclose(fp);
@@ -3163,5 +3298,8 @@ int main()
 
     return 0;
 }
+
+
+
 
 

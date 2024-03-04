@@ -46,10 +46,12 @@ typedef struct Rules
 } RULES;
 
 // Grammar structure
-typedef struct Grammar
+struct Grammar
 {
     RULES *rules[FAF_TABLE_SIZE];
-} GRAMMAR;
+};
+
+typedef struct Grammar * GRAMMAR;
 
 // Define the structure for each node in the stack
 typedef struct StackNode
@@ -68,3 +70,13 @@ typedef struct DictionaryParser
 {
     struct KeyValuePairParser *table[FAF_TABLE_SIZE];
 } DictionaryParser;
+
+struct FirstFollow
+{
+    DictionaryParser *first;
+    DictionaryParser *follow;
+};
+
+typedef struct FirstFollow * FirstAndFollow;
+typedef struct node*** Table;
+typedef struct TreeNode * parseTree;
