@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
 
     Table T = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
     createParseTable(faf, T);
-
+    parseTree root = NULL;
+    
     do
     {
         printf("\nOptions:\n");
@@ -70,19 +71,18 @@ int main(int argc, char *argv[])
             lexer(inputFile); // prints the tokens to command line
             break;
         case '3':
-            // lexer(inputFile);
-            parseTree root = parseInputSourceCode(argv[1], T);
+            root = parseInputSourceCode(argv[1], T);
             //printTree(root, 0);
             //printParseTree(root, outputFile);
-            // parser(argv[1], argv[2]); // Call parseAndPrintParseTree function from lexer.c
             break;
         case '4':
             start_time = clock();
             inputFile = fopen(argv[1], "r");           
             lexer(inputFile);
-            // parseInputSourceCode();
+            root = parseInputSourceCode(argv[1], T);
             // if correct syntactically print parse tree
             // printParseTree();
+            printTree(root, 0);
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
