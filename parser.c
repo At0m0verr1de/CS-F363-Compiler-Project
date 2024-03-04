@@ -1,3 +1,5 @@
+
+
 #include "parser.h"
 
 int hashLT(char *str)
@@ -985,7 +987,7 @@ int hashNT(char *str)
     {
     default:
         hval += asso_values[(unsigned char)str[1]];
-    /*FALLTHROUGH*/
+    
     case 1:
         hval += asso_values[(unsigned char)str[0]];
         break;
@@ -2419,7 +2421,7 @@ void initGrammer(GRAMMAR *grammar)
 
     nodes_elsePart_1[0] = (NODE){"TK_ELSE", true, &nodes_elsePart_1[1]};
     nodes_elsePart_1[1] = (NODE){"stmt", false, &nodes_elsePart_1[2]};
-    nodes_elsePart_1[2] = (NODE){"otherStmts", false, NULL};
+    nodes_elsePart_1[2] = (NODE){"otherStmts", false, &nodes_elsePart_1[3]};
     nodes_elsePart_1[3] = (NODE){"TK_ENDIF", true, NULL};
 
     nodes_elsePart_2[0] = (NODE){"TK_ENDIF", true, NULL};
@@ -2738,7 +2740,25 @@ NODE ***initPredictiveParsingTable()
             }
             else if (searchF(firstSet, nonTerminal, terminal) == 0)
             {
-                predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
+                int flag=0;
+                for(int k=0;k<rulesListLength;k++){
+                    if((strcmp(rulesList[k].name,"ε")==0)){
+                        flag=1;
+                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                        break;
+                    }
+                }
+                if(flag==0){
+                   for(int k=0;k<rulesListLength;k++){
+                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                            break;
+                        }
+                    }
+                }
+                
             }
             else
             {
@@ -2871,6 +2891,7 @@ TreeNode *createTreeNode(char *name)
         exit(EXIT_FAILURE);
     }
     newNode->parent = NULL;
+    newNode->sibling = NULL;
     newNode->num_children = 0;
     newNode->index_in_parent = -1;
     for (int i = 0; i < MAX_CHILDREN; i++)
@@ -2890,6 +2911,14 @@ void addChild(TreeNode *parent, TreeNode *child)
     }
     child->parent = parent;
     child->index_in_parent = parent->num_children;
+    if (parent->num_children > 0)
+    {
+        child->sibling = parent->children[parent->num_children - 1]->sibling;
+        parent->children[parent->num_children - 1]->sibling = child;
+    } else {
+        child->sibling = parent->sibling;
+        parent->sibling = child;
+    }
     parent->children[parent->num_children++] = child;
 }
 
@@ -2907,6 +2936,28 @@ void printTree(TreeNode *root, int depth)
     }
 }
 
+//Inorder Traversal
+void inorderTraversal(TreeNode *root)
+{
+    if (root == NULL)
+        return;
+    if(root->num_children==0)
+    {
+        printf("%s", root->name);
+        return;
+    } 
+    inorderTraversal(root->children[0]);
+    printf(" --> ");
+    printf("%s", root->name);
+    for (int i = 1; i < root->num_children; i++)
+    {
+        printf(" --> ");
+        inorderTraversal(root->children[i]);
+    }
+
+    return;
+}
+
 // Function to free the memory allocated for the tree nodes
 void freeTree(TreeNode *root)
 {
@@ -2922,14 +2973,10 @@ void freeTree(TreeNode *root)
 
 TreeNode *getNextSibling(TreeNode *node)
 {
-    if (node == NULL || node->parent == NULL || node->index_in_parent == -1)
+    if (node == NULL)
         return NULL; // No parent or invalid index_in_parent means no siblings
 
-    int index = node->index_in_parent + 1;
-    if (index < node->parent->num_children)
-        return node->parent->children[index];
-    else
-        return getNextSibling(node->parent); // Recursively search for next sibling of parent
+    return node->sibling; // Recursively search for next sibling of parent
 }
 
 void addRuleToStack(Stack *stack, NODE *rule, TreeNode **cur)
@@ -3000,12 +3047,13 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
                 TreeNode *temp = createTreeNode("ε");
                 addChild(*current, temp);
                 *current = getNextSibling(*current);
+                *current = getNextSibling(*current);
             }
             else
             {
                 pop(stack);
                 addRuleToStack(stack, rule, current);
-                *current = (*current)->children[0];
+                *current = getNextSibling(*current);
             }
         }
     }
@@ -3062,8 +3110,8 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
 //     NODE ***predictiveParsingTable = initPredictiveParsingTable();
 //     parseInputSourceCode(sourceFile, predictiveParsingTable);
 // }
-*/
 
+*/
 
 int main()
 {
@@ -3073,7 +3121,7 @@ int main()
     Stack stack;
     initializeStack(&stack);
 
-    TreeNode *root = createTreeNode("Root");
+    TreeNode *root = createTreeNode("program");
     TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
     *current = root;
 
@@ -3100,10 +3148,8 @@ int main()
                 continue;
             else if (!strcmp(token.type, "TK_COMMENT"))
             {
-                printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
                 continue;
             }
-            printf("Line no. %d     Lexeme %s      Token %s\n", token.lineNumber, token.lexeme, token.type);
             processToken(&stack, predictiveParsingTable, token, current);
         } while (!token.end);
 
@@ -3111,7 +3157,11 @@ int main()
         free(B);
         freeStack(&stack);
         printTree(root, 0);
+        printf("\n\n\n");
+        inorderTraversal(root);
         freeTree(root);
 
     return 0;
 }
+
+

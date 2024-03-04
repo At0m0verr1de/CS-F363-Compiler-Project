@@ -27,6 +27,7 @@ typedef struct TreeNode
     struct TreeNode *children[MAX_CHILDREN];
     int num_children;
     int index_in_parent;
+    struct TreeNode *sibling;
 } TreeNode;
 
 // StackNode structure for a term in a production rule
