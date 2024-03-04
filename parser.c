@@ -1,944 +1,5 @@
 #include "parser.h"
 
-int hashLT(char *str)
-{
-    char asso_values[] =
-        {
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 20, 50,
-            0, 10, 0, 0, 25, 20, 20, 50, 10, 5,
-            5, 0, 50, 50, 10, 15, 20, 50, 0, 50,
-            50, 50, 10, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-            50, 50, 50, 50, 50, 50, 50};
-    int hashValue = strlen(str) + asso_values[(unsigned char)str[1] + 1] + asso_values[(unsigned char)str[strlen(str) - 1]];
-    return hashValue % TABLE_SIZE;
-}
-
-DictionaryLexer *createDictionaryLexer()
-{
-    DictionaryLexer *dict = (DictionaryLexer *)malloc(sizeof(DictionaryLexer));
-    for (int i = 0; i < TABLE_SIZE; i++)
-    {
-        dict->table[i] = NULL;
-    }
-    return dict;
-}
-
-void insertLexer(DictionaryLexer *dict, char *key, char *value)
-{
-    int index = hashLT(key);
-    struct KeyValuePair *newPair = (struct KeyValuePair *)malloc(sizeof(struct KeyValuePair));
-    newPair->key = strdup(key); // strdup dynamically allocates memory for the string
-    newPair->value = value;
-    dict->table[index] = newPair;
-}
-
-char *search(DictionaryLexer *dict, char *key)
-{
-    // if (strlen(key) <=10 && strlen(key) >= 2){
-    int index = hashLT(key);
-    //} else return NULL:
-    if (dict->table[index] != NULL && strcmp(dict->table[index]->key, key) == 0)
-    {
-        return dict->table[index]->value;
-    }
-    return NULL; // Key not found
-}
-
-DictionaryLexer *initLookupTable()
-{
-    DictionaryLexer *dict = createDictionaryLexer();
-
-    // Insert default key-value pairs
-    insertLexer(dict, "call", "TK_CALL");
-    insertLexer(dict, "record", "TK_RECORD");
-    insertLexer(dict, "endrecord", "TK_ENDRECORD");
-    insertLexer(dict, "else", "TK_ELSE");
-    insertLexer(dict, "parameters", "TK_PARAMETERS");
-    insertLexer(dict, "with", "TK_WITH");
-    insertLexer(dict, "end", "TK_END");
-    insertLexer(dict, "while", "TK_WHILE");
-    insertLexer(dict, "union", "TK_UNION");
-    insertLexer(dict, "endunion", "TK_ENDUNION");
-    insertLexer(dict, "as", "TK_AS");
-    insertLexer(dict, "type", "TK_TYPE");
-    insertLexer(dict, "_main", "TK_MAIN");
-    insertLexer(dict, "definetype", "TK_DEFINETYPE");
-    insertLexer(dict, "global", "TK_GLOBAL");
-    insertLexer(dict, "parameter", "TK_PARAMETER");
-    insertLexer(dict, "list", "TK_LIST");
-    insertLexer(dict, "input", "TK_INPUT");
-    insertLexer(dict, "output", "TK_OUTPUT");
-    insertLexer(dict, "int", "TK_INT");
-    insertLexer(dict, "real", "TK_REAL");
-    insertLexer(dict, "endwhile", "TK_ENDWHILE");
-    insertLexer(dict, "if", "TK_IF");
-    insertLexer(dict, "then", "TK_THEN");
-    insertLexer(dict, "endif", "TK_ENDIF");
-    insertLexer(dict, "read", "TK_READ");
-    insertLexer(dict, "write", "TK_WRITE");
-    insertLexer(dict, "return", "TK_RETURN");
-
-    return dict;
-}
-
-// -------------------------------- Lexer Functions -------------------------------------
-
-char getNextChar(twinBuffer *B)
-{
-    // Check if currentPosition exceeds bufferSize
-    if (B->currentPosition >= MAX_BUFFER_SIZE)
-    {
-        // Switch buffer
-        B->currentBuffer = (B->currentBuffer + 1) % 2;
-        size_t bytes;
-        // Refill buffer from file
-        if (!B->dblret)
-        {
-            bytes = fread(B->currentBuffer == 0 ? B->buffer0 : B->buffer1, sizeof(char), MAX_BUFFER_SIZE, B->fp);
-            B->dblret = false;
-        }
-        if (bytes < MAX_BUFFER_SIZE)
-        {
-            if (B->currentBuffer == 0)
-            {
-                B->buffer0[bytes] = '\0';
-            }
-            else
-            {
-                B->buffer1[bytes] = '\0';
-            }
-        }
-        // Reset currentPosition
-        B->currentPosition = B->currentPosition % MAX_BUFFER_SIZE;
-    }
-    else if (B->currentPosition < 0)
-    {
-        // Switch buffer
-        B->currentBuffer = (B->currentBuffer + 1) % 2;
-        // Reset currentPosition
-        B->currentPosition = (B->currentPosition + MAX_BUFFER_SIZE) % MAX_BUFFER_SIZE;
-        B->dblret = true; // Fixes Retraction at start of buffer
-        // fseek(B->fp, -1 * MAX_BUFFER_SIZE, SEEK_CUR);
-    }
-    // Return next character from the current buffer
-    return B->currentBuffer == 0 ? B->buffer0[B->currentPosition++] : B->buffer1[B->currentPosition++];
-}
-
-void initTwinBuffer(twinBuffer *B, FILE *fp)
-{
-    B->fp = fp;
-    B->currentPosition = 0;
-    B->currentBuffer = 0;
-    B->lineNumber = 1;
-    B->dblret = false;
-
-    memset(B->buffer0, '\0', MAX_BUFFER_SIZE);
-    memset(B->buffer1, '\0', MAX_BUFFER_SIZE);
-
-    // Fill buffers from file
-    fread(B->buffer0, sizeof(char), MAX_BUFFER_SIZE, fp);
-}
-
-// Function to get next token
-TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
-{
-    int state = 0;
-    TokenInfo token;
-    token.end = false;
-    token.lexeme[0] = '\0';
-    token.type[0] = '\0';
-    char currentChar;
-
-    while (1)
-    {
-        currentChar = getNextChar(B);
-        if (currentChar == '\0')
-            token.end = true;
-        else if (currentChar == '\n')
-            B->lineNumber++;
-        strncat(token.lexeme, &currentChar, 1);
-
-        // debug
-        // printf("Current Char: %c     Lexeme: %s\n", currentChar, token.lexeme);
-
-        switch (state)
-        {
-        case 0: // START STATE
-            if (currentChar == '\0')
-            {
-                // strcat(token.type, "TK_EOF");
-                // token.lineNumber = B->lineNumber;
-                return token;
-            }
-
-            else if (currentChar == '\n' || currentChar == '\t' || currentChar == ' ')
-            {
-                // is state 37 being handled?
-                token.lexeme[0] = '\0';
-            }
-
-            else if (currentChar == '[')
-            {
-                strcat(token.type, "TK_SQL");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == ']')
-            {
-                strcat(token.type, "TK_SQR");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == ',')
-            {
-                strcat(token.type, "TK_COMMA");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == ';')
-            {
-                strcat(token.type, "TK_SEM");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == ':')
-            {
-                strcat(token.type, "TK_COLON");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '.')
-            {
-                strcat(token.type, "TK_DOT");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '(')
-            {
-                strcat(token.type, "TK_OP");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == ')')
-            {
-                strcat(token.type, "TK_CL");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '+')
-            {
-                strcat(token.type, "TK_PLUS");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '-')
-            {
-                strcat(token.type, "TK_MINUS");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '*')
-            {
-                strcat(token.type, "TK_MUL");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '/')
-            {
-                strcat(token.type, "TK_DIV");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '~')
-            {
-                strcat(token.type, "TK_NOT");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-
-            else if (currentChar == '>')
-            {
-                state = 1;
-            }
-            else if (currentChar == '@')
-            {
-                state = 4;
-            }
-            else if (currentChar == '!')
-            {
-                state = 7;
-            }
-            else if (currentChar == '=')
-            {
-                state = 9;
-            }
-            else if (currentChar == '%')
-            {
-                state = 24;
-            }
-            else if (currentChar == '&')
-            {
-                state = 26;
-            }
-            else if (currentChar == '#')
-            {
-                state = 29;
-            }
-            else if (currentChar == '_')
-            {
-                state = 32;
-            }
-            else if (isdigit(currentChar))
-            {
-                state = 51;
-            }
-            else if (currentChar >= 'b' && currentChar <= 'd')
-            {
-                state = 44;
-            }
-            else if (currentChar == 'a' || (currentChar >= 'e' && currentChar <= 'z'))
-            {
-                state = 45;
-            }
-            else if (currentChar == '<')
-            {
-                state = 38;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 1:
-            if (currentChar == '=')
-            {
-                strcat(token.type, "TK_GE");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            { // Retraction State Code
-                strcat(token.type, "TK_GT");
-                token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
-                token.lexeme[0] = '>';
-                token.lexeme[1] = '\0';
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 4:
-            if (currentChar == '@')
-            {
-                state = 5;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 5:
-            if (currentChar == '@')
-            {
-                strcat(token.type, "TK_OR");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 7:
-            if (currentChar == '=')
-            {
-                strcat(token.type, "TK_NE");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 9:
-            if (currentChar == '=')
-            {
-                strcat(token.type, "TK_EQ");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-        case 24:
-            if (currentChar == '\n')
-            {
-                strcat(token.type, "TK_COMMENT");
-                token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                token.lineNumber = B->lineNumber - 1;
-                return token;
-            }
-            else if (currentChar == '\0')
-            {
-                strcat(token.type, "TK_COMMENT");
-                token.lineNumber = B->lineNumber;
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 26:
-            // &
-            if (currentChar == '&')
-            {
-                // &&
-                state = 27;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 27:
-            // &&
-            if (currentChar == '&')
-            {
-                // &&&
-                strcat(token.type, "TK_AND");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 29:
-            // #
-            if (isalpha(currentChar) && tolower(currentChar) == currentChar)
-            {
-                // #[a-z]
-                state = 30;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 30:
-            // #[a-z]
-            if (isalpha(currentChar) && tolower(currentChar) == currentChar)
-            {
-                // #[a-z]*
-                state = 30;
-            }
-            else
-            {
-                // (#[a-z]* + otherChar) and retract
-                strcat(token.type, "TK_RUID");
-                token.lineNumber = (currentChar == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 32:
-            // _
-            if (isalpha(currentChar))
-            {
-                // _[a-z|A-Z]
-                state = 33;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 33:
-            // _[a-z|A-Z]
-            if (isalpha(currentChar))
-            {
-                // _[a-z|A-Z]*
-                state = 33;
-            }
-            else if (isdigit(currentChar))
-            {
-                // _[a-z|A-Z]*[0-9]
-                state = 34;
-            }
-            else
-            {
-                // @aadeesh check code
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-
-                char *value = search(dict, token.lexeme);
-
-                if (value)
-                {
-                    strcat(token.type, value);
-                }
-                else if (strlen(token.lexeme) < 30)
-                {
-                    strcat(token.type, "TK_FUNID");
-                }
-                else
-                {
-                    printf("Line %d Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
-                }
-
-                return token;
-            }
-            break;
-
-        case 34:
-            // _[a-z|A-Z]*[0-9]
-            if (isdigit(currentChar))
-            {
-                // _[a-z|A-Z]*[0-9]*
-                state = 34;
-            }
-            else
-            {
-                // @aadeesh check code
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-
-                char *value = search(dict, token.lexeme);
-
-                if (value)
-                {
-                    strcat(token.type, value);
-                }
-                else if (strlen(token.lexeme) < 30)
-                {
-                    strcat(token.type, "TK_FUNID");
-                }
-                else
-                {
-                    printf("Line %d Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
-                }
-
-                return token;
-            }
-            break;
-
-        case 38:
-            // <
-            if (currentChar == '=')
-            {
-                // <=
-                strcat(token.type, "TK_LE");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else if (currentChar == '-')
-            {
-                // <-
-                state = 39;
-            }
-            else
-            {
-                // retract and return TK_LT
-                strcat(token.type, "TK_LT");
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 39:
-            if (currentChar == '-')
-            {
-                state = 40;
-            }
-            else
-            {
-                // double retract and return TK_LT
-                strcat(token.type, "TK_LT");
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-
-                if (currentChar != '\0')
-                    token.lexeme[strlen(token.lexeme) - 2] = '\0';
-                else
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                    token.end = false;
-                }
-
-                B->currentPosition -= 2;
-                return token;
-            }
-            break;
-
-        case 40:
-            // <--
-            if (currentChar == '-')
-            {
-                strcat(token.type, "TK_ASSIGNOP");
-                token.lineNumber = B->lineNumber;
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 44:
-            if (islower(currentChar))
-            {
-                state = 45;
-            }
-            else if (currentChar >= '2' && currentChar <= '7')
-            {
-                state = 47;
-            }
-            else
-            {
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-
-                char *value = search(dict, token.lexeme);
-
-                // debug
-                // printf("Value: %s\n", value);
-                if (value)
-                {
-                    strcat(token.type, value);
-                }
-                else
-                {
-                    strcat(token.type, "TK_FIELDID");
-                }
-                return token;
-            }
-            break;
-
-        case 45:
-            if (islower(currentChar))
-            {
-                state = 45;
-            }
-            else
-            {
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-                char *value = search(dict, token.lexeme);
-
-                // debug
-                // printf("Value: %s\n", value);
-                if (value)
-                {
-                    strcat(token.type, value);
-                }
-                else
-                {
-                    strcat(token.type, "TK_FIELDID");
-                }
-                return token;
-            }
-            break;
-
-        case 47:
-            if (currentChar >= 'b' && currentChar <= 'd')
-            {
-                state = 47;
-            }
-            else if (currentChar >= '2' && currentChar <= '7')
-            {
-                state = 48;
-            }
-            else
-            {
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-
-                if (strlen(token.lexeme) > 20)
-                {
-                    printf("Line %d Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
-                }
-                else
-                {
-                    strcat(token.type, "TK_ID");
-                }
-                return token;
-            }
-            break;
-
-        case 48:
-            if (currentChar >= '2' && currentChar <= '7')
-            {
-                state = 48;
-            }
-            else
-            {
-                // retract
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-
-                if (strlen(token.lexeme) > 20)
-                {
-                    printf("Line %d Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
-                    strcat(token.type, "TK_ERROR");
-                }
-                else
-                {
-                    strcat(token.type, "TK_ID");
-                }
-                return token;
-            }
-            break;
-
-        case 51:
-            if (isdigit(currentChar))
-            {
-                state = 51;
-            }
-            else if (currentChar == '.')
-            {
-                state = 53;
-            }
-            else
-            {
-                // retract
-                strcat(token.type, "TK_NUM");
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 53:
-            if (isdigit(currentChar))
-            {
-                state = 54;
-            }
-            else
-            {
-                // double retract and return TK_NUM
-                strcat(token.type, "TK_NUM");
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-
-                if (currentChar != '\0')
-                    token.lexeme[strlen(token.lexeme) - 2] = '\0';
-                else
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                    token.end = false;
-                }
-
-                B->currentPosition -= 2;
-                // printf("Retracted Twice");
-                return token;
-            }
-            break;
-
-        case 54:
-            if (isdigit(currentChar))
-            {
-                state = 57;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 57:
-            if (currentChar == 'E')
-            {
-                state = 58;
-            }
-            else
-            {
-                // retract and return TK_RNUM
-                strcat(token.type, "TK_RNUM");
-                token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-                if (currentChar != '\0')
-                {
-                    token.lexeme[strlen(token.lexeme) - 1] = '\0';
-                }
-                B->currentPosition--;
-                return token;
-            }
-            break;
-
-        case 58:
-            if (currentChar == '+' || currentChar == '-')
-            {
-                state = 59;
-            }
-            else if (isdigit(currentChar))
-            {
-                state = 60;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 59:
-            if (isdigit(currentChar))
-            {
-                state = 60;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-
-        case 60:
-            if (isdigit(currentChar))
-            {
-                strcat(token.type, "TK_RNUM");
-                return token;
-            }
-            else
-            {
-                strcat(token.type, "TK_ERROR");
-            }
-            break;
-        }
-
-        if (strlen(token.lexeme) == 1 && !strcmp(token.type, "TK_ERROR"))
-        {
-            printf("Line %d Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
-            return token;
-        }
-        else if (!strcmp(token.type, "TK_ERROR"))
-        {
-            token.lineNumber = (token.lexeme[strlen(token.lexeme) - 1] == '\n') ? --B->lineNumber : B->lineNumber;
-            if (currentChar != '\0')
-            {
-                token.lexeme[strlen(token.lexeme) - 1] = '\0';
-            }
-            // single retraction and return error
-            B->currentPosition--;
-            printf("Line %d Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
-            return token;
-        }
-    }
-    return token;
-}
-
-void removeComments(char *testcaseFile, char *cleanFile)
-{
-    FILE *inputFile, *outputFile;
-    char currentChar, nextChar;
-
-    // Open source code file for reading
-    if ((inputFile = fopen(testcaseFile, "r")) == NULL)
-    {
-        perror("Error opening input file");
-        return;
-    }
-
-    // Open clean code file for writing
-    if ((outputFile = fopen(cleanFile, "w")) == NULL)
-    {
-        perror("Error opening output file");
-        fclose(inputFile);
-        return;
-    }
-
-    // Process each character in the input file
-    while ((currentChar = fgetc(inputFile)) != EOF)
-    {
-        // Check for start of single-line comment
-        if (currentChar == '%')
-        {
-            // Skip until end of line
-            while ((currentChar = fgetc(inputFile)) != '\n' && currentChar != '\0')
-                ;
-        }
-        // Write non-comment characters to output file
-        else
-        {
-            fputc(currentChar, outputFile);
-        }
-    }
-    fclose(inputFile);
-    fclose(outputFile);
-}
-
 DictionaryParser *createDictionaryParser()
 {
     DictionaryParser *dict = (DictionaryParser *)malloc(sizeof(DictionaryParser));
@@ -985,7 +46,7 @@ int hashNT(char *str)
     {
     default:
         hval += asso_values[(unsigned char)str[1]];
-    
+
     case 1:
         hval += asso_values[(unsigned char)str[0]];
         break;
@@ -2780,7 +1841,9 @@ void addChild(TreeNode *parent, TreeNode *child)
     {
         child->sibling = parent->children[parent->num_children - 1]->sibling;
         parent->children[parent->num_children - 1]->sibling = child;
-    } else {
+    }
+    else
+    {
         child->sibling = parent->sibling;
         parent->sibling = child;
     }
@@ -2801,16 +1864,16 @@ void printTree(TreeNode *root, int depth)
     }
 }
 
-//Inorder Traversal
+// Inorder Traversal
 void inorderTraversal(TreeNode *root)
 {
     if (root == NULL)
         return;
-    if(root->num_children==0)
+    if (root->num_children == 0)
     {
         printf("%s", root->name);
         return;
-    } 
+    }
     inorderTraversal(root->children[0]);
     printf(" --> ");
     printf("%s", root->name);
@@ -2863,13 +1926,14 @@ void addRuleToStack(Stack *stack, NODE *rule, TreeNode **cur)
     freeStack(&s);
 }
 
-void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token, TreeNode **current, bool* flag)
+void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token, TreeNode **current, bool *flag)
 {
     while (true)
     {
         if (isEmpty(stack))
         {
-            printf("Line %d Error: Invalid token %s encountered with value %s stack top NULL\n",Token.lineNumber,Token.type,Token.lexeme); 
+            printf("Line %d Error: Invalid token %s encountered with value %s stack top NULL\n", Token.lineNumber, Token.type, Token.lexeme);
+            *flag = false;
             return;
         }
         else if (stack->top->data->terminal)
@@ -2882,7 +1946,8 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             }
             else
             {
-                printf("Line %d Error: The token %s for lexeme %s  does not match with the expected token %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name); // give error
+                printf("Line %d Error: The token %s for lexeme %s  does not match with the expected token %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name); // give error
+                *flag = false;
                 pop(stack);
                 *current = getNextSibling(*current);
             }
@@ -2892,17 +1957,20 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             NODE *rule = predictiveParsingTable[hashNT(stack->top->data->name)][hashT(Token.type)];
             if (rule == NULL)
             {
-                printf("Error: No rule found\n"); 
+                printf("Error: No rule found\n");
+                *flag = false;
                 return;
             }
             else if (!strcmp(rule->name, "error"))
             {
-                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name);
+                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
+                *flag = false;
                 return;
             }
             else if (!strcmp(rule->name, "syn"))
             {
-                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n",Token.lineNumber,Token.type,Token.lexeme,stack->top->data->name);
+                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
+                *flag = false;
                 pop(stack);
                 *current = getNextSibling(*current);
             }
@@ -2924,7 +1992,8 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
     }
 }
 
-FirstAndFollow ComputeFirstAndFollowSets (GRAMMAR G){
+FirstAndFollow ComputeFirstAndFollowSets(GRAMMAR G)
+{
     FirstAndFollow F = (FirstAndFollow)malloc(sizeof(struct FirstFollow));
     F->first = createDictionaryParser();
     F->follow = createDictionaryParser();
@@ -2933,7 +2002,11 @@ FirstAndFollow ComputeFirstAndFollowSets (GRAMMAR G){
     return F;
 }
 
-void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR grammar){
+void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
+{
+    GRAMMAR grammar = (GRAMMAR)malloc(sizeof(struct Grammar));
+    initGrammer(grammar);
+
     char *Terminals[] = {
         "TK_MAIN", "TK_END", "TK_FUNID", "TK_SEM", "TK_INPUT",
         "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_OUTPUT",
@@ -2945,7 +2018,7 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR gr
         "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
         "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
         "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
-        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS", "TK_NOT",
         NULL // NULL terminator to indicate end of array
     };
 
@@ -2971,7 +2044,7 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR gr
 
     // Initializing first set
     DictionaryParser *firstSet = F->first;
-    
+
     // Initializing follow set
     DictionaryParser *followSet = F->follow;
 
@@ -3005,24 +2078,28 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR gr
             else if (searchF(firstSet, nonTerminal, terminal) == 0)
             {
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
-                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
-                int flag=0;
-                for(int k=0;k<rulesListLength;k++){
-                    if((strcmp(rulesList[k].name,"ε")==0)){
-                        flag=1;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
+                int flag = 0;
+                for (int k = 0; k < rulesListLength; k++)
+                {
+                    if ((strcmp(rulesList[k].name, "ε") == 0))
+                    {
+                        flag = 1;
                         predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
                         break;
                     }
                 }
-                if(flag==0){
-                   for(int k=0;k<rulesListLength;k++){
-                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                if (flag == 0)
+                {
+                    for (int k = 0; k < rulesListLength; k++)
+                    {
+                        if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
+                        {
                             predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
                             break;
                         }
                     }
                 }
-                
             }
             else
             {
@@ -3053,12 +2130,7 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable, GRAMMAR gr
             predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
         }
     }
-
-
-
 }
-
-
 
 NODE ***initPredictiveParsingTable()
 {
@@ -3074,7 +2146,7 @@ NODE ***initPredictiveParsingTable()
         "TK_ELSE", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_NUM",
         "TK_RNUM", "TK_MUL", "TK_DIV", "TK_PLUS", "TK_MINUS",
         "TK_AND", "TK_OR", "TK_LT", "TK_LE", "TK_EQ", "TK_GT",
-        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS","TK_NOT",
+        "TK_GE", "TK_NE", "TK_RETURN", "TK_DEFINETYPE", "TK_AS", "TK_NOT",
         NULL // NULL terminator to indicate end of array
     };
 
@@ -3089,7 +2161,7 @@ NODE ***initPredictiveParsingTable()
         "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
         "more_ids", "definetypestmt", "A", NULL};
 
-    GRAMMAR grammar = (GRAMMAR )malloc(sizeof(struct Grammar));
+    GRAMMAR grammar = (GRAMMAR)malloc(sizeof(struct Grammar));
     initGrammer(grammar);
 
     NODE *nodes_error = malloc(1 * sizeof(NODE));
@@ -3141,24 +2213,28 @@ NODE ***initPredictiveParsingTable()
             else if (searchF(firstSet, nonTerminal, terminal) == 0)
             {
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
-                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length; 
-                int flag=0;
-                for(int k=0;k<rulesListLength;k++){
-                    if((strcmp(rulesList[k].name,"ε")==0)){
-                        flag=1;
+                int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
+                int flag = 0;
+                for (int k = 0; k < rulesListLength; k++)
+                {
+                    if ((strcmp(rulesList[k].name, "ε") == 0))
+                    {
+                        flag = 1;
                         predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
                         break;
                     }
                 }
-                if(flag==0){
-                   for(int k=0;k<rulesListLength;k++){
-                        if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                if (flag == 0)
+                {
+                    for (int k = 0; k < rulesListLength; k++)
+                    {
+                        if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
+                        {
                             predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
                             break;
                         }
                     }
                 }
-                
             }
             else
             {
@@ -3193,7 +2269,8 @@ NODE ***initPredictiveParsingTable()
     return predictiveParsingTable;
 }
 
-parseTree parseInputSourceCode(char *testcaseFile, Table T){
+parseTree parseInputSourceCode(char *testcaseFile, Table T)
+{
     bool flag = true;
     Stack stack;
     initializeStack(&stack);
@@ -3205,101 +2282,109 @@ parseTree parseInputSourceCode(char *testcaseFile, Table T){
     FILE *fp = fopen(testcaseFile, "r");
 
     if (fp == NULL)
-        {
-            perror("Error opening file");
-        }
-
-        DictionaryLexer *dict = initLookupTable();
-
-        twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
-        initTwinBuffer(B, fp);
-
-        // Get next token and process
-        TokenInfo token;
-        do
-        {
-            token = getNextToken(B, fp, dict);
-            if (token.lexeme[0] == '\0')
-                break;
-            if (!strcmp(token.type, "TK_ERROR"))
-                continue;
-            else if (!strcmp(token.type, "TK_COMMENT"))
-            {
-                continue;
-            }
-            processToken(&stack, T , token, current, &flag);
-        } while (!token.end);
-
-        fclose(fp);
-        free(B);
-        freeStack(&stack);
-
-        return root;
-}
-
-void printParseTree(parseTree PT, char *outfile){
-    FILE *fp = fopen(outfile, "w");
-    if (fp == NULL)
     {
         perror("Error opening file");
     }
-    printTree(PT, 0);
+
+    DictionaryLexer *dict = initLookupTable();
+
+    twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
+    initTwinBuffer(B, fp);
+
+    // Get next token and process
+    TokenInfo token;
+    do
+    {
+        token = getNextToken(B, fp, dict);
+        if (token.lexeme[0] == '\0')
+            break;
+        if (!strcmp(token.type, "TK_ERROR"))
+            continue;
+        else if (!strcmp(token.type, "TK_COMMENT"))
+        {
+            continue;
+        }
+        processToken(&stack, T, token, current, &flag);
+    } while (!token.end);
+
+    if (flag)
+    {
+        printf("Input source code is syntactically correct...........\n");
+    }
+    else
+    {
+        freeTree(root);
+        root = NULL;
+    }
+
+    fclose(fp);
+    free(B);
+    freeStack(&stack);
+
+    return root;
+}
+
+void printParseTree(parseTree root, char *outfile)
+{
+    if (root == NULL)
+        return;
+
+    FILE *fp = fopen(outfile, "w");
+    if (fp == NULL)
+        perror("Error opening file");
+
+    // lexeme CurrentNode lineno tokenName valueIfNumber parentNodeSymbol isLeafNode(yes/no) NodeSymbol
+
+    printTree(root, 0);
     fclose(fp);
 }
 
+// int main()
+// {
+//     NODE ***predictiveParsingTable = initPredictiveParsingTable();
 
-int main()
-{
-    NODE ***predictiveParsingTable = initPredictiveParsingTable();
+//     Stack stack;
+//     initializeStack(&stack);
 
+//     TreeNode *root = createTreeNode("program");
+//     TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
+//     *current = root;
 
-    Stack stack;
-    initializeStack(&stack);
+//     FILE *fp = fopen("t.txt", "r");
 
-    TreeNode *root = createTreeNode("program");
-    TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
-    *current = root;
+//     if (fp == NULL)
+//     {
+//         perror("Error opening file");
+//     }
 
-    FILE *fp = fopen("t.txt", "r");
+//     DictionaryLexer *dict = initLookupTable();
 
-    if (fp == NULL)
-        {
-            perror("Error opening file");
-        }
+//     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
+//     initTwinBuffer(B, fp);
 
-        DictionaryLexer *dict = initLookupTable();
+//     // Get next token and process
+//     TokenInfo token;
+//     do
+//     {
+//         token = getNextToken(B, fp, dict);
+//         if (token.lexeme[0] == '\0')
+//             break;
+//         if (!strcmp(token.type, "TK_ERROR"))
+//             continue;
+//         else if (!strcmp(token.type, "TK_COMMENT"))
+//         {
+//             continue;
+//         }
+//         processToken(&stack, predictiveParsingTable, token, current, NULL);
+//     } while (!token.end);
 
-        twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
-        initTwinBuffer(B, fp);
+//     fclose(fp);
+//     free(B);
+//     freeStack(&stack);
+//     printTree(root, 0);
+//     printf("\n\n\n");
+//     inorderTraversal(root);
+//     freeTree(root);
 
-        // Get next token and process
-        TokenInfo token;
-        do
-        {
-            token = getNextToken(B, fp, dict);
-            if (token.lexeme[0] == '\0')
-                break;
-            if (!strcmp(token.type, "TK_ERROR"))
-                continue;
-            else if (!strcmp(token.type, "TK_COMMENT"))
-            {
-                continue;
-            }
-            processToken(&stack, predictiveParsingTable, token, current, NULL);
-        } while (!token.end);
-
-        fclose(fp);
-        free(B);
-        freeStack(&stack);
-        printTree(root, 0);
-        printf("\n\n\n");
-        inorderTraversal(root);
-        freeTree(root);
-
-    return 0;
-}
-
-
-
-
-
+//     return 0;
+// }
