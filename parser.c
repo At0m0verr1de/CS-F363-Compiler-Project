@@ -1802,7 +1802,7 @@ void freeStack(Stack *stack)
 }
 
 // Function to create a new tree node
-TreeNode *createTreeNode(TokenInfo *tk)
+TreeNode *createTreeNode(char *name)
 {
     TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
     if (newNode == NULL)
@@ -1810,9 +1810,12 @@ TreeNode *createTreeNode(TokenInfo *tk)
         fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
-    newNode->name = strdup(tk->type);
-    newNode->lexeme = strdup(tk->lexeme);
-    newNode->line_number = tk->lineNumber; // Allocate memory for name and copy the string
+    newNode->name = strdup(name); // Allocate memory for name and copy the string
+    if (newNode->name == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
     newNode->parent = NULL;
     newNode->sibling = NULL;
     newNode->num_children = 0;
@@ -1893,7 +1896,6 @@ void freeTree(TreeNode *root)
         freeTree(root->children[i]);
     }
     free(root->name);
-    free(root->lexeme);
     free(root);
 }
 

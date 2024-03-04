@@ -37,7 +37,7 @@ NODE *pop(Stack *stack);
 bool isEmpty(Stack *stack);
 void display(Stack *stack);
 void freeStack(Stack *stack);
-TreeNode *createTreeNode(TokenInfo *token);
+TreeNode *createTreeNode(char *name);
 void addChild(TreeNode *parent, TreeNode *child);
 void printTree(TreeNode *root, int depth);
 void freeTree(TreeNode *root);

@@ -9,9 +9,9 @@
 */
 
 #define FAF_TABLE_SIZE 84
-#define MAX_RULE_LENGTH 5     // Maximum length of a production rule
+#define MAX_RULE_LENGTH 5    // Maximum length of a production rule
 #define MAX_NON_TERMINALS 100 // Maximum number of non-terminals in the grammar
-#define MAX_TERMINALS 126     // Maximum number of terminals in the grammar
+#define MAX_TERMINALS 126 // Maximum number of terminals in the grammar
 #define MAX_CHILDREN 15
 
 typedef struct KeyValuePairParser
@@ -23,8 +23,6 @@ typedef struct KeyValuePairParser
 typedef struct TreeNode
 {
     char *name;
-    char *lexeme;
-    int line_number;
     struct TreeNode *parent;
     struct TreeNode *children[MAX_CHILDREN];
     int num_children;
@@ -53,7 +51,7 @@ struct Grammar
     RULES *rules[FAF_TABLE_SIZE];
 };
 
-typedef struct Grammar *GRAMMAR;
+typedef struct Grammar * GRAMMAR;
 
 // Define the structure for each node in the stack
 typedef struct StackNode
@@ -79,6 +77,6 @@ struct FirstFollow
     DictionaryParser *follow;
 };
 
-typedef struct FirstFollow *FirstAndFollow;
-typedef struct node ***Table;
-typedef struct TreeNode *parseTree;
+typedef struct FirstFollow * FirstAndFollow;
+typedef struct node*** Table;
+typedef struct TreeNode * parseTree;
