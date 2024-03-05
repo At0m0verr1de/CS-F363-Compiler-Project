@@ -1928,7 +1928,7 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
     {
         if (isEmpty(stack))
         {
-            printf("Line %d Error: Invalid token %s encountered with value %s stack top NULL\n", Token.lineNumber, Token.type, Token.lexeme);
+            printf("Line %-5d : Error : Invalid token %s encountered with value %s stack top NULL\n", Token.lineNumber, Token.type, Token.lexeme);
             *flag = false;
             return;
         }
@@ -1944,7 +1944,7 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             }
             else
             {
-                printf("Line %d Error: The token %s for lexeme %s  does not match with the expected token %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name); // give error
+                printf("Line %-5d : Error : The token %s for lexeme %s  does not match with the expected token %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name); // give error
                 (*current)->line_number = Token.lineNumber;
                 (*current)->lexeme = strdup(Token.lexeme);
                 *flag = false;
@@ -1963,13 +1963,13 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             }
             else if (!strcmp(rule->name, "error"))
             {
-                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
+                printf("Line %-5d : Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
                 *flag = false;
                 return;
             }
             else if (!strcmp(rule->name, "syn"))
             {
-                printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
+                printf("Line %-5d : Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
                 *flag = false;
                 (*current)->line_number = Token.lineNumber;
                 (*current)->lexeme = strdup(Token.lexeme);

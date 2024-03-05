@@ -38,7 +38,7 @@ Line no. 6	 Lexeme c4bbb	 	Token TK_ID
 Line no. 6	 Lexeme <	 	Token TK_LT
 Line no. 6	 Lexeme <=	 	Token TK_LE
 Line no. 6	 Lexeme <=	 	Token TK_LE
-Line No 6: Error : Unknown Symbol <=>
+Line 6: Error : Unknown Symbol <=>
 Line no. 6	 Lexeme <---	 	Token TK_ASSIGNOP
 Line no. 6	 Lexeme (	 	Token TK_OP
 Line no. 6	 Lexeme d4cbcd5677	Token TK_ID
@@ -49,10 +49,10 @@ Line no. 6	 Lexeme 34.98E+23	Token TK_RNUM
 Line no. 6	 Lexeme )	 	Token TK_CL
 Line no. 6	 Lexeme *	 	Token TK_MUL
 Line no. 6	 Lexeme /	 	Token TK_DIV
-Line no: 6 : Error: Unknown pattern <&&>
-Line No 6 : Error: Unknown Symbol <|>
-Line No 6 : Error: Unknown Symbol <|>
-Line No 6 : Error: Unknown Symbol <|>
+Line no: 6 : Error : Unknown pattern <&&>
+Line 6 : Error : Unknown Symbol <|>
+Line 6 : Error : Unknown Symbol <|>
+Line 6 : Error : Unknown Symbol <|>
 Line no. 6	 Lexeme &&&	 	Token TK_AND
 Line no. 6	 Lexeme ;	 	Token TK_SEM
 Line no. 7	 Lexeme if	 	Token TK_IF
@@ -60,7 +60,7 @@ Line no. 7	 Lexeme +	 	Token TK_PLUS
 Line no. 7	 Lexeme then	 	Token TK_THEN
 Line no. 7	 Lexeme _AbC23	 	Token TK_FUNID
 Line no. 7	 Lexeme #new	 	Token TK_RUID
-Line no: 7 : Error: Unknown pattern <123.5>
+Line no: 7 : Error : Unknown pattern <123.5>
 Line no. 7	 Lexeme .	 	Token TK_DOT
 Line no. 7	 Lexeme 34.54E-23	Token TK_RNUM
 Line no. 7	 Lexeme ;	 	Token TK_SEM
@@ -83,10 +83,10 @@ Line no. 8	 Lexeme global	 	Token TK_GLOBAL
 Line no. 8	 Lexeme _abc	 	Token TK_FUNID
 Line no. 8	 Lexeme !=	 	Token TK_NE
 Line no. 8	 Lexeme ~	 	Token TK_NOT
-Line No 8: Error :Variable Identifier is longer than the prescribed length of 20 characters.
+Line 8: Error :Variable Identifier is longer than the prescribed length of 20 characters.
 Line no. 8	 Lexeme ~	 	Token TK_NOT
 Line no. 8	 Lexeme ;	 	Token TK_SEM
-Line no: 9 : Error: Unknown pattern <5000.7>
+Line no: 9 : Error : Unknown pattern <5000.7>
 Line no. 9	 Lexeme +	 	Token TK_PLUS
 Line no. 9	 Lexeme 2543.23E45	Token TK_RNUM
 Line no. 9	 Lexeme -	 	Token TK_MINUS
@@ -95,7 +95,7 @@ Line no. 9	 Lexeme +	 	Token TK_PLUS
 Line no. 9	 Lexeme 343333.55E-12	Token TK_RNUM
 Line no. 9	 Lexeme 4		Token TK_NUM
 Line no. 9	 Lexeme ;	 	Token TK_SEM
-Line No 10 : Error: Unknown Symbol <$>
+Line 10 : Error : Unknown Symbol <$>
 Line no. 10	 Lexeme real	 	Token TK_REAL
 Line no. 10	 Lexeme :	 	Token TK_COLON
 Line no. 10	 Lexeme c3	 	Token TK_ID

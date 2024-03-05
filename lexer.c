@@ -553,7 +553,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
                 }
                 else
                 {
-                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    printf("Line %-5d : Error : Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
 
@@ -591,7 +591,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
                 }
                 else
                 {
-                    printf("Line No %d: Error: Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
+                    printf("Line %-5d : Error : Function Identifier is longer than the prescribed length of 30 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
 
@@ -751,7 +751,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
                 if (strlen(token.lexeme) > 20)
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    printf("Line %-5d : Error : Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
                 else
@@ -779,7 +779,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
                 if (strlen(token.lexeme) > 20)
                 {
-                    printf("Line No %d: Error: Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
+                    printf("Line %-5d : Error : Variable Identifier is longer than the prescribed length of 20 characters.\n", B->lineNumber);
                     strcat(token.type, "TK_ERROR");
                 }
                 else
@@ -909,7 +909,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
 
         if (strlen(token.lexeme) == 1 && !strcmp(token.type, "TK_ERROR"))
         {
-            printf("Line No %d : Error: Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
+            printf("Line %-5d : Error : Unknown Symbol <%s>\n", B->lineNumber, token.lexeme);
             return token;
         }
         else if (!strcmp(token.type, "TK_ERROR"))
@@ -921,7 +921,7 @@ TokenInfo getNextToken(twinBuffer *B, FILE *fp, DictionaryLexer *dict)
             }
             // single retraction and return error
             B->currentPosition--;
-            printf("Line No. %d : Error: Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
+            printf("Line %-5d : Error : Unknown Pattern <%s>\n", B->lineNumber, token.lexeme);
             return token;
         }
     }
@@ -993,10 +993,10 @@ void lexer(FILE *fp)
             continue;
         else if (!strcmp(token.type, "TK_COMMENT"))
         {
-            printf("Line no. %d     Lexeme %%      Token %s\n", token.lineNumber, token.type);
+            printf("Line %-3d     Lexeme %-30%      Token %-5s\n", token.lineNumber, token.type);
             continue;
         }
-        printf("Line no. %d     Lexeme %s      Token %s\n", token.lineNumber, token.lexeme, token.type);
+        printf("Line %-3d     Lexeme %-30s      Token %-5s\n", token.lineNumber, token.lexeme, token.type);
     } while (!token.end);
 
     fclose(fp);
