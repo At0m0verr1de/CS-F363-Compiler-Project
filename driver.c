@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     createParseTable(faf, T);
     parseTree root = NULL;
 
-    printf("%d\n",searchF(faf->follow,"moreFields","TK_ENDUNION"));
+    
     
     do
     {

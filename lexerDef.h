@@ -7,13 +7,11 @@
     Rijul Bassamboo     2021A7PS0009P
     Mihika Deshpande    2021A7PS2435P
 */
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-
 // Define necessary constants and structures
 #define MAX_LEXEME_SIZE 1000
 #define MAX_TOKEN_SIZE 15

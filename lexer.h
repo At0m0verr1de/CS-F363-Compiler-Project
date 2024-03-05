@@ -8,6 +8,11 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
 #include "lexerDef.h"
 
 // Function declarations

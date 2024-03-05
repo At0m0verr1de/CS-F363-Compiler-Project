@@ -8,10 +8,6 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 #include "parserDef.h"
 #include "lexer.h"
 

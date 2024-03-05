@@ -1,3 +1,13 @@
 _main
+	union #four
+		type #line : ln; 
+		type #point: pt; 
+		type #traingle:tr;
+	endunion
+        definetype record #three as #triangle  
+	record #three 
+		type #line: base;
+		type #line: height;
+	endrecord
 	return;
 end

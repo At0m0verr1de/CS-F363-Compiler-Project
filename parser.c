@@ -1006,6 +1006,8 @@ int hashT(char *str)
             126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
             126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
             126, 126, 126, 126, 126, 126};
+    if(!strcmp(str, "TK_NOT"))
+        return 126;
     return strlen(str) + asso_values[(unsigned char)str[4]] + asso_values[(unsigned char)str[3]] + asso_values[(unsigned char)str[strlen(str) - 1]];
 }
 
@@ -2088,17 +2090,13 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
         {
             char *nonTerminal = NonTerminals[i];
             char *terminal = Terminals[j];
+            
             if (searchF(firstSet, nonTerminal, terminal) == -1)
             {
+                
                 if (searchF(followSet, nonTerminal, terminal) == 1)
-                {
-                    // if(is){
-                    //     predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
-                    // }
-                    // else
-                    
+                {   
                     predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
-                    
                 }
                 else
                 {
@@ -2107,39 +2105,41 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
             }
             else if (searchF(firstSet, nonTerminal, terminal) == 0)
             {
+                
+
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
                 int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
                 int flag = 0;
-                if(searchF(followSet, nonTerminal, terminal) == 1){
-                    // for (int k = 0; k < rulesListLength; k++)
-                    // {
-                    //     if ((strcmp(rulesList[k].name, "ε") == 0))
-                    //     {
-                    //         flag = 1;
-                    //         predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
-                    //         break;
-                    //     }
-                    // }
-                    // if (flag == 0)
-                    // {
-                    //     for (int k = 0; k < rulesListLength; k++)
-                    //     {
-                    //         if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
-                    //         {
-                    //             predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
-                    //             break;
-                    //         }
-                    //     }
-                    // }
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                if(searchF(followSet, nonTerminal, terminal)==1){
+                    
+                    
+                    for(int k=0;k<rulesListLength;k++){
+                        if((strcmp(rulesList[k].name,"ε")==0)){
+                            flag=1;
+                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                            break;
+                        }
+                    }
+                    if(flag==0){
+                    for(int k=0;k<rulesListLength;k++){
+                            if(searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1){
+                                predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                                break;
+                            }
+                        }
+                    }
+
+                    
                 }else{
+                    
                     //predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
-                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
                 }
                 
             }
             else
             {
+                
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
                 int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
                 for (int k = 0; k < rulesListLength; k++)
@@ -2154,7 +2154,7 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
             }
         }
     }
-
+    
     for (int i = 0; i < 53; i++)
     {
         char *nonTerminal = NonTerminals[i];
@@ -2167,6 +2167,7 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
             predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
         }
     }
+    
 }
 
 NODE ***initPredictiveParsingTable()
@@ -2252,26 +2253,32 @@ NODE ***initPredictiveParsingTable()
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
                 int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
                 int flag = 0;
-                for (int k = 0; k < rulesListLength; k++)
-                {
-                    if ((strcmp(rulesList[k].name, "ε") == 0))
-                    {
-                        flag = 1;
-                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
-                        break;
-                    }
+                
+                if(searchF(followSet, nonTerminal, terminal) == 1){
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                }else{
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
                 }
-                if (flag == 0)
-                {
-                    for (int k = 0; k < rulesListLength; k++)
-                    {
-                        if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
-                        {
-                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
-                            break;
-                        }
-                    }
-                }
+                // for (int k = 0; k < rulesListLength; k++)
+                // {
+                //     if ((strcmp(rulesList[k].name, "ε") == 0))
+                //     {
+                //         flag = 1;
+                //         predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                //         break;
+                //     }
+                // }
+                // if (flag == 0)
+                // {
+                //     for (int k = 0; k < rulesListLength; k++)
+                //     {
+                //         if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
+                //         {
+                //             predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                //             break;
+                //         }
+                //     }
+                // }
             }
             else
             {
@@ -2288,6 +2295,8 @@ NODE ***initPredictiveParsingTable()
                 }
             }
         }
+
+
     }
 
     for (int i = 0; i < 53; i++)
@@ -2302,7 +2311,7 @@ NODE ***initPredictiveParsingTable()
             predictiveParsingTable[hashNT(nonTerminal)][hashT("ε")] = nodes_error;
         }
     }
-
+    printf("\n%s\n", predictiveParsingTable[hashNT("moreFields")][hashT("TK_ENDUNION")]->name);
     return predictiveParsingTable;
 }
 

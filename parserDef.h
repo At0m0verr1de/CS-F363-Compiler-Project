@@ -8,10 +8,18 @@
     Mihika Deshpande    2021A7PS2435P
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LEXEME_SIZE 1000
+#define MAX_TOKEN_SIZE 15
 #define FAF_TABLE_SIZE 84
 #define MAX_RULE_LENGTH 5    // Maximum length of a production rule
 #define MAX_NON_TERMINALS 100 // Maximum number of non-terminals in the grammar
-#define MAX_TERMINALS 126 // Maximum number of terminals in the grammar
+#define MAX_TERMINALS 127 // Maximum number of terminals in the grammar
 #define MAX_CHILDREN 15
 
 typedef struct KeyValuePairParser
