@@ -2010,6 +2010,15 @@ FirstAndFollow ComputeFirstAndFollowSets(GRAMMAR G)
     return F;
 }
 
+// bool isInStringArray(char** array, int size, char *target) {
+//     for (int i = 0; i < size; ++i) {
+//         if (strcmp(array[i], target) == 0) {
+//             return true; // Element found, return true
+//         }
+//     }
+//     return false; // Element not found, return false
+// }
+
 void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
 {
     GRAMMAR grammar = (GRAMMAR)malloc(sizeof(struct Grammar));
@@ -2040,6 +2049,13 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
         "expPrime", "term", "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators",
         "booleanExpression", "var", "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList",
         "more_ids", "definetypestmt", "A", NULL};
+    
+    char *alwaysError[] = {
+        "TK_END", "TK_SEM", "TK_PARAMETER", "TK_LIST", "TK_SQR",
+        "TK_FIELDID", "TK_ENDRECORD", "TK_ENDUNION", "TK_GLOBAL",
+        "TK_ASSIGNOP", "TK_WITH", "TK_PARAMETERS", "TK_CL",
+        "TK_ENDWHILE", "TK_THEN", "TK_AS"
+    };
 
     NODE *nodes_error = malloc(1 * sizeof(NODE));
     nodes_error[0] = (NODE){"error", false, NULL};
@@ -2076,7 +2092,13 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
             {
                 if (searchF(followSet, nonTerminal, terminal) == 1)
                 {
+                    // if(is){
+                    //     predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
+                    // }
+                    // else
+                    
                     predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_syn;
+                    
                 }
                 else
                 {
@@ -2088,26 +2110,33 @@ void createParseTable(FirstAndFollow F, Table predictiveParsingTable)
                 NODE *rulesList = grammar->rules[hashNT(nonTerminal)]->heads;
                 int rulesListLength = grammar->rules[hashNT(nonTerminal)]->length;
                 int flag = 0;
-                for (int k = 0; k < rulesListLength; k++)
-                {
-                    if ((strcmp(rulesList[k].name, "ε") == 0))
-                    {
-                        flag = 1;
-                        predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
-                        break;
-                    }
+                if(searchF(followSet, nonTerminal, terminal) == 1){
+                    // for (int k = 0; k < rulesListLength; k++)
+                    // {
+                    //     if ((strcmp(rulesList[k].name, "ε") == 0))
+                    //     {
+                    //         flag = 1;
+                    //         predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                    //         break;
+                    //     }
+                    // }
+                    // if (flag == 0)
+                    // {
+                    //     for (int k = 0; k < rulesListLength; k++)
+                    //     {
+                    //         if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
+                    //         {
+                    //             predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
+                    //             break;
+                    //         }
+                    //     }
+                    // }
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
+                }else{
+                    //predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_error;
+                    predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = nodes_e;
                 }
-                if (flag == 0)
-                {
-                    for (int k = 0; k < rulesListLength; k++)
-                    {
-                        if (searchF(firstSet, rulesList[k].name, "ε") == 1 && searchF(followSet, rulesList[k].name, "ε") == 1)
-                        {
-                            predictiveParsingTable[hashNT(nonTerminal)][hashT(terminal)] = &rulesList[k];
-                            break;
-                        }
-                    }
-                }
+                
             }
             else
             {

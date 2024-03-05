@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     Table T = (NODE ***)malloc(MAX_NON_TERMINALS * sizeof(NODE **));
     createParseTable(faf, T);
     parseTree root = NULL;
+
+    printf("%d\n",searchF(faf->follow,"moreFields","TK_ENDUNION"));
     
     do
     {
