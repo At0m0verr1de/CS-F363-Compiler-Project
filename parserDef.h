@@ -22,7 +22,10 @@ typedef struct KeyValuePairParser
 } KeyValuePairParser;
 typedef struct TreeNode
 {
-    char *name;
+    char *type;
+    char *lexeme;
+    int line_number;
+    //bool is_leaf;
     struct TreeNode *parent;
     struct TreeNode *children[MAX_CHILDREN];
     int num_children;

@@ -6,6 +6,20 @@
         "parser.h": "c",
         "stdbool.h": "c",
         "stdio.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "__hash_table": "c",
+        "__tuple": "c",
+        "array": "c",
+        "chrono": "c",
+        "compare": "c",
+        "cstddef": "c",
+        "type_traits": "c",
+        "limits": "c",
+        "random": "c",
+        "ratio": "c",
+        "tuple": "c",
+        "variant": "c",
+        "functional": "c",
+        "utility": "c"
     }
 }

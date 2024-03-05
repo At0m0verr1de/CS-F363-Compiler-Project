@@ -20,16 +20,11 @@ int main(int argc, char *argv[])
     }
 
     FILE *inputFile;
-    FILE *outputFile = fopen(argv[2], "w");
+    
 
     if (inputFile == NULL)
     {
         perror("Error Opening Source Code File");
-        return 1;
-    }
-    else if (outputFile == NULL)
-    {
-        perror("Error opening Parse Tree Output file");
         return 1;
     }
 
@@ -72,8 +67,7 @@ int main(int argc, char *argv[])
             break;
         case '3':
             root = parseInputSourceCode(argv[1], T);
-            //printTree(root, 0);
-            //printParseTree(root, outputFile);
+            printParseTree(root, argv[2]);
             break;
         case '4':
             start_time = clock();
@@ -81,8 +75,7 @@ int main(int argc, char *argv[])
             lexer(inputFile);
             root = parseInputSourceCode(argv[1], T);
             // if correct syntactically print parse tree
-            // printParseTree();
-            printTree(root, 0);
+            printParseTree(root, argv[2]);
             end_time = clock();
             total_CPU_time = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
@@ -94,8 +87,5 @@ int main(int argc, char *argv[])
             break;
         }
     } while (option != '0');
-
-    fclose(outputFile);
-
     return 0;
 }

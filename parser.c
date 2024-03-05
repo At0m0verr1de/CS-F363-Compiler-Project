@@ -1801,25 +1801,20 @@ void freeStack(Stack *stack)
     }
 }
 
+
+
+
 // Function to create a new tree node
-TreeNode *createTreeNode(char *name)
+TreeNode *createTreeNode(char* type)
 {
     TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
-    if (newNode == NULL)
-    {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    newNode->name = strdup(name); // Allocate memory for name and copy the string
-    if (newNode->name == NULL)
-    {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+    newNode->type = strdup(type); // Allocate memory for name and copy the string
+    newNode->lexeme = NULL;
     newNode->parent = NULL;
     newNode->sibling = NULL;
     newNode->num_children = 0;
     newNode->index_in_parent = -1;
+    newNode->line_number = 0;
     for (int i = 0; i < MAX_CHILDREN; i++)
     {
         newNode->children[i] = NULL;
@@ -1832,7 +1827,7 @@ void addChild(TreeNode *parent, TreeNode *child)
 {
     if (parent->num_children >= MAX_CHILDREN)
     {
-        fprintf(stderr, "Maximum number of children reached\n");
+        printf("Maximum number of children reached\n");
         exit(EXIT_FAILURE);
     }
     child->parent = parent;
@@ -1857,7 +1852,7 @@ void printTree(TreeNode *root, int depth)
         return;
     for (int i = 0; i < depth; i++)
         printf("  ");
-    printf("%s\n", root->name);
+    printf("%s\n", root->type);
     for (int i = 0; i < root->num_children; i++)
     {
         printTree(root->children[i], depth + 1);
@@ -1871,12 +1866,12 @@ void inorderTraversal(TreeNode *root)
         return;
     if (root->num_children == 0)
     {
-        printf("%s", root->name);
+        printf("%s", root->type);
         return;
     }
     inorderTraversal(root->children[0]);
     printf(" --> ");
-    printf("%s", root->name);
+    printf("%s", root->type);
     for (int i = 1; i < root->num_children; i++)
     {
         printf(" --> ");
@@ -1895,7 +1890,8 @@ void freeTree(TreeNode *root)
     {
         freeTree(root->children[i]);
     }
-    free(root->name);
+    free(root->lexeme);
+    free(root->type);
     free(root);
 }
 
@@ -1940,13 +1936,17 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
         {
             if (strcmp(stack->top->data->name, Token.type) == 0)
             {
-                pop(stack);
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup(Token.lexeme);
+                pop(stack); 
                 *current = getNextSibling(*current);
                 return;
             }
             else
             {
                 printf("Line %d Error: The token %s for lexeme %s  does not match with the expected token %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name); // give error
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup(Token.lexeme);
                 *flag = false;
                 pop(stack);
                 *current = getNextSibling(*current);
@@ -1971,21 +1971,29 @@ void processToken(Stack *stack, NODE ***predictiveParsingTable, TokenInfo Token,
             {
                 printf("Line %d Error : Invalid token %s encountered with value %s stack top %s\n", Token.lineNumber, Token.type, Token.lexeme, stack->top->data->name);
                 *flag = false;
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup(Token.lexeme);
                 pop(stack);
                 *current = getNextSibling(*current);
             }
             else if (!strcmp(rule->name, "ε"))
             {
                 pop(stack);
-                TreeNode *temp = createTreeNode("ε");
+                TreeNode *temp = createTreeNode("EPSILON");
                 addChild(*current, temp);
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup("----");
                 *current = getNextSibling(*current);
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup("----");
                 *current = getNextSibling(*current);
             }
             else
             {
                 pop(stack);
                 addRuleToStack(stack, rule, current);
+                (*current)->line_number = Token.lineNumber;
+                (*current)->lexeme = strdup("----");
                 *current = getNextSibling(*current);
             }
         }
@@ -2324,67 +2332,40 @@ parseTree parseInputSourceCode(char *testcaseFile, Table T)
     return root;
 }
 
-void printParseTree(parseTree root, char *outfile)
-{
-    if (root == NULL)
+
+void printParseTreeHelper(TreeNode *node, FILE *outfile){
+    
+    if (node == NULL)
         return;
+    if (node->num_children == 0)
+    {
+        fprintf( outfile,"%-22s %-22d %-22s %-22s %-22s %-22s %-22s\n", node->lexeme, node->line_number,node->type ,(!strcmp("TK_NUM",node->type) || !strcmp("TK_RNUM",node->type)) ? node->lexeme : "----", node->parent->type, "yes", "----");
+        return;
+    }
+    printParseTreeHelper(node->children[0],outfile);
+    
 
-    FILE *fp = fopen(outfile, "w");
-    if (fp == NULL)
-        perror("Error opening file");
-
-    // lexeme CurrentNode lineno tokenName valueIfNumber parentNodeSymbol isLeafNode(yes/no) NodeSymbol
-
-    printTree(root, 0);
-    fclose(fp);
+    fprintf(outfile, "%-22s %-22d %-22s %-22s %-22s %-22s %-22s\n","----",node->line_number,"----","----", (node->parent == NULL) ? "ROOT" : node->parent->type, "no", (node->parent == NULL) ? "program" : node->parent->type);
+    for (int i = 1; i < node->num_children; i++)
+    {
+        printParseTreeHelper(node->children[i], outfile);
+    }
 }
 
-// int main()
-// {
-//     NODE ***predictiveParsingTable = initPredictiveParsingTable();
+void printParseTree(TreeNode *root, char *outfile_name) {
+    if(root == NULL)
+        return;
+    FILE *outfile = fopen(outfile_name, "w");
+    if (outfile == NULL) {
+        printf("Error opening file %s\n", outfile_name);
+        return;
+    }
 
-//     Stack stack;
-//     initializeStack(&stack);
+    // Print header
+    fprintf(outfile, "%-22s %-22s %-22s %-22s %-22s %-22s %-22s\n\n",
+            "Lexeme", "Lineno", "TokenName","ValueIfNumber" ,"ParentNodeSymbol", "IsLeafNode", "NodeSymbol");
+    // Print parse tree recursively
+    printParseTreeHelper(root, outfile);
 
-//     TreeNode *root = createTreeNode("program");
-//     TreeNode **current = (TreeNode **)malloc(sizeof(TreeNode *));
-//     *current = root;
-
-//     FILE *fp = fopen("t.txt", "r");
-
-//     if (fp == NULL)
-//     {
-//         perror("Error opening file");
-//     }
-
-//     DictionaryLexer *dict = initLookupTable();
-
-//     twinBuffer *B = (twinBuffer *)malloc(sizeof(twinBuffer));
-//     initTwinBuffer(B, fp);
-
-//     // Get next token and process
-//     TokenInfo token;
-//     do
-//     {
-//         token = getNextToken(B, fp, dict);
-//         if (token.lexeme[0] == '\0')
-//             break;
-//         if (!strcmp(token.type, "TK_ERROR"))
-//             continue;
-//         else if (!strcmp(token.type, "TK_COMMENT"))
-//         {
-//             continue;
-//         }
-//         processToken(&stack, predictiveParsingTable, token, current, NULL);
-//     } while (!token.end);
-
-//     fclose(fp);
-//     free(B);
-//     freeStack(&stack);
-//     printTree(root, 0);
-//     printf("\n\n\n");
-//     inorderTraversal(root);
-//     freeTree(root);
-
-//     return 0;
-// }
+    fclose(outfile);
+}
